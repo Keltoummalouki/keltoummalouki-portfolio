@@ -133,8 +133,8 @@ export default async function HomePage({ params }: PageProps) {
       <Header brandName={cms.about?.fullName} design={cms.design} />
 
       <main id="main-content">
-        <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} avatarUrl="/images/keltoum-portrait.png" />
-        <ProfileSummarySection locale={locale} facts={facts} avatarUrl="/images/keltoum-portrait.png" />
+        <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} avatarUrl="/images/keltoum-portrait.jpg" />
+        <ProfileSummarySection locale={locale} facts={facts} avatarUrl="/images/keltoum-portrait.jpg" />
         <PortraitTransition />
         <SkillsSection categories={cms.skillCategories} />
         <ExperienceSection items={cms.experiences} />

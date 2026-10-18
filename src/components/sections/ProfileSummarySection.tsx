@@ -124,7 +124,7 @@ export default async function ProfileSummarySection({
   )
 }
 
-/** Portrait in a navy arch, circled by an orbit line, with a code badge and a floating note. */
+/** Portrait in a studio arch, circled by an orbit line, with a code badge and a floating note. */
 function Portrait({ src, note, className }: { src: string; note: string; className?: string }) {
   return (
     <div className={cn('relative mx-auto w-full max-w-[19rem] sm:max-w-sm lg:max-w-none', className)}>

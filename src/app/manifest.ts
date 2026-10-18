@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { PERSON, SITE_NAME } from '@/features/seo/site'
 
 // /manifest.webmanifest — install metadata and the portrait icons (generated
-// from the same navy studio photo as favicon.ico / icon.png / apple-icon.png).
+// from the same studio headshot as favicon.ico / icon.png / apple-icon.png).
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${SITE_NAME} — ${PERSON.jobTitle}`,

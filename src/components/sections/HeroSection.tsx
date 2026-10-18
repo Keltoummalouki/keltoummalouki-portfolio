@@ -33,7 +33,7 @@ function availabilityLabel(t: ReturnType<typeof useTranslations>, status: string
 export default function HeroSection({
   about,
   socialLinks = [],
-  avatarUrl = about?.avatarUrl || '/images/keltoum-portrait.png',
+  avatarUrl = about?.avatarUrl || '/images/keltoum-portrait.jpg',
 }: {
   about?: PublicAbout
   socialLinks?: PublicSocialLink[]
