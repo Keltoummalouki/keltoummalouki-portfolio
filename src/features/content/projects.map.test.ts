@@ -5,6 +5,7 @@ import {
   latestIsoDate,
   markdownToPlainText,
   parseStackList,
+  projectHost,
   projectSummary,
   toProjectCard,
   toProjectDetail,
@@ -115,6 +116,21 @@ describe('formatProjectDate', () => {
   it('returns null for missing or invalid dates', () => {
     expect(formatProjectDate(null, 'en')).toBeNull()
     expect(formatProjectDate('not-a-date', 'en')).toBeNull()
+  })
+})
+
+describe('projectHost', () => {
+  it('returns the bare host of a web URL', () => {
+    expect(projectHost('https://www.example.com/fr/demo?x=1')).toBe('example.com')
+    expect(projectHost('https://app.vercel.app')).toBe('app.vercel.app')
+    expect(projectHost('http://localhost:3000')).toBe('localhost')
+  })
+
+  it('returns null for missing, invalid or non-web URLs', () => {
+    expect(projectHost(null)).toBeNull()
+    expect(projectHost('')).toBeNull()
+    expect(projectHost('not a url')).toBeNull()
+    expect(projectHost('mailto:hello@example.com')).toBeNull()
   })
 })
 

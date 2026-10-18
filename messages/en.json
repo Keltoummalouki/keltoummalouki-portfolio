@@ -205,8 +205,6 @@
   "projects": {
     "title": "Projects",
     "subtitle": "A selection of projects that show my skills and my drive to build real solutions.",
-    "viewCode": "View Code",
-    "liveDemo": "Live Demo",
     "techStack": "Tech Stack",
     "featured": "Featured",
     "items": {
@@ -224,10 +222,7 @@
       }
     },
     "paginationLabel": "Project pages",
-    "heading": "Featured projects",
-    "carouselLabel": "Project carousel controls",
-    "previousProjects": "Previous projects",
-    "nextProjects": "Next projects"
+    "heading": "Featured projects"
   },
   "certifications": {
     "title": "Certifications",
@@ -538,7 +533,6 @@
   },
   "projectPages": {
     "breadcrumbLabel": "Breadcrumb",
-    "caseStudy": "Case study",
     "readCaseStudy": "Read case study",
     "readCaseStudyAria": "Read the case study: {title}",
     "viewCode": "Source code",

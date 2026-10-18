@@ -24,8 +24,8 @@ import { fallbackFaq } from '@/features/cms/faq'
 import { getPublishedFaq } from '@/features/cms/faq.queries'
 import { getFallbackLanguages } from '@/features/cms/languages'
 import { getPublishedCmsContent } from '@/features/cms/queries'
-import { getPublishedProjects } from '@/features/content/projects.queries'
-import { toProjectCard } from '@/features/content/projects.map'
+import { getFramableDemos, getPublishedProjects } from '@/features/content/projects.queries'
+import { toProjectCard, type ProjectCardData } from '@/features/content/projects.map'
 import { getGithubSummary } from '@/features/github/queries'
 import { getApprovedReviews } from '@/features/reviews/queries'
 import {
@@ -141,7 +141,10 @@ export default async function HomePage({ params }: PageProps) {
         {/* Numbered bento block (04–09): side-label sections, two-up from lg. */}
         <ShowcaseGroup>
           <EducationSection index="04" items={cms.education} />
-          <ProjectsSection index="05" projects={projects} />
+          {/* Streams in: checking which demos can be framed live never holds up the page. */}
+          <Suspense fallback={<ProjectsSection index="05" projects={projects} />}>
+            <ProjectsWithLivePreviews index="05" projects={projects} />
+          </Suspense>
           <ShowcasePair>
             <CertificationsSection index="06" items={cms.certifications} />
             {/* Streams in: a slow GitHub API never holds up the rest of the page. */}
@@ -164,4 +167,9 @@ export default async function HomePage({ params }: PageProps) {
 
 async function GithubStats({ index }: { index: string }) {
   return <GithubStatsSection index={index} summary={await getGithubSummary()} />
+}
+
+async function ProjectsWithLivePreviews({ index, projects }: { index: string; projects: ProjectCardData[] }) {
+  const livePreviews = await getFramableDemos(projects.map((project) => project.demo))
+  return <ProjectsSection index={index} projects={projects} livePreviews={livePreviews} />
 }

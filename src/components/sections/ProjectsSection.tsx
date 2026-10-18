@@ -1,34 +1,51 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { animate } from 'animejs'
+import { animate, stagger } from 'animejs'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { ArrowUpRight, ArrowRight, ChevronLeft, ChevronRight, Github, ExternalLink } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ExternalLink, Github } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
-import SkillIcon from '@/components/ui/SkillIcon'
+import Pagination from '@/components/ui/Pagination'
+import StackChips from '@/components/projects/StackChips'
+import { pillArrow, pillOutline, pillPrimary } from '@/components/sections/showcase/classes'
 import { fallbackProjectCards } from '@/features/content/projects.fallback'
-import type { ProjectCardData } from '@/features/content/projects.map'
+import { projectHost, type ProjectCardData } from '@/features/content/projects.map'
+import { isOptimizableImageSrc } from '@/lib/images'
 import { prefersReducedMotion } from '@/lib/motion/reduced-motion'
+import { scrollToElement } from '@/lib/motion/smooth-scroll'
+import { paginate } from '@/lib/pagination'
 import { cn } from '@/lib/utils'
 import styles from './ProjectsSection.module.css'
 
+/** Projects per page on the home page; /projects lists them all. */
+const PROJECTS_PER_PAGE = 3
+/** Clearance for the fixed site header when the list scrolls back into view. */
+const HEADER_OFFSET = 112
+
 const pad = (n: number) => String(n).padStart(2, '0')
 
-export default function ProjectsSection({ projects, index }: { projects?: ProjectCardData[]; index: string }) {
+// Every row is rendered (other pages are `hidden`), so the home page links all
+// case studies in its HTML; pagination only toggles which rows are shown.
+// `livePreviews`: demo URLs the server found framable; on desktop their frame
+// shows the live site over the cover.
+export default function ProjectsSection({ projects, index, livePreviews = [] }: {
+  projects?: ProjectCardData[]
+  index: string
+  livePreviews?: string[]
+}) {
   const t = useTranslations('projects')
   const tp = useTranslations('projectPages')
   const items = projects?.length ? projects : fallbackProjectCards(key => t(key))
-  const [selected, setSelected] = useState(0)
-  const active = Math.min(selected, items.length - 1)
-  const project = items[active]
+  const framable = new Set(livePreviews)
+  const [requestedPage, setRequestedPage] = useState(1)
+  const { page, totalPages } = paginate(items, requestedPage, PROJECTS_PER_PAGE)
+  const first = (page - 1) * PROJECTS_PER_PAGE
   const sectionRef = useRef<HTMLElement>(null)
-  const previewRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const motionRef = useRef<ReturnType<typeof animate> | null>(null)
-  const animateSelection = useRef(false)
+  const listRef = useRef<HTMLOListElement>(null)
+  const pageChanged = useRef(false)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -48,28 +65,26 @@ export default function ProjectsSection({ projects, index }: { projects?: Projec
     return () => media.revert()
   }, [])
 
-  useEffect(() => {
-    if (!animateSelection.current || prefersReducedMotion()) return
-    const targets = [previewRef.current, contentRef.current].filter(Boolean) as HTMLElement[]
-    motionRef.current = animate(targets, {
-      opacity: [0.35, 1], translateY: [12, 0], duration: 280, ease: 'outCubic',
+  // New page: bring the list back under the header, move focus to it and
+  // stagger its rows in. A layout effect, so rows never flash before fading in.
+  useLayoutEffect(() => {
+    const list = listRef.current
+    if (!pageChanged.current || !list) return
+    if (list.getBoundingClientRect().top < HEADER_OFFSET) scrollToElement(list, HEADER_OFFSET)
+    list.focus({ preventScroll: true })
+    if (prefersReducedMotion()) return
+    const animation = animate(list.querySelectorAll(':scope > li:not([hidden])'), {
+      opacity: [0, 1], translateY: [24, 0], duration: 600, delay: stagger(90), ease: 'outCubic',
     })
-    return () => { motionRef.current?.revert(); motionRef.current = null }
-  }, [active])
+    return () => { animation.revert() }
+  }, [page])
 
-  useEffect(() => {
-    const preference = matchMedia('(prefers-reduced-motion: reduce)')
-    const reset = () => { if (preference.matches) motionRef.current?.revert() }
-    preference.addEventListener('change', reset)
-    return () => preference.removeEventListener('change', reset)
-  }, [])
-
-  const select = (next: number, pointer: boolean) => {
-    animateSelection.current = pointer
-    setSelected(Math.max(0, Math.min(items.length - 1, next)))
+  const goToPage = (next: number) => {
+    pageChanged.current = true
+    setRequestedPage(next)
   }
 
-  if (!project) return null
+  if (items.length === 0) return null
   return (
     <section id="projects" ref={sectionRef} aria-labelledby="projects-title" className={styles.section}>
       <header className={styles.header} data-work-reveal>
@@ -84,57 +99,170 @@ export default function ProjectsSection({ projects, index }: { projects?: Projec
       </header>
       <div className={styles.rule}><div data-work-rule /></div>
 
-      <div className={styles.stage} data-work-reveal>
-        <div className={styles.visual}>
-          <div className={styles.visualBar} aria-hidden="true">
-            <span><i />{t('featured')}</span><span>{pad(active + 1)} / {pad(items.length)}</span>
-          </div>
-          <div ref={previewRef} className={styles.preview}>
-            <Link href={`/projects/${project.slug}`} aria-label={`${tp('caseStudy')}: ${project.title}`} className={styles.cover}>
-              {project.image ? <Image key={project.image} src={project.image} alt="" fill sizes="(max-width: 900px) 95vw, 65vw" className={styles.image} />
-                : <div className={styles.placeholder} aria-hidden="true">{project.title.slice(0, 2).toUpperCase()}</div>}
-              <span className={styles.open}><ArrowUpRight aria-hidden="true" size={26} /></span>
-            </Link>
-          </div>
-          <div className={styles.visualFooter}>
-            <span className={styles.date}>{project.dateLabel}</span>
-            <div className={styles.controls} role="group" aria-label={t('carouselLabel')}>
-              <button type="button" disabled={active === 0} aria-label={t('previousProjects')} aria-controls="work-detail" onClick={e => select(active - 1, e.detail > 0)}><ChevronLeft size={18} className="rtl:rotate-180" /></button>
-              <button type="button" disabled={active === items.length - 1} aria-label={t('nextProjects')} aria-controls="work-detail" onClick={e => select(active + 1, e.detail > 0)}><ChevronRight size={18} className="rtl:rotate-180" /></button>
-            </div>
-          </div>
-        </div>
+      <ol id="projects-list" ref={listRef} tabIndex={-1} aria-label={t('title')} className={styles.list} data-work-reveal>
+        {items.map((project, i) => {
+          const href = `/projects/${project.slug}`
+          const host = projectHost(project.demo)
+          const onPage = i >= first && i < first + PROJECTS_PER_PAGE
+          return (
+            <li
+              key={project.id}
+              hidden={!onPage}
+              className={cn(styles.row, (i % PROJECTS_PER_PAGE) % 2 === 1 && styles.flip)}
+            >
+              <div className={styles.media}>
+                <div className={styles.chrome}>
+                  <span className={styles.dots} aria-hidden="true"><i /><i /><i /></span>
+                  {host && <span className={styles.host} dir="ltr">{host}</span>}
+                </div>
+                <div className={styles.screen}>
+                  {project.image ? <>
+                    <Image src={project.image} alt="" fill sizes="64px" unoptimized={!isOptimizableImageSrc(project.image)} className={styles.ambient} />
+                    <Image
+                      src={project.image}
+                      alt={tp('coverAlt', { title: project.title })}
+                      fill
+                      sizes="(max-width: 900px) 92vw, (max-width: 1280px) 50vw, 640px"
+                      unoptimized={!isOptimizableImageSrc(project.image)}
+                      className={styles.shot}
+                    />
+                  </> : <span className={styles.placeholder} aria-hidden="true">{project.title.slice(0, 2).toUpperCase()}</span>}
+                  {project.demo && framable.has(project.demo) && (
+                    <LivePreview url={project.demo} title={tp('liveDemoAria', { title: project.title })} active={onPage} />
+                  )}
+                </div>
+                {/* Mouse shortcut to the case study; the title and button carry it for keyboards. */}
+                <Link href={href} tabIndex={-1} aria-label={tp('readCaseStudyAria', { title: project.title })} className={styles.frameLink}>
+                  <span className={styles.open} aria-hidden="true"><ArrowUpRight size={20} /></span>
+                </Link>
+              </div>
 
-        <div className={styles.directory}>
-          <div id="work-detail" ref={contentRef} className={styles.detail}>
-            <p className={styles.featureLabel}><span aria-hidden="true">✦</span> {t('featured')}</p>
-            <h3 aria-live="polite" aria-atomic="true">{project.title}</h3>
-            {project.description && <p className={styles.description}>{project.description}</p>}
-            <ul className={styles.stack} aria-label={t('techStack')}>
-              {project.stackItems.slice(0, 5).map(tech => <li key={tech.name}><SkillIcon name={tech.name} icon={tech.icon} imageUrl={tech.imageUrl} size={13} />{tech.name}</li>)}
-            </ul>
-            <div className={styles.links}>
-              <Link href={`/projects/${project.slug}`} className={styles.caseStudy}>{tp('caseStudy')}<ArrowRight size={17} className="rtl:rotate-180" aria-hidden="true" /></Link>
-              {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" aria-label={`${t('viewCode')}: ${project.title}`}><Github size={18} /></a>}
-              {project.demo && <a href={project.demo} target="_blank" rel="noopener noreferrer" aria-label={`${t('liveDemo')}: ${project.title}`}><ExternalLink size={18} /></a>}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ol className={styles.thumbnails} aria-label={t('title')} data-work-reveal>
-        {items.map((item, i) => <li key={item.id}>
-          <button type="button" className={cn(styles.thumbnail, i === active && styles.active)} aria-pressed={i === active} aria-controls="work-detail" onClick={e => select(i, e.detail > 0)}>
-            <span className={styles.thumbImage}>
-              {item.image ? <Image src={item.image} alt="" fill sizes="(max-width: 640px) 65vw, 240px" className={styles.image} /> : <span className={styles.thumbPlaceholder}>{item.title.slice(0, 2)}</span>}
-            </span>
-            <span className={styles.thumbMeta}><span>{pad(i + 1)}</span><ArrowUpRight size={17} aria-hidden="true" /></span>
-            <span className={styles.thumbTitle}>{item.title}</span>
-            <span className={styles.thumbStack}>{item.stackItems.slice(0, 2).map(tech => <span key={tech.name}>{tech.name}</span>)}</span>
-          </button>
-        </li>)}
-        <li><Link href="/projects" className={styles.more}><span aria-hidden="true">+</span><strong>{tp('viewAll')}</strong><ArrowUpRight size={19} aria-hidden="true" /></Link></li>
+              <div className={styles.body}>
+                <p className={styles.meta}>
+                  <span className={styles.num} aria-hidden="true">{pad(i + 1)}</span>
+                  {project.dateLabel && <span>{project.dateLabel}</span>}
+                  {project.featured && <span className={styles.badge}><span aria-hidden="true">✦</span>{t('featured')}</span>}
+                </p>
+                <h3 className={styles.title}><Link href={href}>{project.title}</Link></h3>
+                {project.description && <p className={styles.description}>{project.description}</p>}
+                <StackChips items={project.stackItems} label={t('techStack')} max={6} className={styles.stack} />
+                <div className={styles.links}>
+                  <Link href={href} aria-label={tp('readCaseStudyAria', { title: project.title })} className={pillPrimary}>
+                    {tp('readCaseStudy')}<ArrowRight aria-hidden="true" className={pillArrow} />
+                  </Link>
+                  {project.demo && (
+                    <a href={project.demo} target="_blank" rel="noopener noreferrer" aria-label={tp('liveDemoAria', { title: project.title })} className={pillOutline}>
+                      <ExternalLink aria-hidden="true" className="size-4" />{tp('liveDemo')}
+                    </a>
+                  )}
+                  {project.github && (
+                    <a href={project.github} target="_blank" rel="noopener noreferrer" aria-label={tp('viewCodeAria', { title: project.title })} className={pillOutline}>
+                      <Github aria-hidden="true" className="size-4" />{tp('viewCode')}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </li>
+          )
+        })}
       </ol>
+
+      {totalPages > 1 && (
+        <div className={styles.pager} data-work-reveal>
+          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} label={t('paginationLabel')} controls="projects-list" />
+        </div>
+      )}
     </section>
+  )
+}
+
+/** Width the demo is laid out at (its desktop design), then scaled into the frame. */
+const LIVE_VIEWPORT_WIDTH = 1440
+/** Lets a demo's own preloader finish before it replaces the cover. */
+const LIVE_REVEAL_DELAY_MS = 800
+
+/**
+ * The live demo inside the frame, as a non-interactive preview (`inert`, so the
+ * page keeps scrolling over it and it never takes focus). Desktop only, and not
+ * under reduced motion or Save-Data. It loads once its row nears the viewport
+ * on the current page, fades in over the cover, and unloads on a page change.
+ */
+function LivePreview({ url, title, active }: { url: string; title: string; active: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [capable, setCapable] = useState(false)
+  const [near, setNear] = useState(false)
+  const [scale, setScale] = useState(0)
+  const [loaded, setLoaded] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [blocked, setBlocked] = useState(false)
+
+  // This site's own CSP can still refuse the frame (e.g. a server running an
+  // older next.config). The browser then fires `load` on its placeholder page
+  // anyway, so watch for the violation and keep the cover instead.
+  useEffect(() => {
+    const origin = new URL(url).origin
+    const onViolation = (event: SecurityPolicyViolationEvent) => {
+      if (event.effectiveDirective === 'frame-src' && event.blockedURI.startsWith(origin)) setBlocked(true)
+    }
+    document.addEventListener('securitypolicyviolation', onViolation)
+    return () => document.removeEventListener('securitypolicyviolation', onViolation)
+  }, [url])
+
+  useEffect(() => {
+    const wide = matchMedia('(min-width: 900px)')
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true
+    const update = () => setCapable(wide.matches && !reduce.matches && !saveData)
+    update()
+    wide.addEventListener('change', update)
+    reduce.addEventListener('change', update)
+    return () => {
+      wide.removeEventListener('change', update)
+      reduce.removeEventListener('change', update)
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !active || near) return
+    const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) setNear(true) }, { rootMargin: '300px 0px' })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [active, near])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => setScale((entry?.contentRect.width ?? 0) / LIVE_VIEWPORT_WIDTH))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const mounted = capable && active && near && scale > 0 && !blocked
+  useEffect(() => {
+    if (mounted) return
+    setLoaded(false)
+    setReady(false)
+  }, [mounted])
+  useEffect(() => {
+    if (!loaded) return
+    const timer = setTimeout(() => setReady(true), LIVE_REVEAL_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [loaded])
+
+  return (
+    <div ref={ref} inert className={cn(styles.live, ready && styles.liveReady)}>
+      {mounted && (
+        <iframe
+          src={url}
+          title={title}
+          tabIndex={-1}
+          sandbox="allow-scripts allow-same-origin"
+          referrerPolicy="strict-origin-when-cross-origin"
+          onLoad={() => setLoaded(true)}
+          style={{ transform: `scale(${scale})` }}
+        />
+      )}
+    </div>
   )
 }

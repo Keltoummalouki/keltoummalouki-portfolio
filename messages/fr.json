@@ -205,8 +205,6 @@
   "projects": {
     "title": "Projets",
     "subtitle": "Une sélection de projets qui montrent mes compétences et mon envie de construire des solutions concrètes.",
-    "viewCode": "Voir le Code",
-    "liveDemo": "Démo Live",
     "techStack": "Stack Technique",
     "featured": "En vedette",
     "items": {
@@ -224,10 +222,7 @@
       }
     },
     "paginationLabel": "Pages des projets",
-    "heading": "Projets phares",
-    "carouselLabel": "Contrôles du carrousel de projets",
-    "previousProjects": "Projets précédents",
-    "nextProjects": "Projets suivants"
+    "heading": "Projets phares"
   },
   "certifications": {
     "title": "Certifications",
@@ -538,7 +533,6 @@
   },
   "projectPages": {
     "breadcrumbLabel": "Fil d'Ariane",
-    "caseStudy": "Étude de cas",
     "readCaseStudy": "Lire l'étude de cas",
     "readCaseStudyAria": "Lire l'étude de cas : {title}",
     "viewCode": "Code source",

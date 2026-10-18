@@ -205,8 +205,6 @@
   "projects": {
     "title": "المشاريع",
     "subtitle": "مجموعة مختارة من المشاريع التي تُبرز مهاراتي وشغفي ببناء حلول حقيقية.",
-    "viewCode": "عرض الكود",
-    "liveDemo": "عرض مباشر",
     "techStack": "التقنيات",
     "featured": "مميز",
     "items": {
@@ -224,10 +222,7 @@
       }
     },
     "paginationLabel": "صفحات المشاريع",
-    "heading": "مشاريع مميزة",
-    "carouselLabel": "أدوات التحكم في عرض المشاريع",
-    "previousProjects": "المشاريع السابقة",
-    "nextProjects": "المشاريع التالية"
+    "heading": "مشاريع مميزة"
   },
   "certifications": {
     "title": "الشهادات",
@@ -538,7 +533,6 @@
   },
   "projectPages": {
     "breadcrumbLabel": "مسار التنقل",
-    "caseStudy": "دراسة حالة",
     "readCaseStudy": "اقرأ دراسة الحالة",
     "readCaseStudyAria": "اقرأ دراسة الحالة: {title}",
     "viewCode": "الشيفرة المصدرية",

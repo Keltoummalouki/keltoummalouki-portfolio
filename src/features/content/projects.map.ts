@@ -86,6 +86,18 @@ export function formatProjectDate(startedAt: string | null | undefined, locale: 
   return new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(date)
 }
 
+/** Host shown in a cover's browser bar ("app.example.com"); null for a missing or non-web URL. */
+export function projectHost(url: string | null | undefined): string | null {
+  if (!url) return null
+  try {
+    const { protocol, hostname } = new URL(url)
+    if (protocol !== 'http:' && protocol !== 'https:') return null
+    return hostname.replace(/^www\./, '') || null
+  } catch {
+    return null
+  }
+}
+
 /** Split a comma-separated stack ("A, B" or Arabic "A، B") into trimmed names. */
 export function parseStackList(value: string): string[] {
   return value

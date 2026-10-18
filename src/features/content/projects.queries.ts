@@ -1,6 +1,9 @@
 import 'server-only'
+import { unstable_cache } from 'next/cache'
+import { SITE_URL } from '@/features/seo/site'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/database.types'
+import { framingAllowed } from './projects.embed'
 import { isValidProjectSlug, type ProjectSkillOption } from './projects.schema'
 
 type ProjectRow = Database['public']['Tables']['projects']['Row']
@@ -67,6 +70,56 @@ export async function getPublishedProjects(): Promise<PublicProject[]> {
     console.error('getPublishedProjects failed; falling back to static content:', err)
     return []
   }
+}
+
+const PREVIEW_REVALIDATE_SECONDS = 6 * 60 * 60
+const PREVIEW_TIMEOUT_MS = 4000
+
+/** Why a demo cannot be framed live, or null when it can. */
+async function framingProblem(url: string): Promise<string | null> {
+  try {
+    if (new URL(url).protocol !== 'https:') return 'not an https URL'
+    const response = await fetch(url, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(PREVIEW_TIMEOUT_MS),
+      headers: { Accept: 'text/html', 'User-Agent': 'Mozilla/5.0 (compatible; keltoummalouki-portfolio-preview)' },
+    })
+    await response.body?.cancel()
+    const finalUrl = response.url || url
+    if (!response.ok) return `it responded ${response.status}`
+    if (new URL(finalUrl).protocol !== 'https:') return `it redirects to ${finalUrl}`
+    const allowed = framingAllowed({
+      url: finalUrl,
+      xFrameOptions: response.headers.get('x-frame-options'),
+      contentSecurityPolicy: response.headers.get('content-security-policy'),
+    }, SITE_URL)
+    return allowed ? null : 'it does not allow framing (X-Frame-Options / CSP frame-ancestors)'
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error)
+  }
+}
+
+/**
+ * Whether a demo can be shown live in the home page's browser frame: it must
+ * answer 2xx over https and let this site frame it. Every outcome, timeouts
+ * included, is cached for 6 hours, so a dead or slow demo costs one check
+ * rather than one per visit; its cover image is shown instead.
+ */
+const canFrameDemo = unstable_cache(
+  async (url: string): Promise<boolean> => {
+    const problem = await framingProblem(url)
+    if (problem) console.warn(`project live preview off for ${url}: ${problem}`)
+    return problem === null
+  },
+  ['project-demo-framable'],
+  { revalidate: PREVIEW_REVALIDATE_SECONDS },
+)
+
+/** The demo URLs (among `urls`) that can be framed live. Never throws. */
+export async function getFramableDemos(urls: (string | null)[]): Promise<string[]> {
+  const unique = [...new Set(urls.filter((url): url is string => Boolean(url)))]
+  const checked = await Promise.all(unique.map(async (url) => ((await canFrameDemo(url)) ? url : null)))
+  return checked.filter((url): url is string => url !== null)
 }
 
 /**

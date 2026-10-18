@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 // The production domain is proxied through Cloudflare, which injects its Web
 // Analytics beacon (static.cloudflareinsights.com) into HTML responses; the
 // beacon reports to cloudflareinsights.com.
+// frame-src: the home page shows each project's demo (an admin-managed URL,
+// checked server-side before it is framed) live in an iframe, so any https
+// origin may be framed; this also covers the Turnstile widget.
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com;
@@ -13,7 +16,7 @@ const cspHeader = `
   font-src 'self';
   img-src 'self' data: https://*.supabase.co;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com;
-  frame-src https://challenges.cloudflare.com;
+  frame-src https:;
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
