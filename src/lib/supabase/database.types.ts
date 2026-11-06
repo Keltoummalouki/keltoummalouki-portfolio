@@ -833,6 +833,8 @@ export type Database = {
           description: Json
           icon: string | null
           id: string
+          includes: Json
+          price_from: number | null
           slug: string
           sort_order: number
           status: Database["public"]["Enums"]["content_status"]
@@ -844,6 +846,8 @@ export type Database = {
           description?: Json
           icon?: string | null
           id?: string
+          includes?: Json
+          price_from?: number | null
           slug: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
@@ -855,6 +859,8 @@ export type Database = {
           description?: Json
           icon?: string | null
           id?: string
+          includes?: Json
+          price_from?: number | null
           slug?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]

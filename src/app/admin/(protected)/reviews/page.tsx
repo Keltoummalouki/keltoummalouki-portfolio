@@ -1,3 +1,4 @@
+import { OverviewMetrics } from '@/components/admin/Workspace'
 import { Check, MessageSquareQuote, ShieldAlert, Trash2, X } from 'lucide-react'
 import StarRating from '@/components/reviews/StarRating'
 import { EmptyState, FilterTabs, PageHeader, StatusBadge } from '@/components/admin/ui'
@@ -79,6 +80,7 @@ export default async function AdminReviewsPage({
         title="Reviews"
         description="Visitor reviews from the home page. Pending reviews stay hidden until you approve them."
       />
+      <OverviewMetrics items={[{label:'All reviews',value:total,hint:'Feedback from your audience',href:'/admin/reviews'},{label:'Pending',value:counts.pending,hint:'Waiting for moderation',href:'/admin/reviews?status=pending'},{label:'Approved',value:counts.approved,hint:'Visible on your portfolio',href:'/admin/reviews?status=approved'},{label:'Rejected',value:counts.rejected,hint:'Hidden from visitors',href:'/admin/reviews?status=rejected'}]} />
 
       <FilterTabs tabs={tabs} ariaLabel="Filter reviews by status" />
 

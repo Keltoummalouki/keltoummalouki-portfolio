@@ -6,30 +6,21 @@ import { getTranslations } from 'next-intl/server'
 import Header from '@/components/layouts/Header'
 import Footer from '@/components/layouts/Footer'
 import JsonLd from '@/components/seo/JsonLd'
-import CertificationsSection from '@/components/sections/CertificationsSection'
 import ContactSection from '@/components/sections/ContactSection'
-import EducationSection from '@/components/sections/EducationSection'
 import ExperienceSection from '@/components/sections/ExperienceSection'
-import FaqSection from '@/components/sections/FaqSection'
-import GithubStatsSection from '@/components/sections/GithubStatsSection'
 import HeroSection from '@/components/sections/HeroSection'
 import ProfileSummarySection from '@/components/sections/ProfileSummarySection'
 import PortraitTransition from '@/components/sections/PortraitTransition'
 import ProjectsSection from '@/components/sections/ProjectsSection'
 import ReviewsSection from '@/components/sections/ReviewsSection'
-import SkillsSection from '@/components/sections/SkillsSection'
-import ShowcaseGroup, { ShowcasePair } from '@/components/sections/showcase/ShowcaseGroup'
+import ShowcaseGroup from '@/components/sections/showcase/ShowcaseGroup'
 import ScrollProgress from '@/components/ui/ScrollProgress'
-import { fallbackFaq } from '@/features/cms/faq'
-import { getPublishedFaq } from '@/features/cms/faq.queries'
 import { getFallbackLanguages } from '@/features/cms/languages'
 import { getPublishedCmsContent } from '@/features/cms/queries'
 import { getFramableDemos, getPublishedProjects } from '@/features/content/projects.queries'
 import { toProjectCard, type ProjectCardData } from '@/features/content/projects.map'
-import { getGithubSummary } from '@/features/github/queries'
 import { getApprovedReviews } from '@/features/reviews/queries'
 import {
-  faqSchema,
   jsonLdGraph,
   organizationSchema,
   personInputFromCms,
@@ -44,6 +35,13 @@ import { routing } from '@/i18n/routing'
 
 // Render per request so the public portfolio reflects CMS changes immediately.
 export const dynamic = 'force-dynamic'
+
+// The home page stays short: a recruiter skims it in about 30 seconds. Skills,
+// education, certifications and GitHub activity live on /about; the FAQ on
+// /freelance, next to the project request form.
+
+/** Projects shown here, in published order (featured first); /projects lists them all. */
+const HOME_PROJECT_COUNT = 3
 
 type PageProps = { params: Promise<{ locale: string }> }
 
@@ -72,12 +70,10 @@ export default async function HomePage({ params }: PageProps) {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) notFound()
 
-  const [cms, projectRows, faqRows, reviews, faqT, meta, seo, hero, about, experience, education, profile] = await Promise.all([
+  const [cms, projectRows, reviews, meta, seo, hero, about, experience, education, profile] = await Promise.all([
     getPublishedCmsContent(locale),
     getPublishedProjects(),
-    getPublishedFaq(locale),
     getApprovedReviews(),
-    getTranslations({ locale, namespace: 'faq' }),
     getTranslations({ locale, namespace: 'home.meta' }),
     getTranslations({ locale, namespace: 'seo' }),
     getTranslations({ locale, namespace: 'hero' }),
@@ -87,8 +83,7 @@ export default async function HomePage({ params }: PageProps) {
     getTranslations({ locale, namespace: 'home.profile' }),
   ])
   const projects = projectRows.map((project) => toProjectCard(project, locale))
-  // CMS-managed questions when published; otherwise the defaults in messages.
-  const faqItems = faqRows.length > 0 ? faqRows : fallbackFaq((key) => faqT(key))
+  const featuredProjects = projects.slice(0, HOME_PROJECT_COUNT)
 
   // A placeholder CMS headline (the seed stored "Get to know me") must never
   // surface as the job title in the hero, the About card or the JSON-LD.
@@ -122,8 +117,6 @@ export default async function HomePage({ params }: PageProps) {
     websiteSchema({ description: seo('defaultDescription') }),
     organizationSchema({ description: seo('organizationDescription'), sameAs: person.sameAs }),
     personSchema(person),
-    // Same Q&As as the visible FAQ section (expandable answers are allowed).
-    faqItems.length > 0 && faqSchema(localePath(locale, '/'), faqItems),
   )
 
   return (
@@ -136,26 +129,14 @@ export default async function HomePage({ params }: PageProps) {
         <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} avatarUrl="/images/keltoum-portrait.jpg" />
         <ProfileSummarySection locale={locale} facts={facts} avatarUrl="/images/keltoum-portrait.jpg" />
         <PortraitTransition />
-        <SkillsSection categories={cms.skillCategories} />
         <ExperienceSection items={cms.experiences} />
-        {/* Numbered bento block (04–09): side-label sections, two-up from lg. */}
+        {/* Numbered block (03–04), continuing after the profile (01) and experience (02). */}
         <ShowcaseGroup>
-          <EducationSection index="04" items={cms.education} />
           {/* Streams in: checking which demos can be framed live never holds up the page. */}
-          <Suspense fallback={<ProjectsSection index="05" projects={projects} />}>
-            <ProjectsWithLivePreviews index="05" projects={projects} />
+          <Suspense fallback={<ProjectsSection index="03" projects={featuredProjects} total={projects.length} />}>
+            <ProjectsWithLivePreviews index="03" projects={featuredProjects} total={projects.length} />
           </Suspense>
-          <ShowcasePair>
-            <CertificationsSection index="06" items={cms.certifications} />
-            {/* Streams in: a slow GitHub API never holds up the rest of the page. */}
-            <Suspense fallback={<GithubStatsSection index="07" summary={null} pending />}>
-              <GithubStats index="07" />
-            </Suspense>
-          </ShowcasePair>
-          <ShowcasePair>
-            <ReviewsSection index="08" reviews={reviews} />
-            <FaqSection index="09" items={faqItems} />
-          </ShowcasePair>
+          <ReviewsSection index="04" reviews={reviews} />
         </ShowcaseGroup>
         <ContactSection socialLinks={cms.socialLinks} />
       </main>
@@ -165,11 +146,15 @@ export default async function HomePage({ params }: PageProps) {
   )
 }
 
-async function GithubStats({ index }: { index: string }) {
-  return <GithubStatsSection index={index} summary={await getGithubSummary()} />
-}
-
-async function ProjectsWithLivePreviews({ index, projects }: { index: string; projects: ProjectCardData[] }) {
+async function ProjectsWithLivePreviews({
+  index,
+  projects,
+  total,
+}: {
+  index: string
+  projects: ProjectCardData[]
+  total: number
+}) {
   const livePreviews = await getFramableDemos(projects.map((project) => project.demo))
-  return <ProjectsSection index={index} projects={projects} livePreviews={livePreviews} />
+  return <ProjectsSection index={index} projects={projects} total={total} livePreviews={livePreviews} />
 }

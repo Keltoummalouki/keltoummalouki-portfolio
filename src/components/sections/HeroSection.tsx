@@ -11,6 +11,7 @@ import { ArrowRight, ChevronDown, Download, Mail, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SocialIcon from '@/components/ui/SocialIcon'
 import type { PublicAbout, PublicSocialLink } from '@/features/cms/queries'
+import { trackClick } from '@/lib/analytics/events'
 import { isOptimizableImageSrc } from '@/lib/images'
 
 if (typeof window !== 'undefined') {
@@ -194,7 +195,7 @@ export default function HeroSection({
               size="lg"
               className="group bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-5 rounded-xl transition-all duration-200"
             >
-              <a href={cvUrl} download target="_blank" rel="noopener noreferrer">
+              <a href={cvUrl} download target="_blank" rel="noopener noreferrer" {...trackClick('cv-download', { from: 'hero' })}>
                 <Download size={18} className="mr-2" />
                 {t('downloadCV')}
                 <ArrowRight size={16} className="ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
@@ -207,7 +208,7 @@ export default function HeroSection({
               variant="outline"
               className="px-6 py-5 rounded-xl border-border hover:border-primary hover:text-primary transition-all duration-200"
             >
-              <a href="#contact">{t('contactMe')}</a>
+              <a href="#contact" {...trackClick('contact-cta', { from: 'hero' })}>{t('contactMe')}</a>
             </Button>
           </div>
 
@@ -224,6 +225,7 @@ export default function HeroSection({
                 transition={{ delay: prefersReducedMotion ? 0 : 0.8 + index * 0.08 }}
                 whileHover={{ y: -2 }}
                 aria-label={link.name}
+                {...trackClick('contact-link', { channel: link.platform, from: 'hero' })}
               >
                 {link.platform === 'email' ? (
                   <Mail size={16} aria-hidden="true" />

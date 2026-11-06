@@ -1,3 +1,4 @@
+import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
 import { GraduationCap, Trash2 } from 'lucide-react'
 import { deleteEducationAction, saveEducationAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -65,6 +66,7 @@ export default async function AdminEducationPage({
   return (
     <div className="space-y-6">
       <PageHeader title="Education" description="Manage education entries and translated descriptions." />
+      <CollectionOverview items={data.education} label="entries" />
       <ErrorNotice error={error} />
       <AdminCard title="Add education">
         <EducationForm />
@@ -79,7 +81,7 @@ export default async function AdminEducationPage({
         ) : (
           <div className="space-y-4">
             {data.education.map((item) => (
-              <div key={item.id} className="space-y-2">
+              <EditorDisclosure key={item.id} title={item.institution || 'Education entry'} status={item.status}>
                 <EducationForm item={item} />
                 <form action={deleteEducationAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
@@ -88,7 +90,7 @@ export default async function AdminEducationPage({
                     Delete
                   </Button>
                 </form>
-              </div>
+              </EditorDisclosure>
             ))}
           </div>
         )}
@@ -96,3 +98,4 @@ export default async function AdminEducationPage({
     </div>
   )
 }
+

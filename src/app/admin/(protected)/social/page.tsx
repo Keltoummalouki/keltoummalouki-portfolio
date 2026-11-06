@@ -1,3 +1,4 @@
+import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
 import { ExternalLink, Plus, Trash2 } from 'lucide-react'
 import { deleteSocialLinkAction, saveSocialLinkAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -207,7 +208,7 @@ function ExistingLinkCard({ link }: { link: SocialLinkRow }) {
         </div>
       </div>
 
-      <SocialForm link={link} />
+      <EditorDisclosure title="Edit link" subtitle="Destination, icon & visibility"><SocialForm link={link} /></EditorDisclosure>
     </div>
   )
 }
@@ -241,6 +242,7 @@ export default async function AdminSocialPage({
         title="Social & contact links"
         description="Manage the buttons shown in the hero, footer, and public contact/follow areas."
       />
+      <CollectionOverview items={data.socialLinks} label="links" />
       <ErrorNotice error={error} />
 
       <AdminCard title="Supported platforms">

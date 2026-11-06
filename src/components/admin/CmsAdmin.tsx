@@ -3,10 +3,12 @@ import type React from 'react'
 import type { Json } from '@/lib/supabase/database.types'
 import { LOCALES, type Locale } from '@/lib/validation/locale'
 import { pickI18n, type I18nMap } from '@/features/content/i18n-json'
-import { CMS_STATUSES, EMPTY_I18N, type I18nText } from '@/features/cms/schema'
+import { EMPTY_I18N, type I18nText } from '@/features/cms/schema'
 import { PageHeader as SharedPageHeader, SectionCard } from './ui'
-import { AdminSelectField, DatePickerField } from './AdminFormControls'
+import { Field, TextArea } from './CmsFields'
+export { Field, TextArea, StatusSelect } from './CmsFields'
 import FileUploadField from './FileUploadField'
+import { ChevronDown, Plus } from 'lucide-react'
 
 export const fieldClass =
   'w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]'
@@ -26,6 +28,12 @@ export function AdminCard({
   title?: string
   description?: string
 }) {
+  if (title?.startsWith('Add ')) {
+    return <details className="admin-create-panel">
+      <summary><span className="admin-create-icon"><Plus size={19} aria-hidden="true" /></span><span><strong>{title}</strong><small>{description || 'Start a new entry in your collection'}</small></span><ChevronDown size={17} className="admin-disclosure-chevron" aria-hidden="true" /></summary>
+      <div className="admin-create-body">{children}</div>
+    </details>
+  }
   return (
     <SectionCard title={title} description={description}>
       {children}
@@ -38,54 +46,9 @@ export { SectionCard, StatCard, StatusBadge, EmptyState, FilterTabs, table } fro
 export function ErrorNotice({ error }: { error?: string | string[] }) {
   if (!error) return null
   return (
-    <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+    <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
       Could not save this change. Please check the fields and try again.
     </p>
-  )
-}
-
-export function Field({
-  label,
-  name,
-  defaultValue,
-  type = 'text',
-  placeholder,
-  required,
-}: {
-  label: string
-  name: string
-  defaultValue?: string | number | null
-  type?: string
-  placeholder?: string
-  required?: boolean
-}) {
-  if (type === 'date') {
-    return (
-      <DatePickerField
-        id={name}
-        label={label}
-        name={name}
-        defaultValue={defaultValue != null ? String(defaultValue) : ''}
-        required={required}
-      />
-    )
-  }
-
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={name} className={labelClass}>
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        defaultValue={defaultValue ?? ''}
-        className={fieldClass}
-      />
-    </div>
   )
 }
 
@@ -104,54 +67,6 @@ export function FileField({
 }) {
   return (
     <FileUploadField label={label} name={name} help={help} accept={accept} buttonLabel={buttonLabel} />
-  )
-}
-
-export function TextArea({
-  label,
-  name,
-  defaultValue,
-  rows = 4,
-  dir,
-  required,
-}: {
-  label: string
-  name: string
-  defaultValue?: string | null
-  rows?: number
-  dir?: 'ltr' | 'rtl'
-  required?: boolean
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={name} className={labelClass}>
-        {label}
-      </label>
-      <textarea
-        id={name}
-        name={name}
-        rows={rows}
-        required={required}
-        dir={dir}
-        defaultValue={defaultValue ?? ''}
-        className={fieldClass}
-      />
-    </div>
-  )
-}
-
-export function StatusSelect({ defaultValue = 'published' }: { defaultValue?: string | null }) {
-  return (
-    <AdminSelectField
-      id="status"
-      label="Status"
-      name="status"
-      options={CMS_STATUSES.map((status) => ({
-        value: status,
-        label: status === 'published' ? 'Published' : status === 'draft' ? 'Draft' : 'Archived',
-      }))}
-      defaultValue={defaultValue ?? 'published'}
-    />
   )
 }
 

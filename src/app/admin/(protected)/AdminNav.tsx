@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Award,
+  BadgeEuro,
   Briefcase,
   FileText,
   FolderKanban,
@@ -36,8 +37,8 @@ interface NavGroup {
   items: NavItem[]
 }
 
-// Grouped information architecture: Overview / Content / Identity /
-// Communication / Settings. Badges on Inbox, Leads and Reviews are fed real
+// Grouped by everyday work: content, conversations, profile, and settings.
+// Badges on Inbox, Leads and Reviews are fed real
 // "new"/"pending" counts from the layout — never invented.
 const groups: NavGroup[] = [
   {
@@ -49,27 +50,28 @@ const groups: NavGroup[] = [
     items: [
       { href: '/admin/projects', label: 'Projects', icon: FolderKanban },
       { href: '/admin/blog', label: 'Blog', icon: FileText },
+      { href: '/admin/faq', label: 'FAQ', icon: MessageCircleQuestion },
+      { href: '/admin/services', label: 'Services & pricing', icon: BadgeEuro },
+    ],
+  },
+  {
+    label: 'Conversations',
+    items: [
+      { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: 'newMessages' },
+      { href: '/admin/leads', label: 'Freelance leads', icon: Target, badge: 'newLeads' },
+      { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote, badge: 'pendingReviews' },
+    ],
+  },
+  {
+    label: 'Your profile',
+    items: [
+      { href: '/admin/about', label: 'About', icon: UserRound },
       { href: '/admin/skills', label: 'Skills', icon: Sparkles },
       { href: '/admin/languages', label: 'Languages', icon: Languages },
       { href: '/admin/experience', label: 'Experience', icon: Briefcase },
       { href: '/admin/education', label: 'Education', icon: GraduationCap },
       { href: '/admin/certifications', label: 'Certifications', icon: Award },
-      { href: '/admin/faq', label: 'FAQ', icon: MessageCircleQuestion },
-    ],
-  },
-  {
-    label: 'Identity',
-    items: [
-      { href: '/admin/about', label: 'About', icon: UserRound },
       { href: '/admin/social', label: 'Social links', icon: Share2 },
-    ],
-  },
-  {
-    label: 'Communication',
-    items: [
-      { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: 'newMessages' },
-      { href: '/admin/leads', label: 'Freelance leads', icon: Target, badge: 'newLeads' },
-      { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote, badge: 'pendingReviews' },
     ],
   },
   {

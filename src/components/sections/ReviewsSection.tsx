@@ -102,7 +102,6 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
       ref={sectionRef}
       id="reviews"
       index={index}
-      layout="half"
       eyebrow={t('eyebrow')}
       title={t('title')}
       description={t('subtitle')}
@@ -139,7 +138,8 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
         </button>
       }
     >
-      <div data-reviews-reveal>
+      {/* A full-width row: the quote and the form keep a readable measure. */}
+      <div data-reviews-reveal className="max-w-3xl">
         {review ? (
           <div className={cn(surface, 'relative p-6 sm:p-7')}>
             <Quote aria-hidden="true" className="size-9 fill-primary/20 text-primary-text" strokeWidth={1.25} />
@@ -215,7 +215,7 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
         aria-labelledby={`${formPanelId}-title`}
         tabIndex={-1}
         hidden={!formOpen}
-        className={cn(surface, 'mt-4 scroll-mt-28 p-6 outline-none sm:p-7')}
+        className={cn(surface, 'mt-4 max-w-3xl scroll-mt-28 p-6 outline-none sm:p-7')}
       >
         <h3 id={`${formPanelId}-title`} className="text-lg font-bold text-foreground">
           {t('form.title')}

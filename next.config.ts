@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
+import { readUmamiConfig } from './src/lib/analytics/umami';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+// Umami analytics (optional): its script and collection origins are allowed
+// only when NEXT_PUBLIC_UMAMI_WEBSITE_ID is set at build time.
+const umami = readUmamiConfig(process.env);
 
 // The production domain is proxied through Cloudflare, which injects its Web
 // Analytics beacon (static.cloudflareinsights.com) into HTML responses; the
@@ -11,11 +16,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 // origin may be framed; this also covers the Turnstile widget.
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com${umami ? ` ${umami.scriptOrigin}` : ''};
   style-src 'self' 'unsafe-inline';
   font-src 'self';
   img-src 'self' data: https://*.supabase.co;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com${umami ? ` ${umami.collectOrigin}` : ''};
   frame-src https:;
   frame-ancestors 'none';
   base-uri 'self';

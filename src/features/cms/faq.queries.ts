@@ -4,8 +4,8 @@ import type { Locale } from '@/lib/validation/locale'
 import { mapPublicFaq, type FaqItemRow, type PublicFaqItem } from './faq'
 
 /**
- * Published FAQ items for the public site ([] on any failure, so the home page
- * falls back to the default questions from messages/*.json).
+ * Published FAQ items for the public site ([] on any failure, so the freelance
+ * page falls back to the default questions from messages/*.json).
  */
 export async function getPublishedFaq(locale: Locale): Promise<PublicFaqItem[]> {
   try {

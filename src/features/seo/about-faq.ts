@@ -198,6 +198,20 @@ function contactLinks(links: AboutCmsInput['socialLinks']): Pick<AboutProfile, '
  * collection has published rows; message fallbacks apply only when a whole
  * collection is empty (e.g. education before it is entered in the dashboard).
  */
+/**
+ * Array filter that keeps the first item per key (case-insensitive), so rows
+ * saved twice in the CMS are not rendered twice on the About page.
+ */
+function firstOfKey<T>(key: (item: T) => string[]) {
+  const seen = new Set<string>()
+  return (item: T) => {
+    const id = key(item).map((part) => part.trim().toLowerCase()).join('|')
+    if (seen.has(id)) return false
+    seen.add(id)
+    return true
+  }
+}
+
 export function resolveAboutProfile(
   cms: AboutCmsInput,
   fallbacks: AboutProfileFallbacks,
@@ -205,7 +219,7 @@ export function resolveAboutProfile(
 ): AboutProfile {
   const presentLabel = options.presentLabel ?? ''
 
-  const experiences: AboutExperienceItem[] =
+  const experiences: AboutExperienceItem[] = (
     (cms.experiences ?? []).length > 0
       ? cms.experiences.map((item) => ({
           id: item.id,
@@ -218,8 +232,9 @@ export function resolveAboutProfile(
           isCurrent: Boolean(item.isCurrent),
         }))
       : fallbacks.experiences
+  ).filter(firstOfKey((item) => [item.role, item.company, item.date]))
 
-  const education: AboutEducationItem[] =
+  const education: AboutEducationItem[] = (
     (cms.education ?? []).length > 0
       ? cms.education.map((item) => ({
           id: item.id,
@@ -230,6 +245,7 @@ export function resolveAboutProfile(
           description: cleanText(item.description) || cleanText(item.field),
         }))
       : fallbacks.education
+  ).filter(firstOfKey((item) => [item.degree, item.institution, item.date]))
 
   const cmsSkills = uniqueNames((cms.skillCategories ?? []).flatMap((category) => category.skills.map((skill) => skill.name)))
   const skills = cmsSkills.length > 0 ? cmsSkills : uniqueNames(fallbacks.skills)
@@ -237,6 +253,7 @@ export function resolveAboutProfile(
   const languages = ((cms.languages ?? []).length > 0 ? cms.languages : fallbacks.languages)
     .map((language) => ({ name: cleanText(language.name), level: cleanText(language.level) }))
     .filter((language) => language.name)
+    .filter(firstOfKey((language) => [language.name]))
 
   const isUsable = (item: AboutExperienceItem) => Boolean(item.role && item.company)
 
@@ -489,6 +506,6 @@ export const FALLBACK_SKILL_CATEGORIES: readonly { key: string; skills: readonly
   { key: 'design', skills: ['Figma', 'Canva', 'Adobe XD'] },
 ]
 
-/** Credential link for the fallback Docker certificate (same as the home page). */
+/** Credential link for the fallback Docker certificate. */
 export const FALLBACK_DOCKER_CREDENTIAL_URL =
   'https://www.linkedin.com/learning/certificates/8556c209c6898f55066429ef88fa4d13bed6d4bdb38b594b6d7dbc02216898b2'

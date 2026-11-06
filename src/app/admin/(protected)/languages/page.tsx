@@ -1,3 +1,4 @@
+import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
 import { Languages as LanguagesIcon, Trash2 } from 'lucide-react'
 import { deleteLanguageAction, saveLanguageAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -39,6 +40,7 @@ export default async function AdminLanguagesPage({
         title="Languages"
         description="Manage public spoken languages and levels shown in the About section."
       />
+      <CollectionOverview items={data.languages} label="languages" />
       <ErrorNotice error={error} />
 
       <AdminCard title="Add language">
@@ -55,7 +57,7 @@ export default async function AdminLanguagesPage({
         ) : (
           <div className="space-y-4">
             {data.languages.map((item) => (
-              <div key={item.id} className="space-y-2">
+              <EditorDisclosure key={item.id} title={i18nValues(item.name).fr || i18nValues(item.name).en} status={item.status}>
                 <LanguageForm item={item} />
                 <form action={deleteLanguageAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
@@ -64,7 +66,7 @@ export default async function AdminLanguagesPage({
                     Delete
                   </Button>
                 </form>
-              </div>
+              </EditorDisclosure>
             ))}
           </div>
         )}

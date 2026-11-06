@@ -1,3 +1,4 @@
+import { CollectionOverview } from '@/components/admin/Workspace'
 import { Briefcase, CalendarDays, ExternalLink, MapPin, Pencil, Trash2 } from 'lucide-react'
 import { deleteExperienceAction, saveExperienceAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -367,6 +368,7 @@ export default async function AdminExperiencePage({
         title="Experience"
         description="Manage professional experience, translated descriptions, company images, and technologies used."
       />
+      <CollectionOverview items={data.experiences} label="roles" />
       <ErrorNotice error={error} />
 
       <AdminCard title="Add experience">

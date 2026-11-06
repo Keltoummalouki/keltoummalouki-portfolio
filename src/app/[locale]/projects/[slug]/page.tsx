@@ -42,6 +42,7 @@ import {
 import { buildPageMetadata, truncateDescription } from '@/features/seo/metadata'
 import { PERSON, absoluteUrl, localePath } from '@/features/seo/site'
 import { routing } from '@/i18n/routing'
+import { trackClick } from '@/lib/analytics/events'
 import type { Locale } from '@/lib/validation/locale'
 
 // Rendered per request so case-study edits appear without a rebuild.
@@ -253,7 +254,13 @@ export default async function ProjectCaseStudyPage({ params }: PageProps) {
                   </>
                 )}
               </p>
-              <ProjectLinks github={project.github} demo={project.demo} labels={linkLabels} className="mt-6" />
+              <ProjectLinks
+                github={project.github}
+                demo={project.demo}
+                labels={linkLabels}
+                track={{ project: project.slug, from: 'case-study' }}
+                className="mt-6"
+              />
             </header>
 
             {!translated && (
@@ -327,6 +334,7 @@ export default async function ProjectCaseStudyPage({ params }: PageProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 break-all rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            {...trackClick('project-code', { project: project.slug, from: 'case-study' })}
                           >
                             <Github size={16} aria-hidden className="shrink-0" />
                             <span dir="ltr">{project.github.replace(/^https?:\/\/(www\.)?/, '')}</span>
@@ -338,6 +346,7 @@ export default async function ProjectCaseStudyPage({ params }: PageProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 break-all rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            {...trackClick('project-demo', { project: project.slug, from: 'case-study' })}
                           >
                             <ArrowRight size={16} aria-hidden className="shrink-0 rtl:rotate-180" />
                             <span dir="ltr">{project.demo.replace(/^https?:\/\/(www\.)?/, '')}</span>
@@ -368,7 +377,7 @@ export default async function ProjectCaseStudyPage({ params }: PageProps) {
               <ul className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                 {others.map((other) => (
                   <li key={other.id}>
-                    <ProjectCard project={other} labels={cardLabels(other)} headingLevel="h3" showStack={false} />
+                    <ProjectCard project={other} labels={cardLabels(other)} from="more-projects" headingLevel="h3" showStack={false} />
                   </li>
                 ))}
               </ul>

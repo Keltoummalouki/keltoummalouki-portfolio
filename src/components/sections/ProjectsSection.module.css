@@ -12,8 +12,6 @@
 
 /* One project per row: framed cover beside its story, sides alternating. */
 .list { display:grid; gap:clamp(3rem,6vw,5rem); }
-/* Focus target after a page change (tabIndex -1): no outline or global focus ring. */
-.list:focus { outline:none; box-shadow:none; }
 .row { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:center; gap:clamp(1.5rem,4vw,4rem); }
 .flip > .media { order:2; }
 
@@ -48,7 +46,6 @@
 .description { max-width:34rem; margin-top:1rem; color:var(--muted-foreground); font-size:.95rem; line-height:1.7; text-wrap:pretty; }
 .stack { margin-top:1.25rem; }
 .links { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.75rem; }
-.pager { margin-top:clamp(2.5rem,5vw,4rem); }
 
 .header a:focus-visible,.row a:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
 @media(hover:hover) and (pointer:fine) {

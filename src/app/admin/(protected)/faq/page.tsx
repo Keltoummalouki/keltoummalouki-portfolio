@@ -1,3 +1,4 @@
+import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
 import { MessageCircleQuestion, Trash2 } from 'lucide-react'
 import { deleteFaqItemAction, saveFaqItemAction } from '@/features/cms/actions'
 import type { FaqItemRow } from '@/features/cms/faq'
@@ -35,8 +36,9 @@ export default async function AdminFaqPage({
     <div className="space-y-6">
       <PageHeader
         title="FAQ"
-        description="Popular questions shown on the home page (also published as FAQ structured data for search engines)."
+        description="Popular questions shown on the freelance page (also published as FAQ structured data for search engines)."
       />
+      <CollectionOverview items={items} label="questions" />
       <ErrorNotice error={error} />
       {loadError && (
         <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -55,12 +57,12 @@ export default async function AdminFaqPage({
           <EmptyState
             icon={MessageCircleQuestion}
             title="No questions yet"
-            description="The home page shows the default questions from the translation files until you publish your own."
+            description="The freelance page shows the default questions from the translation files until you publish your own."
           />
         ) : (
           <div className="space-y-4">
             {items.map((item) => (
-              <div key={item.id} className="space-y-2">
+              <EditorDisclosure key={item.id} title={i18nValues(item.question).fr || i18nValues(item.question).en} status={item.status}>
                 <FaqItemForm item={item} />
                 <form action={deleteFaqItemAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
@@ -69,7 +71,7 @@ export default async function AdminFaqPage({
                     Delete
                   </Button>
                 </form>
-              </div>
+              </EditorDisclosure>
             ))}
           </div>
         )}

@@ -65,6 +65,22 @@ export const urlOrPathSchema = z
     message: 'Use a full URL or a local /path.',
   })
 
+export function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/** Optional third-party link (e.g. a booking page): https only, empty -> null. */
+export const optionalHttpsUrlSchema = z
+  .string()
+  .trim()
+  .max(600)
+  .transform((value) => value || null)
+  .refine((value) => value === null || isHttpsUrl(value), { message: 'Use a full https:// link.' })
+
 export const i18nTextSchema = z.object({
   fr: z.string().trim().max(6000),
   en: z.string().trim().max(6000),
@@ -83,6 +99,8 @@ export const aboutProfileSchema = z.object({
   cvUrl: urlOrPathSchema,
   cvUrlFr: urlOrPathSchema,
   cvUrlEn: urlOrPathSchema,
+  /** Cal.com, Calendly…: shown as "Book a call" on the freelance page. */
+  bookingUrl: optionalHttpsUrlSchema.optional(),
   location: requiredFrenchI18nSchema,
   headline: requiredFrenchI18nSchema,
   bio: requiredFrenchI18nSchema,
@@ -134,6 +152,19 @@ export const faqItemSchema = z.object({
   id: z.string().uuid().optional().or(z.literal('')),
   question: requiredFrenchI18nSchema,
   answer: requiredFrenchI18nSchema,
+  sortOrder: z.coerce.number().int().min(0).max(9999).default(0),
+  status: statusSchema,
+})
+
+export const serviceSchema = z.object({
+  id: z.string().uuid().optional().or(z.literal('')),
+  title: requiredFrenchI18nSchema,
+  description: i18nTextSchema,
+  includes: i18nTextSchema,
+  // Whole euros; empty means "quote on request".
+  priceFrom: z
+    .union([z.literal(''), z.coerce.number().int().min(0).max(1_000_000)])
+    .transform((value) => (value === '' ? null : value)),
   sortOrder: z.coerce.number().int().min(0).max(9999).default(0),
   status: statusSchema,
 })

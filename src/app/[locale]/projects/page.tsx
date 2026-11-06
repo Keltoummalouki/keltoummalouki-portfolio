@@ -148,7 +148,7 @@ export default async function ProjectsIndexPage({ params, searchParams }: PagePr
           <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {slice.items.map((project, index) => (
               <li key={project.id}>
-                <ProjectCard project={project} labels={labelsFor(project)} priority={slice.page === 1 && index < 2} />
+                <ProjectCard project={project} labels={labelsFor(project)} from="projects" priority={slice.page === 1 && index < 2} />
               </li>
             ))}
           </ul>

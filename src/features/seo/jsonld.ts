@@ -283,6 +283,31 @@ export function faqSchema(pagePath: string, items: { question: string; answer: s
   }
 }
 
+/** Freelance packages as offers of the organization; a starting price becomes `minPrice`. */
+export function offerCatalogSchema(
+  pagePath: string,
+  name: string,
+  items: { title: string; description: string; priceFrom: number | null }[],
+  currency: string,
+): JsonLdNode {
+  return {
+    '@type': 'OfferCatalog',
+    '@id': `${absoluteUrl(pagePath)}#offers`,
+    name,
+    itemListElement: items.map((item) =>
+      compact({
+        '@type': 'Offer',
+        offeredBy: organizationRef,
+        itemOffered: compact({ '@type': 'Service', name: item.title, description: item.description }),
+        priceSpecification:
+          item.priceFrom === null
+            ? undefined
+            : { '@type': 'PriceSpecification', minPrice: item.priceFrom, priceCurrency: currency },
+      }),
+    ),
+  }
+}
+
 export function itemListSchema(pagePath: string, items: { name: string; path: string }[]): JsonLdNode {
   return {
     '@type': 'ItemList',

@@ -1,3 +1,4 @@
+import { OverviewMetrics } from '@/components/admin/Workspace'
 import Link from 'next/link'
 import { Target } from 'lucide-react'
 import { listLeads, getLeadStatusCounts } from '@/features/freelance/queries'
@@ -40,6 +41,7 @@ export default async function LeadsPage({
   return (
     <div className="space-y-6">
       <PageHeader title="Freelance leads" description="Project inquiries from your freelance form." />
+      <OverviewMetrics items={[{label:'All opportunities',value:total,hint:'Your freelance pipeline',href:'/admin/leads'},{label:'New inquiries',value:counts.new,hint:'Start a conversation',href:'/admin/leads?status=new'},{label:'In progress',value:counts.qualified+counts.meeting+counts.proposal,hint:'Qualified, meeting, or proposal'},{label:'Won',value:counts.won,hint:'Successful opportunities',href:'/admin/leads?status=won'}]} />
 
       <FilterTabs tabs={tabs} ariaLabel="Filter leads by status" />
 

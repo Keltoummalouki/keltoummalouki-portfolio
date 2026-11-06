@@ -2,6 +2,7 @@ import { ArrowRight, Download, Mail, MapPin, UserRound } from 'lucide-react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import type { ProfileAvailability } from '@/features/seo/profile-summary'
+import { trackClick } from '@/lib/analytics/events'
 import { isOptimizableImageSrc } from '@/lib/images'
 import { cn } from '@/lib/utils'
 import { ctaPrimary, ctaSecondary } from './ProfileSection'
@@ -98,13 +99,20 @@ export default function AboutIntro({
           <nav aria-label={labels.actions} className="mt-8">
             <ul className="flex flex-wrap gap-3">
               <li>
-                <a href={cvUrl} download target="_blank" rel="noopener noreferrer" className={ctaPrimary}>
+                <a
+                  href={cvUrl}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={ctaPrimary}
+                  {...trackClick('cv-download', { from: 'about' })}
+                >
                   <Download aria-hidden="true" className="size-4" />
                   {labels.downloadCv}
                 </a>
               </li>
               <li>
-                <Link href="/freelance" className={cn(ctaSecondary, 'group')}>
+                <Link href="/freelance" className={cn(ctaSecondary, 'group')} {...trackClick('contact-cta', { from: 'about' })}>
                   {labels.workWithMe}
                   <ArrowRight
                     aria-hidden="true"
@@ -113,7 +121,7 @@ export default function AboutIntro({
                 </Link>
               </li>
               <li>
-                <a href={`mailto:${email}`} className={ctaSecondary}>
+                <a href={`mailto:${email}`} className={ctaSecondary} {...trackClick('contact-link', { channel: 'email', from: 'about' })}>
                   <Mail aria-hidden="true" className="size-4" />
                   {labels.email}
                 </a>

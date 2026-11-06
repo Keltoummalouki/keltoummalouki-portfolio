@@ -1,3 +1,4 @@
+import { EditorGuide } from '@/components/admin/Workspace'
 import { saveAboutAction } from '@/features/cms/actions'
 import { ABOUT_FALLBACK } from '@/features/cms/fallbacks'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -125,9 +126,10 @@ export default async function AdminAboutPage({
     <div className="space-y-6">
       <PageHeader
         title="About"
-        description="Manage the public profile: photo, name, availability, localized copy, and CV files."
+        description="Manage the public profile: photo, name, availability, localized copy, CV files, and booking link."
       />
       <ErrorNotice error={error} />
+      <EditorGuide items={[{"href":"#profile","label":"Identity","detail":"Photo, name & availability"},{"href":"#biography","label":"Your story","detail":"Headline & multilingual bio"},{"href":"#resume","label":"Your résumé","detail":"Localized PDF documents"},{"href":"#booking","label":"Booking","detail":"Calendar link for calls"}]} />
 
       <form action={saveAboutAction} className="space-y-6">
         <input type="hidden" name="existingAvatarUrl" value={avatarUrl} />
@@ -137,7 +139,7 @@ export default async function AdminAboutPage({
 
         {/* Profile: photo, name, availability, location */}
         <SectionCard
-          title="Profile"
+          id="profile" title="Profile"
           description="Your photo, name, and availability shown across the public site."
         >
           <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
@@ -177,7 +179,7 @@ export default async function AdminAboutPage({
 
         {/* Localized copy */}
         <SectionCard
-          title="Headline & bio"
+          id="biography" title="Headline & bio"
           description="Your public tagline and short biography. French is required; Arabic is entered right-to-left."
         >
           <div className="space-y-6">
@@ -188,7 +190,7 @@ export default async function AdminAboutPage({
 
         {/* CV files */}
         <SectionCard
-          title="CV / résumé files"
+          id="resume" title="CV / résumé files"
           description="Upload localized PDFs. Arabic visitors use the French CV unless a dedicated Arabic CV is added."
         >
           <div className="grid gap-6 lg:grid-cols-2">
@@ -213,6 +215,20 @@ export default async function AdminAboutPage({
               />
             </div>
           </div>
+        </SectionCard>
+
+        {/* Booking link */}
+        <SectionCard
+          id="booking" title="Booking link"
+          description="A Cal.com or Calendly page. When set, the freelance page shows a “Book a call” button that opens it in a new tab. Leave empty to hide the button."
+        >
+          <Field
+            label="Booking page (https://)"
+            name="bookingUrl"
+            type="url"
+            placeholder="https://cal.com/your-name/30min"
+            defaultValue={siteProfile.bookingUrl}
+          />
         </SectionCard>
 
         {/* About uses a single visibility; kept fixed so the public profile is always shown. */}

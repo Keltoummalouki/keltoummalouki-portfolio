@@ -1,51 +1,39 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { animate, stagger } from 'animejs'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { ArrowRight, ArrowUpRight, ExternalLink, Github } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
-import Pagination from '@/components/ui/Pagination'
 import StackChips from '@/components/projects/StackChips'
 import { pillArrow, pillOutline, pillPrimary } from '@/components/sections/showcase/classes'
 import { fallbackProjectCards } from '@/features/content/projects.fallback'
 import { projectHost, type ProjectCardData } from '@/features/content/projects.map'
+import { trackClick } from '@/lib/analytics/events'
 import { isOptimizableImageSrc } from '@/lib/images'
-import { prefersReducedMotion } from '@/lib/motion/reduced-motion'
-import { scrollToElement } from '@/lib/motion/smooth-scroll'
-import { paginate } from '@/lib/pagination'
 import { cn } from '@/lib/utils'
 import styles from './ProjectsSection.module.css'
 
-/** Projects per page on the home page; /projects lists them all. */
-const PROJECTS_PER_PAGE = 3
-/** Clearance for the fixed site header when the list scrolls back into view. */
-const HEADER_OFFSET = 112
-
 const pad = (n: number) => String(n).padStart(2, '0')
 
-// Every row is rendered (other pages are `hidden`), so the home page links all
-// case studies in its HTML; pagination only toggles which rows are shown.
+// The home page's selection (`projects`, featured first); "View all" leads to
+// /projects. `total`: how many projects are published, shown by the title.
 // `livePreviews`: demo URLs the server found framable; on desktop their frame
 // shows the live site over the cover.
-export default function ProjectsSection({ projects, index, livePreviews = [] }: {
+export default function ProjectsSection({ projects, total, index, livePreviews = [] }: {
   projects?: ProjectCardData[]
+  total: number
   index: string
   livePreviews?: string[]
 }) {
   const t = useTranslations('projects')
   const tp = useTranslations('projectPages')
   const items = projects?.length ? projects : fallbackProjectCards(key => t(key))
+  const count = projects?.length ? total : items.length
   const framable = new Set(livePreviews)
-  const [requestedPage, setRequestedPage] = useState(1)
-  const { page, totalPages } = paginate(items, requestedPage, PROJECTS_PER_PAGE)
-  const first = (page - 1) * PROJECTS_PER_PAGE
   const sectionRef = useRef<HTMLElement>(null)
-  const listRef = useRef<HTMLOListElement>(null)
-  const pageChanged = useRef(false)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -65,31 +53,12 @@ export default function ProjectsSection({ projects, index, livePreviews = [] }: 
     return () => media.revert()
   }, [])
 
-  // New page: bring the list back under the header, move focus to it and
-  // stagger its rows in. A layout effect, so rows never flash before fading in.
-  useLayoutEffect(() => {
-    const list = listRef.current
-    if (!pageChanged.current || !list) return
-    if (list.getBoundingClientRect().top < HEADER_OFFSET) scrollToElement(list, HEADER_OFFSET)
-    list.focus({ preventScroll: true })
-    if (prefersReducedMotion()) return
-    const animation = animate(list.querySelectorAll(':scope > li:not([hidden])'), {
-      opacity: [0, 1], translateY: [24, 0], duration: 600, delay: stagger(90), ease: 'outCubic',
-    })
-    return () => { animation.revert() }
-  }, [page])
-
-  const goToPage = (next: number) => {
-    pageChanged.current = true
-    setRequestedPage(next)
-  }
-
   if (items.length === 0) return null
   return (
     <section id="projects" ref={sectionRef} aria-labelledby="projects-title" className={styles.section}>
       <header className={styles.header} data-work-reveal>
         <div>
-          <p className={styles.eyebrow}><span />{index} / {t('title')}<span className={styles.total}>{pad(items.length)}</span></p>
+          <p className={styles.eyebrow}><span />{index} / {t('title')}<span className={styles.total}>{pad(count)}</span></p>
           <h2 id="projects-title" className={styles.heading}>{t('heading')}</h2>
         </div>
         <div className={styles.intro}>
@@ -99,17 +68,13 @@ export default function ProjectsSection({ projects, index, livePreviews = [] }: 
       </header>
       <div className={styles.rule}><div data-work-rule /></div>
 
-      <ol id="projects-list" ref={listRef} tabIndex={-1} aria-label={t('title')} className={styles.list} data-work-reveal>
+      <ol aria-label={t('title')} className={styles.list} data-work-reveal>
         {items.map((project, i) => {
           const href = `/projects/${project.slug}`
           const host = projectHost(project.demo)
-          const onPage = i >= first && i < first + PROJECTS_PER_PAGE
+          const click = { project: project.slug, from: 'home' }
           return (
-            <li
-              key={project.id}
-              hidden={!onPage}
-              className={cn(styles.row, (i % PROJECTS_PER_PAGE) % 2 === 1 && styles.flip)}
-            >
+            <li key={project.id} className={cn(styles.row, i % 2 === 1 && styles.flip)}>
               <div className={styles.media}>
                 <div className={styles.chrome}>
                   <span className={styles.dots} aria-hidden="true"><i /><i /><i /></span>
@@ -128,11 +93,11 @@ export default function ProjectsSection({ projects, index, livePreviews = [] }: 
                     />
                   </> : <span className={styles.placeholder} aria-hidden="true">{project.title.slice(0, 2).toUpperCase()}</span>}
                   {project.demo && framable.has(project.demo) && (
-                    <LivePreview url={project.demo} title={tp('liveDemoAria', { title: project.title })} active={onPage} />
+                    <LivePreview url={project.demo} title={tp('liveDemoAria', { title: project.title })} />
                   )}
                 </div>
                 {/* Mouse shortcut to the case study; the title and button carry it for keyboards. */}
-                <Link href={href} tabIndex={-1} aria-label={tp('readCaseStudyAria', { title: project.title })} className={styles.frameLink}>
+                <Link href={href} tabIndex={-1} aria-label={tp('readCaseStudyAria', { title: project.title })} className={styles.frameLink} {...trackClick('project-case-study', click)}>
                   <span className={styles.open} aria-hidden="true"><ArrowUpRight size={20} /></span>
                 </Link>
               </div>
@@ -143,20 +108,20 @@ export default function ProjectsSection({ projects, index, livePreviews = [] }: 
                   {project.dateLabel && <span>{project.dateLabel}</span>}
                   {project.featured && <span className={styles.badge}><span aria-hidden="true">✦</span>{t('featured')}</span>}
                 </p>
-                <h3 className={styles.title}><Link href={href}>{project.title}</Link></h3>
+                <h3 className={styles.title}><Link href={href} {...trackClick('project-case-study', click)}>{project.title}</Link></h3>
                 {project.description && <p className={styles.description}>{project.description}</p>}
                 <StackChips items={project.stackItems} label={t('techStack')} max={6} className={styles.stack} />
                 <div className={styles.links}>
-                  <Link href={href} aria-label={tp('readCaseStudyAria', { title: project.title })} className={pillPrimary}>
+                  <Link href={href} aria-label={tp('readCaseStudyAria', { title: project.title })} className={pillPrimary} {...trackClick('project-case-study', click)}>
                     {tp('readCaseStudy')}<ArrowRight aria-hidden="true" className={pillArrow} />
                   </Link>
                   {project.demo && (
-                    <a href={project.demo} target="_blank" rel="noopener noreferrer" aria-label={tp('liveDemoAria', { title: project.title })} className={pillOutline}>
+                    <a href={project.demo} target="_blank" rel="noopener noreferrer" aria-label={tp('liveDemoAria', { title: project.title })} className={pillOutline} {...trackClick('project-demo', click)}>
                       <ExternalLink aria-hidden="true" className="size-4" />{tp('liveDemo')}
                     </a>
                   )}
                   {project.github && (
-                    <a href={project.github} target="_blank" rel="noopener noreferrer" aria-label={tp('viewCodeAria', { title: project.title })} className={pillOutline}>
+                    <a href={project.github} target="_blank" rel="noopener noreferrer" aria-label={tp('viewCodeAria', { title: project.title })} className={pillOutline} {...trackClick('project-code', click)}>
                       <Github aria-hidden="true" className="size-4" />{tp('viewCode')}
                     </a>
                   )}
@@ -166,12 +131,6 @@ export default function ProjectsSection({ projects, index, livePreviews = [] }: 
           )
         })}
       </ol>
-
-      {totalPages > 1 && (
-        <div className={styles.pager} data-work-reveal>
-          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} label={t('paginationLabel')} controls="projects-list" />
-        </div>
-      )}
     </section>
   )
 }
@@ -185,9 +144,9 @@ const LIVE_REVEAL_DELAY_MS = 800
  * The live demo inside the frame, as a non-interactive preview (`inert`, so the
  * page keeps scrolling over it and it never takes focus). Desktop only, and not
  * under reduced motion or Save-Data. It loads once its row nears the viewport
- * on the current page, fades in over the cover, and unloads on a page change.
+ * and fades in over the cover.
  */
-function LivePreview({ url, title, active }: { url: string; title: string; active: boolean }) {
+function LivePreview({ url, title }: { url: string; title: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const [capable, setCapable] = useState(false)
   const [near, setNear] = useState(false)
@@ -224,11 +183,11 @@ function LivePreview({ url, title, active }: { url: string; title: string; activ
 
   useEffect(() => {
     const el = ref.current
-    if (!el || !active || near) return
+    if (!el || near) return
     const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) setNear(true) }, { rootMargin: '300px 0px' })
     observer.observe(el)
     return () => observer.disconnect()
-  }, [active, near])
+  }, [near])
 
   useEffect(() => {
     const el = ref.current
@@ -238,7 +197,7 @@ function LivePreview({ url, title, active }: { url: string; title: string; activ
     return () => observer.disconnect()
   }, [])
 
-  const mounted = capable && active && near && scale > 0 && !blocked
+  const mounted = capable && near && scale > 0 && !blocked
   useEffect(() => {
     if (mounted) return
     setLoaded(false)

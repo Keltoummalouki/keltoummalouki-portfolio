@@ -6,6 +6,7 @@ import { Heart, Code } from 'lucide-react'
 import type { PublicSocialLink } from '@/features/cms/queries'
 import SocialIcon from '@/components/ui/SocialIcon'
 import { Link, usePathname } from '@/i18n/navigation'
+import { trackClick } from '@/lib/analytics/events'
 
 // Crawlable internal links on every page (locale-aware via next-intl's Link).
 const SITE_LINKS = [
@@ -90,6 +91,7 @@ export default function Footer({ links }: { links?: PublicSocialLink[] }) {
                 rel={isLocalLink(link.href) ? undefined : 'me noopener noreferrer'}
                 className="p-2.5 rounded-full border border-border bg-card text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
                 aria-label={link.name}
+                {...trackClick('contact-link', { channel: link.platform, from: 'footer' })}
               >
                 <SocialIcon platform={link.platform} icon={link.icon} className="size-[18px]" />
               </a>

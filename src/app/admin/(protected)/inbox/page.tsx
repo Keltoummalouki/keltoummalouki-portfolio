@@ -1,3 +1,4 @@
+import { OverviewMetrics } from '@/components/admin/Workspace'
 import Link from 'next/link'
 import { Inbox } from 'lucide-react'
 import { listMessages, getStatusCounts } from '@/features/inbox/queries'
@@ -44,6 +45,7 @@ export default async function InboxPage({
   return (
     <div className="space-y-6">
       <PageHeader title="Inbox" description="Messages submitted through the contact form." />
+      <OverviewMetrics items={[{label:'All messages',value:total,hint:'Every conversation',href:'/admin/inbox'},{label:'New',value:counts.new,hint:'Waiting for your attention',href:'/admin/inbox?status=new'},{label:'Read',value:counts.read,hint:'Reviewed messages',href:'/admin/inbox?status=read'},{label:'Replied',value:counts.replied,hint:'Conversations followed up',href:'/admin/inbox?status=replied'}]} />
 
       <FilterTabs tabs={tabs} ariaLabel="Filter messages by status" />
 
@@ -58,7 +60,7 @@ export default async function InboxPage({
           }
         />
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+        <ul className="admin-inbox-list divide-y divide-border overflow-hidden rounded-xl border border-border">
           {messages.map((m) => (
             <li key={m.id}>
               <Link

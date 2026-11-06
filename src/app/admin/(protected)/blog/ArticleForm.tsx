@@ -281,7 +281,7 @@ export default function ArticleForm({ action, submitLabel, defaultValues }: Arti
         })}
       </fieldset>
 
-      <div className="flex gap-3">
+      <div className="admin-form-footer">
         <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : submitLabel}
         </Button>

@@ -12,6 +12,7 @@ import TurnstileWidget from '@/components/ui/TurnstileWidget'
 import SocialIcon from '@/components/ui/SocialIcon'
 import { submitContactMessage } from '@/features/inbox/actions'
 import type { PublicSocialLink } from '@/features/cms/queries'
+import { trackClick, trackEvent } from '@/lib/analytics/events'
 import { prefersReducedMotion } from '@/lib/motion/reduced-motion'
 import { cn } from '@/lib/utils'
 
@@ -262,6 +263,7 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
       }
 
       showStatus('success')
+      trackEvent('contact-form-sent')
       setFormData({ name: '', email: '', message: '' })
       setTurnstileToken(null)
     } catch {
@@ -283,9 +285,9 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
     }
   }
 
-  const contactInfo: { icon: LucideIcon; label: string; value: string; href?: string; ltr?: boolean; copy?: boolean }[] = [
-    { icon: Mail, label: t('info.email'), value: EMAIL, href: `mailto:${EMAIL}`, ltr: true, copy: true },
-    { icon: Phone, label: t('info.phone'), value: PHONE, href: PHONE_HREF, ltr: true },
+  const contactInfo: { icon: LucideIcon; label: string; value: string; href?: string; channel?: string; ltr?: boolean; copy?: boolean }[] = [
+    { icon: Mail, label: t('info.email'), value: EMAIL, href: `mailto:${EMAIL}`, channel: 'email', ltr: true, copy: true },
+    { icon: Phone, label: t('info.phone'), value: PHONE, href: PHONE_HREF, channel: 'phone', ltr: true },
     { icon: MapPin, label: t('info.location'), value: t('info.locationValue') },
   ]
 
@@ -357,7 +359,11 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
                   return (
                     <li key={info.label} className="flex items-center gap-1">
                       {info.href ? (
-                        <a href={info.href} className={cn(rowClass, 'group hover:bg-accent/60 active:scale-[0.99]')}>
+                        <a
+                          href={info.href}
+                          className={cn(rowClass, 'group hover:bg-accent/60 active:scale-[0.99]')}
+                          {...trackClick('contact-link', { channel: info.channel ?? 'other', from: 'contact' })}
+                        >
                           {body}
                           {/* One trailing control per row: copyable rows get the copy button instead. */}
                           {!info.copy && (
@@ -379,6 +385,7 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
                         <button
                           type="button"
                           onClick={copyEmail}
+                          {...trackClick('contact-link', { channel: 'email-copy', from: 'contact' })}
                           aria-label={copied ? t('info.copied') : t('info.copyEmail')}
                           title={copied ? t('info.copied') : t('info.copyEmail')}
                           className="group/copy flex sm:me-2 size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-[scale] duration-150 ease-fluid active:scale-95"
@@ -425,6 +432,7 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
                           rel={external ? 'noopener noreferrer' : undefined}
                           aria-label={label}
                           title={label}
+                          {...trackClick('contact-link', { channel: link.platform, from: 'contact' })}
                           className="flex size-12 items-center justify-center rounded-full bg-card text-muted-foreground ring-1 ring-border transition-[translate,scale,color,background-color,box-shadow] duration-200 ease-fluid hover:-translate-y-0.5 hover:bg-accent hover:text-foreground hover:ring-primary/40 active:scale-95"
                         >
                           <SocialIcon platform={link.platform} icon={link.icon} className="size-[18px]" />

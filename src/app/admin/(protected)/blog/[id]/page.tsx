@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/admin/ui'
 import { notFound } from 'next/navigation'
 import ArticleForm, { type ArticleFormDefaults } from '../ArticleForm'
 import { updateArticleAction } from '@/features/articles/actions'
@@ -42,10 +43,7 @@ export default async function EditArticlePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Edit article</h1>
-        <p className="text-sm text-muted-foreground">{article.slug}</p>
-      </div>
+      <PageHeader title="Edit article" description={article.slug} />
       <ArticleForm
         action={updateArticleAction.bind(null, id)}
         submitLabel="Save changes"

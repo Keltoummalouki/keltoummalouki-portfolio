@@ -1,3 +1,4 @@
+import { CollectionOverview } from '@/components/admin/Workspace'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -40,6 +41,8 @@ export default async function AdminProjectsPage() {
           </Button>
         }
       />
+
+      <CollectionOverview items={projects} label="projects" />
 
       <ProjectsTable projects={rows} />
     </div>

@@ -13,6 +13,40 @@
     "helpTitle": "What I can help with",
     "intro": "Share a few details about your project and I’ll reply with next steps.",
     "formTitle": "Tell me about your project",
+    "cta": {
+      "book": "Book a call",
+      "newTab": "(opens in a new tab)",
+      "request": "Describe your project"
+    },
+    "process": {
+      "title": "How I work",
+      "lead": "From your first message to launch, in four steps.",
+      "steps": {
+        "brief": {
+          "title": "Share your project",
+          "text": "Send your goals, budget range and timeline through the form below, by email or on a call."
+        },
+        "scope": {
+          "title": "Agree on scope and price",
+          "text": "I reply with questions and a proposal. We agree on the features, timeline and price before development starts."
+        },
+        "build": {
+          "title": "Build in short iterations",
+          "text": "I share progress regularly, so you can try things out and give feedback along the way."
+        },
+        "launch": {
+          "title": "Launch and handover",
+          "text": "I deploy the project and walk you through everything you need to run it."
+        }
+      }
+    },
+    "packages": {
+      "title": "Packages",
+      "lead": "Starting prices for typical projects. You get a precise quote once we agree on the scope.",
+      "from": "Starting from",
+      "quote": "Quote on request",
+      "includes": "Included"
+    },
     "form": {
       "name": "Full name",
       "email": "Email",
@@ -145,8 +179,6 @@
     }
   },
   "skills": {
-    "title": "Technical Skills",
-    "subtitle": "Technologies and tools I work with",
     "categories": {
       "languages": "Languages",
       "frameworks": "Frameworks & APIs",
@@ -179,8 +211,6 @@
     }
   },
   "education": {
-    "title": "Education",
-    "subtitle": "A solid foundation that shaped my problem-solving mindset.",
     "items": {
       "youcode": {
         "title": "Full Stack Development Program",
@@ -194,12 +224,6 @@
         "date": "2023 – 2024",
         "description": "Scientific baccalauréat with a strong foundation in mathematics, physics, and chemistry."
       }
-    },
-    "heading": "Academic background",
-    "ongoing": {
-      "title": "Continuous learning",
-      "school": "Courses, certifications and new technologies",
-      "date": "Ongoing"
     }
   },
   "projects": {
@@ -225,8 +249,6 @@
     "heading": "Featured projects"
   },
   "certifications": {
-    "title": "Certifications",
-    "subtitle": "Courses and certifications that strengthen my expertise.",
     "viewCredential": "View on LinkedIn",
     "items": {
       "docker": {
@@ -235,10 +257,7 @@
         "date": "2025",
         "description": "Professional certification validating Docker and containerization fundamentals."
       }
-    },
-    "heading": "Certified skills",
-    "viewCertificate": "View certificate",
-    "verified": "Verifiable credential"
+    }
   },
   "softSkills": {
     "title": "Soft Skills",
@@ -255,7 +274,6 @@
     "english": "English (A2)"
   },
   "github": {
-    "title": "GitHub Stats",
     "subtitle": "Open-source contributions and personal projects, live from GitHub.",
     "viewProfile": "View my GitHub profile",
     "heading": "Building in public",
@@ -578,7 +596,6 @@
     "status": "Page {page} of {total}"
   },
   "faq": {
-    "eyebrow": "FAQ",
     "title": "Popular questions",
     "subtitle": "Answers to what people ask me most before we work together.",
     "more": "Another question?",

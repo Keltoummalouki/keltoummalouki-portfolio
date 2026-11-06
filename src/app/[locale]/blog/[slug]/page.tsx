@@ -85,6 +85,7 @@ export async function generateMetadata({
     publishedTime: detail.articles.published_at,
     modifiedTime: latestDate(detail.articles.updated_at, detail.updated_at)?.toISOString(),
     authors: [detail.articles.author_name || PERSON.name],
+    rssFeed: { title: seo('blogTitle') },
     images: cover
       ? [{ url: cover, alt: detail.title }]
       : [{ url: localePath(locale, '/opengraph-image'), width: 1200, height: 630, alt: seo('ogImageAlt') }],

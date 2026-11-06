@@ -3,7 +3,7 @@ import type { Locale } from '@/lib/validation/locale'
 import { pickI18n, type I18nMap } from '@/features/content/i18n-json'
 
 // Pure, client-safe FAQ ("popular questions") mapping. When the CMS has no
-// published items the home page uses the default questions from
+// published items the freelance page uses the default questions from
 // messages/*.json (`faq.items`), resolved by the caller.
 
 export type FaqItemRow = Tables<'faq_items'>

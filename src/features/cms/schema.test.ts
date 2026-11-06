@@ -7,6 +7,7 @@ import {
   experienceSchema,
   languageSchema,
   mediaUploadSchema,
+  serviceSchema,
   skillSchema,
 } from './schema'
 
@@ -181,5 +182,58 @@ describe('cms schema helpers', () => {
         },
       }).success,
     ).toBe(true)
+  })
+})
+
+describe('serviceSchema', () => {
+  const base = {
+    id: '',
+    title: { fr: 'Site vitrine', en: '', ar: '' },
+    description: { fr: '', en: '', ar: '' },
+    includes: { fr: 'Design\nSEO', en: '', ar: '' },
+    sortOrder: '1',
+    status: 'published',
+  }
+
+  it('reads an empty price as "quote on request"', () => {
+    const parsed = serviceSchema.parse({ ...base, priceFrom: '' })
+    expect(parsed.priceFrom).toBeNull()
+  })
+
+  it('accepts whole, non-negative euro prices only', () => {
+    expect(serviceSchema.parse({ ...base, priceFrom: '1500' }).priceFrom).toBe(1500)
+    expect(serviceSchema.safeParse({ ...base, priceFrom: '-10' }).success).toBe(false)
+    expect(serviceSchema.safeParse({ ...base, priceFrom: '99.5' }).success).toBe(false)
+    expect(serviceSchema.safeParse({ ...base, priceFrom: 'abc' }).success).toBe(false)
+  })
+
+  it('requires a French package name', () => {
+    expect(serviceSchema.safeParse({ ...base, title: { fr: '', en: 'Website', ar: '' }, priceFrom: '' }).success).toBe(false)
+  })
+})
+
+describe('aboutProfileSchema booking link', () => {
+  const about = {
+    fullName: 'Keltoum',
+    avatarUrl: '',
+    availabilityStatus: 'available',
+    cvUrl: '/cv.pdf',
+    cvUrlFr: '/cv-fr.pdf',
+    cvUrlEn: '/cv-en.pdf',
+    location: { fr: 'Casablanca', en: '', ar: '' },
+    headline: { fr: 'Développeuse', en: '', ar: '' },
+    bio: { fr: 'Bio', en: '', ar: '' },
+  }
+
+  it('accepts an https link or nothing', () => {
+    expect(aboutProfileSchema.parse({ ...about, bookingUrl: 'https://cal.com/keltoum/30min' }).bookingUrl).toBe(
+      'https://cal.com/keltoum/30min',
+    )
+    expect(aboutProfileSchema.parse({ ...about, bookingUrl: '' }).bookingUrl).toBeNull()
+  })
+
+  it('rejects links that are not https', () => {
+    expect(aboutProfileSchema.safeParse({ ...about, bookingUrl: 'http://cal.com/keltoum' }).success).toBe(false)
+    expect(aboutProfileSchema.safeParse({ ...about, bookingUrl: 'javascript:alert(1)' }).success).toBe(false)
   })
 })

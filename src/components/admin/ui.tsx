@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
+import { ArrowLeft, Award, Briefcase, FileText, FolderKanban, GraduationCap, Inbox, Languages, Layers3, MessageCircleQuestion, MessageSquareQuote, Palette, Share2, Sparkles, Target, UserRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
@@ -32,7 +33,7 @@ export function SectionCard({
   id?: string
 }) {
   return (
-    <section id={id} className={cn('rounded-xl border border-border bg-card shadow-sm', className)}>
+    <section id={id} className={cn('admin-section rounded-xl border border-border bg-card shadow-sm', className)}>
       {(title || action) && (
         <header className="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="min-w-0">
@@ -80,7 +81,7 @@ export function StatCard({
   )
 
   const base =
-    'block rounded-xl border border-border bg-card p-5 shadow-sm transition-colors'
+    'admin-stat block rounded-xl border border-border bg-card p-5 shadow-sm transition-colors'
 
   if (href) {
     return (
@@ -185,7 +186,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center',
+        'admin-empty flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center',
         className,
       )}
     >
@@ -208,7 +209,7 @@ export function EmptyState({
 /* -------------------------------------------------------------------------- */
 
 export const table = {
-  shell: 'overflow-x-auto rounded-xl border border-border',
+  shell: 'admin-table-shell overflow-x-auto rounded-xl border border-border',
   table: 'w-full text-left text-sm',
   thead: 'border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground',
   th: 'px-4 py-3 font-medium',
@@ -230,14 +231,36 @@ export function PageHeader({
   description?: string
   action?: ReactNode
 }) {
+  const designs: Record<string, { icon: LucideIcon; eyebrow: string }> = {
+    Projects: { icon: FolderKanban, eyebrow: 'The work that defines you' },
+    Blog: { icon: FileText, eyebrow: 'Your ideas, in your words' },
+    Inbox: { icon: Inbox, eyebrow: 'Every conversation starts here' },
+    'Freelance leads': { icon: Target, eyebrow: 'Turn conversations into opportunities' },
+    Reviews: { icon: MessageSquareQuote, eyebrow: 'A little perspective from your audience' },
+    Skills: { icon: Sparkles, eyebrow: 'The tools behind your craft' },
+    Languages: { icon: Languages, eyebrow: 'Connect across cultures' },
+    Education: { icon: GraduationCap, eyebrow: 'The foundations of your journey' },
+    Experience: { icon: Briefcase, eyebrow: 'Your professional story' },
+    Certifications: { icon: Award, eyebrow: 'Milestones worth sharing' },
+    FAQ: { icon: MessageCircleQuestion, eyebrow: 'Good questions. Clear answers.' },
+    'Social & contact links': { icon: Share2, eyebrow: 'Your presence, connected' },
+    'About': { icon: UserRound, eyebrow: 'Introduce the person behind the work' },
+    'About & profile': { icon: UserRound, eyebrow: 'Introduce the person behind the work' },
+    'Theme & design': { icon: Palette, eyebrow: 'Make every detail yours' },
+  }
+  const editor = /^(New|Edit) (project|article)$/.test(title)
+  const back = title.includes('project') ? '/admin/projects' : '/admin/blog'
+  const { icon: Icon, eyebrow } = designs[title] ?? { icon: Layers3, eyebrow: editor ? 'From the first draft to the final detail' : 'Your portfolio workspace' }
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <header className="admin-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+        {editor && <Link href={back} className="admin-editor-back"><ArrowLeft size={13} aria-hidden="true" /> Back to {title.includes('project') ? 'projects' : 'articles'}</Link>}
+        <p className="admin-eyebrow">{eyebrow}</p>
+        <div className="admin-page-title"><span><Icon size={23} aria-hidden="true" /></span><h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1></div>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
-    </div>
+    </header>
   )
 }
 
@@ -253,7 +276,7 @@ export function FilterTabs({
   ariaLabel?: string
 }) {
   return (
-    <nav aria-label={ariaLabel} className="flex flex-wrap gap-1.5">
+    <nav aria-label={ariaLabel} className="admin-filter-tabs flex flex-wrap gap-1.5">
       {tabs.map((tab) => (
         <Link
           key={tab.key}

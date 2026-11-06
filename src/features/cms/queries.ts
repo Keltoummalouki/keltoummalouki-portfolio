@@ -28,6 +28,8 @@ export interface PublicAbout {
   cvUrl: string
   availabilityStatus: string
   location: string
+  /** https booking page (Cal.com, Calendly…); empty when not set. */
+  bookingUrl?: string
 }
 
 export interface PublicSocialLink {
@@ -150,6 +152,7 @@ function mapAbout(row: AboutRow | null, site: SiteSettingsRow | null, locale: Lo
     cvUrl,
     availabilityStatus: site?.availability_status ?? 'available',
     location: pickI18n(profile.location as I18nMap, locale) || pickI18n(site?.location as I18nMap, locale),
+    bookingUrl: profile.bookingUrl,
   }
 }
 

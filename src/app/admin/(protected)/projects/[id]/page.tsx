@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/admin/ui'
 import { notFound } from 'next/navigation'
 import { ExternalLink } from 'lucide-react'
 import ProjectForm, { type ProjectFormDefaults } from '../ProjectForm'
@@ -46,11 +47,8 @@ export default async function EditProjectPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Edit project</h1>
-          <p className="text-sm text-muted-foreground">{project.slug}</p>
-        </div>
+      <div className="admin-project-editor-heading">
+        <PageHeader title="Edit project" description={project.slug} />
         {project.status === 'published' && (
           <a
             href={`/fr/projects/${encodeURIComponent(project.slug)}`}

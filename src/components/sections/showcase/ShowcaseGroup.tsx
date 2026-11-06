@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 /**
- * Shared backdrop + rhythm for the numbered sections (education → FAQ): one
+ * Shared backdrop + rhythm for the numbered sections (projects, reviews): one
  * container, hairline dividers between rows, and a static layer of glowing
  * light lines (decorative SVG, painted once, no animation; md+ only, since a
  * phone-height column stretches the curves across the text).
@@ -11,15 +11,6 @@ export default function ShowcaseGroup({ children }: { children: ReactNode }) {
     <div className="relative isolate overflow-hidden bg-background">
       <FlowLines />
       <div className="relative container-main divide-y divide-border/70 py-6 md:py-10">{children}</div>
-    </div>
-  )
-}
-
-/** Two sections side by side from `lg` (certifications | GitHub, reviews | FAQ). */
-export function ShowcasePair({ children }: { children: ReactNode }) {
-  return (
-    <div className="grid divide-y divide-border/70 lg:grid-cols-2 lg:divide-x lg:divide-y-0 lg:[&>section:first-child]:pe-10 lg:[&>section:last-child]:ps-10 xl:[&>section:first-child]:pe-12 xl:[&>section:last-child]:ps-12">
-      {children}
     </div>
   )
 }

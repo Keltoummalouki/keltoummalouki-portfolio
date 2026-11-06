@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { getPublishedDesignSettings } from '@/features/cms/queries'
 import { readVisitorDesignPreference } from '@/features/preferences/cookie'
+import Analytics from '@/components/analytics/Analytics'
 import { PreferenceProvider } from '@/components/providers/PreferenceProvider'
 import SmoothScroll from '@/components/providers/SmoothScroll'
 
@@ -48,8 +49,9 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <PreferenceProvider adminDesign={design} initialPreference={visitorPreference}>
-        {/* Public site only: /admin keeps native scrolling. */}
+        {/* Public site only: /admin keeps native scrolling and is never tracked. */}
         <SmoothScroll />
+        <Analytics />
         {children}
       </PreferenceProvider>
     </NextIntlClientProvider>

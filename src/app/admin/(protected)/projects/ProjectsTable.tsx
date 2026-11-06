@@ -50,7 +50,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRowVM[] }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="admin-collection-toolbar flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
           type="search"
           value={q}
@@ -72,6 +72,8 @@ export default function ProjectsTable({ projects }: { projects: ProjectRowVM[] }
             </SelectGroup>
           </SelectContent>
         </Select>
+        <span className="admin-result-count" role="status">{filtered.length} of {projects.length} projects</span>
+        {(q || status !== 'all') && <button type="button" className="admin-clear-filters" onClick={() => { setQ(''); setStatus('all') }}>Clear filters</button>}
       </div>
 
       {filtered.length === 0 ? (

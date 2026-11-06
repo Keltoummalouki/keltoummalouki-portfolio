@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Pure, client-safe mapping for the home "Building in public" card. Raw API
+// Pure, client-safe mapping for the /about "Building in public" card. Raw API
 // payloads are validated here so a changed or failed response degrades to
 // `null` (the card falls back to a profile link) instead of breaking the page.
 

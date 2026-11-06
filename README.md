@@ -1,202 +1,150 @@
-# 🚀 Keltoum Malouki - Portfolio
+# Keltoum Malouki — Portfolio & CMS
 
-<div align="center">
+A trilingual portfolio (French, English, Arabic right-to-left) with its own content management system. Every project, article, skill and price on the public site is edited from a private admin dashboard and stored in Supabase. Database security rules decide who can read and write what.
 
-![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=for-the-badge&logo=next.js)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css)
-![Three.js](https://img.shields.io/badge/Three.js-r182-black?style=for-the-badge&logo=three.js)
+**Live site: [keltoummalouki.com](https://www.keltoummalouki.com)**
 
-A modern, animated portfolio website built with cutting-edge web technologies featuring 3D graphics, smooth animations, and multilingual support.
+![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20RLS-3ECF8E?logo=supabase&logoColor=white)
+![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwindcss&logoColor=white)
 
-[Live Demo](https://www.keltoummalouki.com/) • [LinkedIn](https://www.linkedin.com/in/keltoummalouki) • [GitHub](https://github.com/Keltoummalouki)
+![Home page](docs/screenshots/home.png)
 
-</div>
+<table>
+  <tr>
+    <td width="72%"><img src="docs/screenshots/projects.png" alt="Featured projects with live demo previews"></td>
+    <td><img src="docs/screenshots/home-ar-mobile.png" alt="Arabic home page on mobile, right-to-left"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/freelance-process.png" alt="Freelance page: How I work"></td>
+  </tr>
+</table>
 
----
+## What it does
 
-## ✨ Features
+**Public site** (`/fr`, `/en`, `/ar`)
+- A short home page: hero, profile summary, experience, three featured projects, reviews and a contact form.
+- Case studies for each project (`/projects/[slug]`), written in Markdown.
+- A full profile page (`/about`): education, skills, certifications and live GitHub activity.
+- A blog, with an RSS feed per language (`/en/blog/rss.xml`).
+- A freelance page: how I work, packages with starting prices, an optional booking link and a project request form.
+- Public forms for contact messages, project requests and moderated reviews.
 
-### 🎨 Design & Animations
-- **3D Interactive Background** - Immersive Three.js animated particles
-- **GSAP Animations** - Smooth scroll-triggered animations throughout
-- **Framer Motion** - Fluid micro-interactions and transitions
-- **Dark Theme** - Premium dark UI with blue accent colors
-- **Responsive Design** - Fully optimized for all device sizes
+**Admin dashboard** (`/admin`, sign-in required)
+- Edit projects, articles, experience, education, skills, certifications, FAQ, packages and prices, social links and theme, in all three languages.
+- Read the contact inbox and manage freelance leads through a status pipeline.
+- Approve reviews before they are published.
 
-### 🌍 Internationalization
-- **Multilingual Support** - Available in:
-  - 🇬🇧 English
-  - 🇫🇷 French (Français)
-  - 🇸🇦 Arabic (العربية)
+## Architecture
 
-### 📧 Contact Integration
-- **EmailJS Integration** - Backend-less contact form
-- **Form Validation** - Real-time client-side validation
-- **Feedback States** - Loading, success, and error messages
+```mermaid
+flowchart LR
+    V[Visitor] -->|HTTPS| CF[Cloudflare proxy]
+    A[Admin] -->|HTTPS| CF
+    CF --> MW["Next.js middleware<br/>locale routing · session refresh"]
 
-### 📊 Dynamic Content
-- **GitHub Stats** - Live GitHub activity integration
-- **Animated Counters** - Scroll-triggered statistics
-- **Interactive Project Cards** - Hover effects and detailed views
+    subgraph Vercel["Next.js 15 on Vercel"]
+        MW --> PUB["Public pages<br/>/fr · /en · /ar"]
+        MW --> ADM["/admin dashboard<br/>requireAdmin() on every page"]
+        PUB --> Q["features/*/queries<br/>published content only"]
+        ADM --> ACT["Server Actions<br/>requireAdmin → Zod → write"]
+        PUB --> SUB["Public form actions<br/>Zod → Turnstile → rate limit"]
+    end
 
----
+    subgraph SB["Supabase"]
+        DB[("Postgres<br/>Row Level Security")]
+        AUTH[Auth]
+        ST[Storage]
+    end
 
-## 🛠️ Tech Stack
-
-| Category | Technologies |
-|----------|-------------|
-| **Framework** | Next.js 15 (App Router, Turbopack) |
-| **Language** | TypeScript 5 |
-| **Styling** | Tailwind CSS 4, CSS Variables |
-| **3D Graphics** | Three.js, React Three Fiber, Drei |
-| **Animations** | GSAP, Framer Motion |
-| **Icons** | Lucide React, React Icons |
-| **i18n** | next-intl |
-| **Email** | EmailJS |
-| **Deployment** | Vercel |
-
----
-
-## 📁 Project Structure
-
+    Q -->|"anon key + visitor cookies"| DB
+    ACT -->|"admin session"| DB
+    ACT --> ST
+    SUB -->|"service role, server only"| DB
+    ADM --> AUTH
+    PUB -.->|"cached 6 h"| GH[GitHub API]
+    PUB -.->|"cookie-less events"| UM[Umami analytics]
 ```
+
+The UI never writes database queries itself. Each domain lives in `src/features/<domain>/` with the same layout:
+
+| File | Role |
+| --- | --- |
+| `schema.ts` | Zod validation; safe to import in the browser |
+| `map.ts` | Pure functions from database rows to UI data, unit-tested without a database |
+| `queries.ts` | Server-only reads under the visitor's security context |
+| `actions.ts` | Server Actions: check admin, validate, write, revalidate |
+
+## Main technical decisions
+
+- **The database is the security boundary.** Every table has Row Level Security. Admin rights come from a SQL function (`public.is_admin()`) over an `admin_profiles` table, never from user metadata the client could change. Pages and Server Actions check too, but a bug there still can't expose drafts or other people's data.
+- **The service-role key is used in exactly two places:** inserting public submissions and the rate limiter. Everything else runs with the visitor's or admin's own permissions.
+- **Public forms are layered:** Zod validation, a Cloudflare Turnstile check, then a per-IP rate limit. IPs are stored only as HMAC hashes, and errors returned to the browser are deliberately vague (`invalid`, `captcha`, `rate_limited`, `server`).
+- **Translations come in two forms.** Long content (projects, articles, experience) uses `*_translations` tables. Short labels (skills, FAQ, prices) use `{fr, en, ar}` JSON columns. Both fall back to French, then to any available language. Arabic is fully right-to-left, using logical CSS properties throughout.
+- **The site still works when Supabase is down.** Public queries catch their own errors and fall back to defaults built from the translation files, so a database outage degrades the page instead of breaking it.
+- **Schema changes are migrations.** All 20 migrations are in `supabase/migrations`. `supabase db reset` rebuilds the database from version control alone, and the TypeScript types are generated from the schema.
+- **A strict Content Security Policy.** Every external origin is listed in `next.config.ts`, and the analytics origins are added only when analytics is configured.
+- **Privacy-friendly analytics.** Umami runs without cookies, honors Do Not Track and reports only from the production domain. Clicks are marked with `data-track` attributes, which keeps Next.js client-side navigation intact.
+- **Built for search engines and AI assistants.** JSON-LD (Person, FAQPage, OfferCatalog, BlogPosting), hreflang, a sitemap, `llms.txt` and RSS. Profile facts are server-rendered and never hidden behind animations.
+
+## Tech stack
+
+| Area | Tools |
+| --- | --- |
+| Framework | Next.js 15 (App Router, Server Actions), React 19, TypeScript (strict) |
+| Data | Supabase: Postgres, Row Level Security, Auth, Storage |
+| UI | Tailwind CSS 4, shadcn/ui (Radix), GSAP, Framer Motion, Three.js |
+| i18n | next-intl (fr default, en, ar right-to-left) |
+| Validation & security | Zod, Cloudflare Turnstile, HMAC-hashed rate limiting, CSP |
+| Content | Markdown rendered with `rehype-sanitize` |
+| Testing | Vitest (unit tests for schemas, mappers, SEO and analytics helpers) |
+| Hosting | Vercel (Paris region) behind Cloudflare |
+
+## Running it locally
+
+Requirements: Node.js 20+, and Docker for a local Supabase.
+
+```bash
+git clone https://github.com/Keltoummalouki/MyPortfolio.git
+cd MyPortfolio
+npm install
+cp .env.example .env.local      # fill in the values; each one is documented in the file
+
+npx supabase start              # local Supabase (API :54321, Studio :54323)
+npx supabase db reset           # apply every migration and the seed data
+npm run dev                     # http://localhost:3000
+```
+
+Turnstile and analytics are optional in development: leave their variables empty and the site works without them.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Development server (Turbopack) |
+| `npm run build` | Production build, also the type check |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (no database needed) |
+| `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` after a migration |
+
+## Project structure
+
+```text
 src/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout with providers
-│   └── page.tsx           # Main page component
-├── components/
-│   ├── layouts/           # Header, Footer
-│   ├── sections/          # Page sections
-│   │   ├── Hero.tsx       # Hero with 3D background
-│   │   ├── AboutSection.tsx
-│   │   ├── CompetenceSection.tsx
-│   │   ├── EducationSection.tsx
-│   │   ├── ExperienceSection.tsx
-│   │   ├── ProjectsSection.tsx
-│   │   ├── GithubStatsSection.tsx
-│   │   └── ContactSection.tsx
-│   ├── three/             # Three.js components
-│   └── ui/                # Reusable UI components
-├── lib/                   # Utility functions
-└── i18n.ts               # Internationalization config
-
-messages/                  # Translation files
-├── en.json               # English
-├── fr.json               # French
-└── ar.json               # Arabic
-
-public/
-├── images/               # Static images
-└── cv.pdf                # Downloadable CV
+  app/
+    [locale]/           public pages: home, about, projects, blog, freelance
+    admin/              sign-in and the protected dashboard
+    llms.txt/  sitemap.ts  robots.ts
+  features/             one folder per domain: articles, cms, content, freelance, inbox, ...
+  components/           sections, admin UI, shared UI
+  lib/                  Supabase clients, analytics, validation, motion helpers
+messages/               fr.json, en.json, ar.json (UI labels)
+supabase/               migrations and seed data
+design-system/          design tokens and page rules
 ```
 
----
+## Contact
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18.17 or later
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Keltoummalouki/MyPortfolio.git
-   cd MyPortfolio
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local   # then fill in real values
-   ```
-   [`.env.example`](.env.example) is the source of truth for every variable and documents which are **public** (`NEXT_PUBLIC_*`, embedded in the browser bundle) versus **server-only secrets** (never prefixed `NEXT_PUBLIC_`, never imported into a Client Component — e.g. `SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_SECRET_KEY`). `.env.local` is gitignored.
-
-   > The contact form currently also reads `NEXT_PUBLIC_EMAILJS_*` (service / template / public key) until the Supabase-backed inbox replaces it.
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open in browser**
-   ```
-   http://localhost:3000
-   ```
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with Turbopack |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run unit tests once (Vitest) |
-| `npm run test:watch` | Run unit tests in watch mode |
-| `npm run test:coverage` | Run unit tests with a coverage report |
-
-> **Testing scope.** `npm test` covers pure logic only (validation schemas, content mapping) and needs **no Supabase project or credentials**. Supabase **RLS integration tests require the local Supabase stack** (`supabase start`) and are introduced in M2 — they are not part of `npm test`.
-
----
-
-## 🎯 Sections Overview
-
-| Section | Description |
-|---------|-------------|
-| **Hero** | Introduction with 3D particle background, profile photo, and CTAs |
-| **About** | Bio, animated stats, journey timeline, and personal qualities |
-| **Skills** | Technical competencies organized by category with SVG icons |
-| **Education** | Academic background and certifications |
-| **Experience** | Professional experience and internships |
-| **Projects** | Featured projects with images, tech stack, and links |
-| **GitHub Stats** | Live GitHub contribution statistics |
-| **Contact** | Contact form with EmailJS integration |
-
----
-
-## 🌐 Deployment
-
-This project is configured for seamless deployment on **Vercel**:
-
-1. Push your code to GitHub
-2. Import the repository in Vercel
-3. Configure environment variables (if using EmailJS)
-4. Deploy!
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-## 👋 Contact
-
-**Keltoum Malouki** - Full Stack Developer
-
-- 📧 Email: [keltoummalouki@gmail.com](mailto:keltoummalouki@gmail.com)
-- 💼 LinkedIn: [Keltoum Malouki](https://www.linkedin.com/in/keltoummalouki)
-- 🐙 GitHub: [@Keltoummalouki](https://github.com/Keltoummalouki)
-- 📍 Location: Casablanca, Morocco
-
----
-
-<div align="center">
-
-**⭐ If you found this portfolio helpful, please consider giving it a star!**
-
-Made with ❤️ by Keltoum Malouki
-
-</div>
+- Website: [keltoummalouki.com](https://www.keltoummalouki.com)
+- LinkedIn: [linkedin.com/in/keltoummalouki](https://www.linkedin.com/in/keltoummalouki)
+- Email: [keltoummalouki@gmail.com](mailto:keltoummalouki@gmail.com)

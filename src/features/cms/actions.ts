@@ -16,6 +16,7 @@ import {
   i18nFromForm,
   languageSchema,
   nullableText,
+  serviceSchema,
   skillCategorySchema,
   skillSchema,
   socialLinkSchema,
@@ -23,6 +24,7 @@ import {
   translationFromForm,
 } from './schema'
 import { uploadImageFromForm, uploadPdfFromForm } from './media'
+import { serviceSlug } from './services'
 import { readSiteProfile } from './site-profile'
 import { defaultSocialLabel, normalizeSocialPlatform } from './social-platforms'
 
@@ -132,6 +134,7 @@ export async function saveAboutAction(formData: FormData): Promise<void> {
     cvUrl: textValue(formData.get('existingCvUrl')),
     cvUrlFr: textValue(formData.get('existingCvUrlFr')),
     cvUrlEn: textValue(formData.get('existingCvUrlEn')),
+    bookingUrl: textValue(formData.get('bookingUrl')),
     location: i18nFromForm(formData, 'location'),
     headline: i18nFromForm(formData, 'headline'),
     bio: i18nFromForm(formData, 'bio'),
@@ -171,6 +174,7 @@ export async function saveAboutAction(formData: FormData): Promise<void> {
       fr: cvUrlFr,
       en: cvUrlEn,
     },
+    bookingUrl: v.bookingUrl ?? null,
   }
 
   const { error: settingsError } = await supabase.from('site_settings').upsert({
@@ -423,6 +427,55 @@ export async function deleteFaqItemAction(formData: FormData): Promise<void> {
   const supabase = await createServerSupabaseClient()
   await supabase.from('faq_items').delete().eq('id', id)
   done('/admin/faq')
+}
+
+export async function saveServiceAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const parsed = serviceSchema.safeParse({
+    id: textValue(formData.get('id')),
+    title: i18nFromForm(formData, 'title'),
+    description: i18nFromForm(formData, 'description'),
+    includes: i18nFromForm(formData, 'includes'),
+    priceFrom: textValue(formData.get('priceFrom')),
+    sortOrder: textValue(formData.get('sortOrder')),
+    status: textValue(formData.get('status')),
+  })
+  if (!parsed.success) failed('/admin/services')
+
+  const v = parsed.data
+  const payload = {
+    title: cleanI18nMap(v.title),
+    description: cleanI18nMap(v.description),
+    includes: cleanI18nMap(v.includes),
+    price_from: v.priceFrom,
+    sort_order: v.sortOrder,
+    status: v.status,
+  }
+  const supabase = await createServerSupabaseClient()
+  if (v.id) {
+    const { error } = await supabase.from('services').update(payload).eq('id', v.id)
+    if (error) failed('/admin/services', 'save')
+  } else {
+    const slug = serviceSlug(v.title.en || v.title.fr)
+    const first = await supabase.from('services').insert({ ...payload, slug })
+    // The slug only identifies the row: on a clash, retry once with a unique suffix.
+    const { error } =
+      first.error?.code === '23505'
+        ? await supabase.from('services').insert({ ...payload, slug: `${slug}-${Date.now().toString(36)}` })
+        : first
+    if (error) failed('/admin/services', 'save')
+  }
+
+  done('/admin/services')
+}
+
+export async function deleteServiceAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const id = idValue(formData)
+  if (!id) failed('/admin/services')
+  const supabase = await createServerSupabaseClient()
+  await supabase.from('services').delete().eq('id', id)
+  done('/admin/services')
 }
 
 export async function saveExperienceAction(formData: FormData): Promise<void> {

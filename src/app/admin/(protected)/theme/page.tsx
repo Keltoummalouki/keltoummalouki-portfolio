@@ -1,3 +1,4 @@
+import { EditorGuide } from '@/components/admin/Workspace'
 import { saveDesignSettingsAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
 import {
@@ -106,11 +107,12 @@ export default async function AdminThemePage({
         description="Control safe presets for colors, fonts, cursor, header position, and public navigation."
       />
       <ErrorNotice error={error} />
+      <EditorGuide items={[{"href":"#brand","label":"Brand","detail":"Colors & defaults"},{"href":"#typography","label":"Typography","detail":"Your reading experience"},{"href":"#interface","label":"Interface","detail":"Cursor & navigation position"},{"href":"#navigation","label":"Navigation","detail":"What visitors can explore"}]} />
 
       <form action={saveDesignSettingsAction} className="space-y-6">
         {/* Colors + defaults */}
         <SectionCard
-          title="Brand & defaults"
+          id="brand" title="Brand & defaults"
           description="Accent colors and the locale/theme visitors see first. Colors drive buttons, links, and highlights."
         >
           <div className="grid gap-5 sm:grid-cols-2">
@@ -143,7 +145,7 @@ export default async function AdminThemePage({
 
         {/* Typography */}
         <SectionCard
-          title="Typography"
+          id="typography" title="Typography"
           description="Pick the fonts used across the public site. Previews render in the actual typeface."
         >
           <div className="space-y-8">
@@ -164,7 +166,7 @@ export default async function AdminThemePage({
 
         {/* Interface: cursor + header position */}
         <SectionCard
-          title="Interface"
+          id="interface" title="Interface"
           description="Pointer style and where the floating public navigation sits."
         >
           <div className="space-y-8">
@@ -186,7 +188,7 @@ export default async function AdminThemePage({
 
         {/* Public navigation */}
         <SectionCard
-          title="Public navigation links"
+          id="navigation" title="Public navigation links"
           description="Select the links shown in the public header. Admin/login/profile links become visible to visitors when enabled."
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

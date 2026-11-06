@@ -30,6 +30,8 @@ export interface PageMetadataInput {
   modifiedTime?: string | null
   authors?: string[]
   noindex?: boolean
+  /** Advertise the blog RSS feed (`/<locale>/blog/rss.xml`) for autodiscovery. */
+  rssFeed?: { title: string }
 }
 
 /** hreflang map (+ x-default -> default locale) with locale-prefixed paths. */
@@ -61,6 +63,7 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
     modifiedTime,
     authors,
     noindex = false,
+    rssFeed,
   } = input
 
   const canonical = localePath(locale, localizedPaths?.[locale] ?? path)
@@ -98,7 +101,11 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
-    alternates: { canonical, languages },
+    alternates: {
+      canonical,
+      languages,
+      ...(rssFeed ? { types: { 'application/rss+xml': [{ url: localePath(locale, '/blog/rss.xml'), title: rssFeed.title }] } } : {}),
+    },
     openGraph,
     twitter: {
       card: 'summary_large_image',

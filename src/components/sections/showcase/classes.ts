@@ -1,4 +1,4 @@
-// Shared class strings for the numbered "showcase" sections (education → FAQ).
+// Shared class strings for the numbered "showcase" sections (projects, reviews).
 // Pills and icon buttons are 44px tall (touch targets); transitions list their
 // properties explicitly and use the `ease-fluid` token.
 

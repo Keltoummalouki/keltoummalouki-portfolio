@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
-import { NAV_ITEMS } from '@/features/cms/design-options'
+import { NAV_ITEMS, sectionAnchor } from '@/features/cms/design-options'
 import { NAV_ICONS } from '@/components/ui/navIcons'
 import { cn } from '@/lib/utils'
 import { scrollToElement, scrollToTop } from '@/lib/motion/smooth-scroll'
@@ -73,7 +73,7 @@ export default function CommandPalette({
     (item: NavItem) => {
       onClose()
       if (item.kind === 'section') {
-        const el = document.querySelector(item.href)
+        const el = document.getElementById(sectionAnchor(item.href))
         if (el) {
           scrollToElement(el)
           return
@@ -93,7 +93,7 @@ export default function CommandPalette({
   // Build grouped commands: nav sections / pages / manage, plus quick actions.
   const groups = useMemo(() => {
     const isActive = (item: NavItem) => {
-      if (item.kind === 'section') return activeSection === item.href.slice(1)
+      if (item.kind === 'section') return activeSection === sectionAnchor(item.href)
       if (item.kind === 'page') return pathname === item.href || pathname.startsWith(`${item.href}/`)
       return false
     }

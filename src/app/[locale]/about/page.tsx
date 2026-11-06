@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
@@ -10,6 +11,7 @@ import AboutCertifications, { type AboutCertificationItem } from '@/components/a
 import AboutContactCta from '@/components/about/AboutContactCta'
 import AboutFacts from '@/components/about/AboutFacts'
 import AboutFaq from '@/components/about/AboutFaq'
+import AboutGithub from '@/components/about/AboutGithub'
 import AboutIntro from '@/components/about/AboutIntro'
 import AboutServices, { type AboutServiceKey } from '@/components/about/AboutServices'
 import {
@@ -22,6 +24,7 @@ import {
 import { AboutEducation, AboutExperience } from '@/components/about/AboutTimeline'
 import { getFallbackLanguages } from '@/features/cms/languages'
 import { getPublishedCmsContent } from '@/features/cms/queries'
+import { getGithubSummary } from '@/features/github/queries'
 import {
   FALLBACK_DOCKER_CREDENTIAL_URL,
   FALLBACK_SKILL_CATEGORIES,
@@ -290,6 +293,11 @@ export default async function AboutPage({ params }: PageProps) {
               items={certifications}
             />
 
+            {/* Streams in: a slow GitHub API never holds up the profile. */}
+            <Suspense fallback={<AboutGithub locale={locale} summary={null} pending />}>
+              <GithubActivity locale={locale} />
+            </Suspense>
+
             <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-10">
               <AboutLanguages title={t('languages.title')} languages={profile.languages} />
               <AboutSoftSkills title={t('softSkills.title')} lead={t('softSkills.lead')} skills={softSkills} />
@@ -317,4 +325,8 @@ export default async function AboutPage({ params }: PageProps) {
       <Footer links={cms.socialLinks} />
     </div>
   )
+}
+
+async function GithubActivity({ locale }: { locale: string }) {
+  return <AboutGithub locale={locale} summary={await getGithubSummary()} />
 }

@@ -1,3 +1,4 @@
+import { StatusBadge } from '@/components/admin/ui'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Mail } from 'lucide-react'
@@ -31,7 +32,7 @@ export default async function MessageDetailPage({
   const mailto = `mailto:${message.email}?subject=${mailtoSubject}`
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="admin-detail space-y-6">
       <Link
         href="/admin/inbox"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -44,6 +45,7 @@ export default async function MessageDetailPage({
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
           <div>
             <h1 className="text-xl font-bold text-foreground">{message.name}</h1>
+            <div className="my-2"><StatusBadge status={message.status} /></div>
             <a href={`mailto:${message.email}`} className="text-sm text-primary hover:underline">
               {message.email}
             </a>

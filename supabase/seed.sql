@@ -584,7 +584,7 @@ values (
   'archivo',
   'default',
   'bottom',
-  '["about","skills","experience","education","projects","certifications","github","blog","freelance","contact"]'::jsonb
+  '["about","experience","projects","blog","freelance","contact"]'::jsonb
 )
 on conflict (id) do nothing;
 

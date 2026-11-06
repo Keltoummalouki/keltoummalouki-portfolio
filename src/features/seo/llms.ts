@@ -855,11 +855,11 @@ export function buildLlmsTxt(data: LlmsData): string {
   const services = data.services.map((service) => oneLine(service.title)).filter(Boolean)
 
   const profileItems = [
-    linkItem(`About ${name}`, pageUrl('en', '/about'), 'Full profile in English: background, experience, education, skills, languages and frequently asked questions.'),
+    linkItem(`About ${name}`, pageUrl('en', '/about'), 'Full profile in English: background, experience, education, skills, certifications, GitHub activity, languages and frequently asked questions.'),
     linkItem(`About ${name} (French version)`, pageUrl('fr', '/about'), 'The same profile in French, the default language of the site.'),
     linkItem(`About ${name} (Arabic version)`, pageUrl('ar', '/about'), 'The same profile in Arabic.'),
     linkItem(`CV of ${name} (PDF)`, absoluteUrl(profile.cvUrl), 'Downloadable CV: experience, education, skills, projects, certifications and languages.'),
-    linkItem('Homepage', pageUrl('en'), `English homepage: profile summary, key facts, skills, experience, featured projects and contact form.`),
+    linkItem('Homepage', pageUrl('en'), `English homepage: profile summary, key facts, experience, featured projects, reviews and contact form.`),
   ]
 
   const caseStudies = [
@@ -887,7 +887,7 @@ export function buildLlmsTxt(data: LlmsData): string {
       `Hire ${name}`,
       pageUrl('en', '/freelance'),
       [
-        'Freelance and contract work, with a project inquiry form.',
+        'Freelance and contract work, with a project inquiry form and answers to common client questions.',
         services.length ? `Services: ${services.join('; ')}.` : '',
         `Also in French (${pageUrl('fr', '/freelance')}) and Arabic (${pageUrl('ar', '/freelance')}).`,
       ]

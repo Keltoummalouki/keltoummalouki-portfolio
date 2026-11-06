@@ -1,3 +1,4 @@
+import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
 import { Award, Trash2 } from 'lucide-react'
 import { deleteCertificationAction, saveCertificationAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
@@ -66,6 +67,7 @@ export default async function AdminCertificationsPage({
         title="Certifications"
         description="Manage certifications, credential links, images, and translations."
       />
+      <CollectionOverview items={data.certifications} label="certifications" />
       <ErrorNotice error={error} />
       <AdminCard title="Add certification">
         <CertificationForm />
@@ -80,7 +82,7 @@ export default async function AdminCertificationsPage({
         ) : (
           <div className="space-y-4">
             {data.certifications.map((item) => (
-              <div key={item.id} className="space-y-2">
+              <EditorDisclosure key={item.id} title={item.certification_translations?.find(t => t.locale === 'fr')?.name || item.issuer || 'Certification'} status={item.status}>
                 <CertificationForm item={item} />
                 <form action={deleteCertificationAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
@@ -89,7 +91,7 @@ export default async function AdminCertificationsPage({
                     Delete
                   </Button>
                 </form>
-              </div>
+              </EditorDisclosure>
             ))}
           </div>
         )}
@@ -97,3 +99,4 @@ export default async function AdminCertificationsPage({
     </div>
   )
 }
+

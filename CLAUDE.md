@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal portfolio for Keltoum Malouki, now a multilingual CMS: Next.js 15 (App Router, React 19, TypeScript strict), Tailwind v4 + shadcn/ui (new-york), and Supabase (Postgres, Auth, Storage) as the backend. The public site is in `fr` (default), `en`, and `ar` (RTL). A private `/admin` dashboard manages portfolio content, blog articles, the contact inbox, and freelance leads.
 
-`README.md` is partly out of date. It still describes the old static site and EmailJS contact form. Trust the code and `.env.example` over the README.
+`README.md` is the public, GitHub-facing overview (screenshots in `docs/screenshots/`). Keep it in sync when features or the architecture change; for setup details, `.env.example` is authoritative.
 
 ## Commands
 
@@ -32,7 +32,7 @@ npm run db:types         # regenerate src/lib/supabase/database.types.ts
 
 `database.types.ts` is checked in. Regenerate it after every schema migration. Every schema change must be a new file in `supabase/migrations/`, because `db reset` has to rebuild the database from version-controlled files alone.
 
-Env setup: copy `.env.example` to `.env.local`. Turnstile keys are optional in dev: with no site key the widget is not rendered, and with no secret the server check is skipped.
+Env setup: copy `.env.example` to `.env.local`. Turnstile keys are optional in dev: with no site key the widget is not rendered, and with no secret the server check is skipped. Analytics (Umami) is optional too: with no `NEXT_PUBLIC_UMAMI_WEBSITE_ID`, no script loads and the CSP does not allow Umami.
 
 ## Architecture
 
@@ -80,8 +80,11 @@ Error codes returned to the client are deliberately coarse (`invalid`, `captcha`
 - Blog bodies are Markdown, rendered through `components/ui/Markdown.tsx` with `rehype-sanitize`.
 - Uploads go to Supabase Storage via `features/cms/media.ts`.
 
+### Analytics
+Umami (cookie-less) loads only on public pages (`components/analytics/Analytics.tsx` in the `[locale]` layout) and only reports from the production hostname. To record a click, spread `trackClick(event, data)` from `lib/analytics/events.ts` on the link or button; it works in Server Components. Record conversions with `trackEvent()` after a successful submit. Do not use Umami's own `data-umami-event` attributes: Umami cancels same-tab link clicks to send them, which turns Next.js `<Link>` navigation into full page reloads.
+
 ### Security headers
-`next.config.ts` defines a strict CSP. Any new external origin (scripts, images, fetch targets, iframes) must be added to `cspHeader`, and to `images.remotePatterns` when used with `next/image`.
+`next.config.ts` defines a strict CSP. Any new external origin (scripts, images, fetch targets, iframes) must be added to `cspHeader`, and to `images.remotePatterns` when used with `next/image`. The Umami origins are added only when analytics is configured.
 
 ## Project docs to consult
 - `PORTFOLIO_CMS_PLAN.md`: the milestone plan (M0–M11) with task IDs, acceptance criteria, a global definition of done, and a Decision Log. When asked to implement a task ID, follow its rules: work on one task at a time, preserve unrelated changes, never touch production Supabase resources without permission, run lint/build/tests, and update the checklist and Decision Log. Many checkboxes are still unchecked even though the work is done, so check the code before assuming a task is outstanding.

@@ -3,6 +3,7 @@ import { ArrowRight, Folder } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import type { ProjectCardData } from '@/features/content/projects.map'
+import { trackClick } from '@/lib/analytics/events'
 import ProjectLinks, { type ProjectLinkLabels } from './ProjectLinks'
 import StackChips from './StackChips'
 
@@ -21,17 +22,21 @@ export interface ProjectCardLabels extends ProjectLinkLabels {
 export default function ProjectCard({
   project,
   labels,
+  from,
   headingLevel: Heading = 'h2',
   showStack = true,
   priority = false,
 }: {
   project: ProjectCardData
   labels: ProjectCardLabels
+  /** Where the card is listed, recorded with its clicks (analytics). */
+  from: string
   headingLevel?: 'h2' | 'h3'
   showStack?: boolean
   priority?: boolean
 }) {
   const href = `/projects/${project.slug}`
+  const click = { project: project.slug, from }
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/40">
       <div className="relative aspect-[16/9] overflow-hidden bg-secondary">
@@ -57,6 +62,7 @@ export default function ProjectCard({
           <Link
             href={href}
             className="rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            {...trackClick('project-case-study', click)}
           >
             {project.title}
           </Link>
@@ -68,12 +74,12 @@ export default function ProjectCard({
 
         <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
           <Button asChild size="sm">
-            <Link href={href} aria-label={labels.readCaseStudyAria}>
+            <Link href={href} aria-label={labels.readCaseStudyAria} {...trackClick('project-case-study', click)}>
               {labels.readCaseStudy}
               <ArrowRight aria-hidden className="rtl:rotate-180" />
             </Link>
           </Button>
-          <ProjectLinks github={project.github} demo={project.demo} labels={labels} size="sm" />
+          <ProjectLinks github={project.github} demo={project.demo} labels={labels} track={click} size="sm" />
         </div>
       </div>
     </article>

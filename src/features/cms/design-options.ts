@@ -146,16 +146,17 @@ export const HEADER_POSITIONS = [
 
 export type HeaderPosition = (typeof HEADER_POSITIONS)[number]['value']
 
+// Section links scroll when their anchor is on the current page. Otherwise they
+// open the page that holds it: the home page (`#…`) or /about (`/about#…`).
 export const NAV_ITEMS = [
   { value: 'home', label: 'Home', href: '/', kind: 'page' },
-  // The home page's about block is "Profile at a glance" (#profile).
-  { value: 'about', label: 'About', href: '#profile', kind: 'section' },
-  { value: 'skills', label: 'Skills', href: '#skills', kind: 'section' },
+  { value: 'about', label: 'About', href: '/about', kind: 'page' },
+  { value: 'skills', label: 'Skills', href: '/about#skills', kind: 'section' },
   { value: 'experience', label: 'Experience', href: '#experience', kind: 'section' },
-  { value: 'education', label: 'Education', href: '#education', kind: 'section' },
+  { value: 'education', label: 'Education', href: '/about#education', kind: 'section' },
   { value: 'projects', label: 'Projects', href: '#projects', kind: 'section' },
-  { value: 'certifications', label: 'Certifications', href: '#certifications', kind: 'section' },
-  { value: 'github', label: 'GitHub', href: '#github', kind: 'section' },
+  { value: 'certifications', label: 'Certifications', href: '/about#certifications', kind: 'section' },
+  { value: 'github', label: 'GitHub', href: '/about#github', kind: 'section' },
   { value: 'blog', label: 'Blog', href: '/blog', kind: 'page' },
   { value: 'freelance', label: 'Freelance', href: '/freelance', kind: 'page' },
   { value: 'contact', label: 'Contact', href: '#contact', kind: 'section' },
@@ -169,21 +170,15 @@ export type NavItemKey = NavItem['value']
 
 const navKeys = new Set<NavItemKey>(NAV_ITEMS.map((item) => item.value))
 
-export const DEFAULT_PUBLIC_NAV_ITEMS: NavItemKey[] = [
-  'about',
-  'skills',
-  'experience',
-  'education',
-  'projects',
-  'certifications',
-  'github',
-  'blog',
-  'freelance',
-  'contact',
-]
+export const DEFAULT_PUBLIC_NAV_ITEMS: NavItemKey[] = ['about', 'experience', 'projects', 'blog', 'freelance', 'contact']
 
 function isNavItemKey(value: unknown): value is NavItemKey {
   return typeof value === 'string' && navKeys.has(value as NavItemKey)
+}
+
+/** Element id a section link points at: `#projects` and `/about#skills` -> `projects`, `skills`. */
+export function sectionAnchor(href: string): string {
+  return href.slice(href.indexOf('#') + 1)
 }
 
 export function normalizeNavItems(value: unknown): NavItemKey[] {

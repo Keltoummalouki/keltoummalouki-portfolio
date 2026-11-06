@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,7 @@ import {
   TIMELINES,
   type LeadSubmitState,
 } from '@/features/freelance/schema'
+import { trackEvent } from '@/lib/analytics/events'
 
 const field =
   'w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-[invalid=true]:border-destructive'
@@ -46,6 +47,13 @@ export default function FreelanceLeadForm() {
       [name]: value === EMPTY_SELECT_VALUE ? '' : value,
     }))
   }
+
+  // Conversion: the request was accepted. Project type only, never what was typed.
+  // The form is replaced by the success message, so this runs once per request.
+  const projectType = selectValues.projectType || 'unspecified'
+  useEffect(() => {
+    if (state.ok) trackEvent('lead-form-sent', { type: projectType })
+  }, [state.ok, projectType])
 
   if (state.ok) {
     return (

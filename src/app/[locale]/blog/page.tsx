@@ -37,6 +37,7 @@ export async function generateMetadata({
     title: seo('blogTitle'),
     absoluteTitle: true,
     description: seo('blogDescription'),
+    rssFeed: { title: seo('blogTitle') },
     // Explicit: a page-level `openGraph` replaces the layout's file-based image.
     images: [{ url: localePath(locale, '/opengraph-image'), width: 1200, height: 630, alt: seo('ogImageAlt') }],
   })

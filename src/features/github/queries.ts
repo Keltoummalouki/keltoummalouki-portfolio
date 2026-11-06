@@ -2,7 +2,7 @@ import 'server-only'
 import { unstable_cache } from 'next/cache'
 import { GITHUB_USERNAME, toContributionCalendar, toGithubProfile, type GithubSummary } from './map'
 
-// Public GitHub numbers for the home page, fetched on the server (no CSP
+// Public GitHub numbers for the /about page, fetched on the server (no CSP
 // change, nothing exposed to the browser). Each source is cached for 6 hours
 // in the Next data cache, so the unauthenticated GitHub rate limit (60/h) is
 // never a concern. Failures are not cached: they throw out of the cached

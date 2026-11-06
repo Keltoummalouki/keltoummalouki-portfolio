@@ -1,6 +1,7 @@
 import { ArrowRight, Mail } from 'lucide-react'
 import SocialIcon from '@/components/ui/SocialIcon'
 import { Link } from '@/i18n/navigation'
+import { trackClick } from '@/lib/analytics/events'
 import { cn } from '@/lib/utils'
 import { ctaPrimary, ctaSecondary } from './ProfileSection'
 
@@ -31,13 +32,13 @@ export default function AboutContactCta({
       <p className="mx-auto mt-3 max-w-2xl text-muted-foreground text-pretty">{text}</p>
       <ul className="mt-8 flex flex-wrap justify-center gap-3">
         <li>
-          <a href={`mailto:${email}`} className={ctaPrimary}>
+          <a href={`mailto:${email}`} className={ctaPrimary} {...trackClick('contact-link', { channel: 'email', from: 'about-contact' })}>
             <Mail aria-hidden="true" className="size-4" />
             {labels.email}
           </a>
         </li>
         <li>
-          <Link href="/freelance" className={cn(ctaSecondary, 'group')}>
+          <Link href="/freelance" className={cn(ctaSecondary, 'group')} {...trackClick('contact-cta', { from: 'about-contact' })}>
             {labels.freelance}
             <ArrowRight
               aria-hidden="true"
@@ -47,7 +48,13 @@ export default function AboutContactCta({
         </li>
         {linkedinUrl && (
           <li>
-            <a href={linkedinUrl} target="_blank" rel="me noopener noreferrer" className={ctaSecondary}>
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="me noopener noreferrer"
+              className={ctaSecondary}
+              {...trackClick('contact-link', { channel: 'linkedin', from: 'about-contact' })}
+            >
               <SocialIcon platform="linkedin" className="size-4" />
               {labels.linkedin}
             </a>
@@ -55,7 +62,13 @@ export default function AboutContactCta({
         )}
         {githubUrl && (
           <li>
-            <a href={githubUrl} target="_blank" rel="me noopener noreferrer" className={ctaSecondary}>
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="me noopener noreferrer"
+              className={ctaSecondary}
+              {...trackClick('contact-link', { channel: 'github', from: 'about-contact' })}
+            >
               <SocialIcon platform="github" className="size-4" />
               {labels.github}
             </a>

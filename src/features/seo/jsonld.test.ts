@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   breadcrumbSchema,
   jsonLdGraph,
+  offerCatalogSchema,
   organizationSchema,
   personInputFromCms,
   personSchema,
@@ -129,5 +130,35 @@ describe('graph nodes', () => {
     expect(project.programmingLanguage).toEqual(['TypeScript'])
     expect(project.keywords).toBe('Next.js, TypeScript, NestJS, Docker')
     expect(projectSchema({ path: '/en/projects/y', name: 'Y', locale: 'en' })['@type']).toBe('CreativeWork')
+  })
+})
+
+describe('offerCatalogSchema', () => {
+  it('lists packages as offers of the organization, with starting prices as minPrice', () => {
+    const catalog = offerCatalogSchema(
+      '/en/freelance',
+      'Packages',
+      [
+        { title: 'Website', description: 'A fast, responsive site.', priceFrom: 1500 },
+        { title: 'Consulting', description: '', priceFrom: null },
+      ],
+      'EUR',
+    )
+
+    expect(catalog['@type']).toBe('OfferCatalog')
+    expect(catalog.itemListElement).toEqual([
+      {
+        '@type': 'Offer',
+        offeredBy: { '@id': SCHEMA_IDS.organization },
+        itemOffered: { '@type': 'Service', name: 'Website', description: 'A fast, responsive site.' },
+        priceSpecification: { '@type': 'PriceSpecification', minPrice: 1500, priceCurrency: 'EUR' },
+      },
+      // No price and no description: both are left out rather than emptied.
+      {
+        '@type': 'Offer',
+        offeredBy: { '@id': SCHEMA_IDS.organization },
+        itemOffered: { '@type': 'Service', name: 'Consulting' },
+      },
+    ])
   })
 })

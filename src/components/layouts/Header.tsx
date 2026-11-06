@@ -13,7 +13,13 @@ import { NAV_ICONS } from '@/components/ui/navIcons'
 import { useOptionalPreference } from '@/components/providers/PreferenceProvider'
 import { Link, usePathname } from '@/i18n/navigation'
 import type { PublicDesignSettings } from '@/features/cms/queries'
-import { DEFAULT_PUBLIC_NAV_ITEMS, NAV_ITEMS, normalizeNavItems, type NavItemKey } from '@/features/cms/design-options'
+import {
+  DEFAULT_PUBLIC_NAV_ITEMS,
+  NAV_ITEMS,
+  normalizeNavItems,
+  sectionAnchor,
+  type NavItemKey,
+} from '@/features/cms/design-options'
 import { cn } from '@/lib/utils'
 import { scrollToElement, scrollToTop } from '@/lib/motion/smooth-scroll'
 
@@ -93,11 +99,12 @@ export default function Header({
     setIsScrolled(window.scrollY > 20)
 
     for (const item of sectionItems) {
-      const element = document.getElementById(item.href.slice(1))
+      const anchor = sectionAnchor(item.href)
+      const element = document.getElementById(anchor)
       if (element) {
         const rect = element.getBoundingClientRect()
         if (rect.top <= 160 && rect.bottom >= 160) {
-          setActiveSection(item.href.slice(1))
+          setActiveSection(anchor)
           break
         }
       }
@@ -137,11 +144,12 @@ export default function Header({
   }, [])
 
   const handleSectionClick = (href: string) => {
-    const element = document.querySelector(href)
+    const element = document.getElementById(sectionAnchor(href))
     if (element) {
       scrollToElement(element)
       return
     }
+    // `#projects` -> /fr#projects, `/about#skills` -> /fr/about#skills.
     window.location.href = `/${locale}${href}`
   }
 
@@ -271,7 +279,7 @@ export default function Header({
           )}
         >
           {sectionItems.map((item) => {
-            const active = activeSection === item.href.slice(1)
+            const active = activeSection === sectionAnchor(item.href)
             const Icon = NAV_ICONS[item.value]
             const label = translateNav(t, item)
             return (

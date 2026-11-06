@@ -13,6 +13,40 @@
     "helpTitle": "Ce que je peux faire",
     "intro": "Décrivez votre projet en quelques lignes et je reviendrai vers vous avec les prochaines étapes.",
     "formTitle": "Parlez-moi de votre projet",
+    "cta": {
+      "book": "Réserver un appel",
+      "newTab": "(s’ouvre dans un nouvel onglet)",
+      "request": "Décrire votre projet"
+    },
+    "process": {
+      "title": "Comment je travaille",
+      "lead": "De votre premier message à la mise en ligne, en quatre étapes.",
+      "steps": {
+        "brief": {
+          "title": "Présentez votre projet",
+          "text": "Partagez vos objectifs, votre budget et vos délais via le formulaire ci-dessous, par e-mail ou lors d’un appel."
+        },
+        "scope": {
+          "title": "Cadrage et devis",
+          "text": "Je reviens vers vous avec mes questions et une proposition. Nous validons ensemble les fonctionnalités, les délais et le prix avant le début du développement."
+        },
+        "build": {
+          "title": "Développement par étapes",
+          "text": "Je partage régulièrement l’avancement pour que vous puissiez tester et donner votre avis en cours de route."
+        },
+        "launch": {
+          "title": "Mise en ligne et passation",
+          "text": "Je mets le projet en ligne et vous explique tout ce qu’il faut pour le faire vivre."
+        }
+      }
+    },
+    "packages": {
+      "title": "Formules",
+      "lead": "Les prix de départ des projets types. Vous recevez un devis précis une fois le périmètre validé ensemble.",
+      "from": "À partir de",
+      "quote": "Sur devis",
+      "includes": "Inclus"
+    },
     "form": {
       "name": "Nom complet",
       "email": "E-mail",
@@ -145,8 +179,6 @@
     }
   },
   "skills": {
-    "title": "Compétences Techniques",
-    "subtitle": "Technologies et outils que j'utilise",
     "categories": {
       "languages": "Langages",
       "frameworks": "Frameworks & APIs",
@@ -179,8 +211,6 @@
     }
   },
   "education": {
-    "title": "Formation",
-    "subtitle": "Des bases solides qui ont forgé mon esprit de résolution de problèmes.",
     "items": {
       "youcode": {
         "title": "Formation Développement Full Stack",
@@ -194,12 +224,6 @@
         "date": "2023 – 2024",
         "description": "Baccalauréat scientifique avec des bases solides en mathématiques, physique et chimie."
       }
-    },
-    "heading": "Parcours académique",
-    "ongoing": {
-      "title": "Apprentissage continu",
-      "school": "Cours, certifications et nouvelles technologies",
-      "date": "En continu"
     }
   },
   "projects": {
@@ -225,8 +249,6 @@
     "heading": "Projets phares"
   },
   "certifications": {
-    "title": "Certifications",
-    "subtitle": "Des formations et certifications qui renforcent mon expertise.",
     "viewCredential": "Voir sur LinkedIn",
     "items": {
       "docker": {
@@ -235,10 +257,7 @@
         "date": "2025",
         "description": "Certification professionnelle validant les fondamentaux de Docker et de la conteneurisation."
       }
-    },
-    "heading": "Compétences certifiées",
-    "viewCertificate": "Voir le certificat",
-    "verified": "Certificat vérifiable"
+    }
   },
   "softSkills": {
     "title": "Compétences Transversales",
@@ -255,7 +274,6 @@
     "english": "Anglais (A2)"
   },
   "github": {
-    "title": "Statistiques GitHub",
     "subtitle": "Contributions open source et projets personnels, en direct de GitHub.",
     "viewProfile": "Voir mon profil GitHub",
     "heading": "Construire en public",
@@ -578,7 +596,6 @@
     "status": "Page {page} sur {total}"
   },
   "faq": {
-    "eyebrow": "FAQ",
     "title": "Questions populaires",
     "subtitle": "Les réponses aux questions que l'on me pose le plus souvent avant de travailler ensemble.",
     "more": "Une autre question ?",
