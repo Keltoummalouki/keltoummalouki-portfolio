@@ -29,6 +29,9 @@ const cspHeader = `
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {
+    // End-to-end tests build into their own folder (NEXT_DIST_DIR=.next-e2e) so
+    // they never overwrite the `.next` a running dev server is using.
+    distDir: process.env.NEXT_DIST_DIR || '.next',
     // Don't advertise the framework in every response (flagged by SEO audits).
     poweredByHeader: false,
     images: {

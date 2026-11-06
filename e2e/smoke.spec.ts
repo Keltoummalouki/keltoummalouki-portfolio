@@ -1,0 +1,98 @@
+import { expect, test } from '@playwright/test'
+
+// Smoke tests for what unit tests can't see: real rendering, routing, the
+// browser side of forms, and right-to-left layout. The server runs with an
+// unreachable Supabase (see playwright.config.ts), so pages show their
+// built-in fallback content and nothing is ever written to a real database.
+
+test.describe('contact form', () => {
+  test('blocks an invalid submission in the browser', async ({ page }) => {
+    const serverActions: string[] = []
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.headers()['next-action']) serverActions.push(request.url())
+    })
+
+    await page.goto('/en#contact')
+    await page.getByRole('button', { name: 'Send Message' }).click()
+
+    await expect(page.getByText('Name is required')).toBeVisible()
+    await expect(page.getByText('Email is required')).toBeVisible()
+    await expect(page.locator('#contact-name')).toBeFocused()
+    await expect(page.locator('#contact-name')).toHaveAttribute('aria-invalid', 'true')
+    expect(serverActions).toHaveLength(0)
+  })
+
+  test('sends a valid message to the server and reports the outcome', async ({ page }) => {
+    await page.goto('/en#contact')
+    await page.locator('#contact-name').fill('Playwright Tester')
+    await page.locator('#contact-email').fill('tester@example.com')
+    await page.locator('#contact-message').fill('Hello! This is an automated end-to-end test message.')
+
+    const action = page.waitForRequest((request) => request.method() === 'POST' && !!request.headers()['next-action'])
+    await page.getByRole('button', { name: 'Send Message' }).click()
+    await action
+
+    // The test backend is offline on purpose, so the server answers with its
+    // generic error. What matters: the action ran and the UI recovered.
+    // Scoped: Next.js's route announcer is also a role="alert" element.
+    await expect(page.locator('#contact').getByRole('alert')).toContainText('An error occurred')
+    await expect(page.getByRole('button', { name: 'Send Message' })).toBeEnabled()
+  })
+})
+
+test.describe('language switch', () => {
+  test('switches from English to French and keeps the page', async ({ page }) => {
+    await page.goto('/en/about')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+
+    await page.getByRole('button', { name: /English — change language/ }).click()
+    await page.getByRole('button', { name: 'Français' }).click()
+
+    // The server renders the French page before the URL changes (/about also
+    // waits on the GitHub API, up to its timeout), so allow more than the default.
+    await expect(page).toHaveURL(/\/fr\/about$/, { timeout: 15_000 })
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
+  })
+
+  test('switching to Arabic flips the page to right-to-left without a reload', async ({ page }) => {
+    await page.goto('/en/about')
+    await page.getByRole('button', { name: /English — change language/ }).click()
+    await page.getByRole('button', { name: 'العربية' }).click()
+
+    await expect(page).toHaveURL(/\/ar\/about$/, { timeout: 15_000 })
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
+  })
+
+  test('redirects an unprefixed URL to a locale', async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/(fr|en|ar)$/)
+  })
+})
+
+test.describe('Arabic right-to-left layout', () => {
+  test('renders the Arabic site right to left', async ({ page }) => {
+    await page.goto('/ar')
+
+    const html = page.locator('html')
+    await expect(html).toHaveAttribute('lang', 'ar')
+    await expect(html).toHaveAttribute('dir', 'rtl')
+    expect(await page.evaluate(() => getComputedStyle(document.body).direction)).toBe('rtl')
+
+    // Arabic UI copy, not a fallback language.
+    await expect(page.getByRole('button', { name: 'إرسال الرسالة' })).toBeVisible()
+  })
+
+  test('mirrors the layout: start-aligned text sits on the right', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.goto('/ar#contact')
+
+    const label = page.locator('label[for="contact-name"]')
+    const field = page.locator('#contact-name')
+    const [labelBox, fieldBox] = await Promise.all([label.boundingBox(), field.boundingBox()])
+    expect(labelBox && fieldBox).toBeTruthy()
+    // The label hugs the field's right edge in RTL (its left edge in LTR).
+    expect(Math.abs(labelBox!.x + labelBox!.width - (fieldBox!.x + fieldBox!.width))).toBeLessThan(4)
+  })
+})

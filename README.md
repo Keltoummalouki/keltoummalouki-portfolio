@@ -4,6 +4,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 
 **Live site: [keltoummalouki.com](https://www.keltoummalouki.com)**
 
+[![CI](https://github.com/Keltoummalouki/MyPortfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/Keltoummalouki/MyPortfolio/actions/workflows/ci.yml)
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
@@ -125,6 +126,7 @@ Turnstile and analytics are optional in development: leave their variables empty
 | `npm run build` | Production build, also the type check |
 | `npm run lint` | ESLint |
 | `npm test` | Unit tests (no database needed) |
+| `npm run test:e2e` | Playwright smoke tests: contact form, language switch, Arabic RTL (no database needed) |
 | `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` after a migration |
 
 ## Project structure

@@ -19,6 +19,8 @@ npm run test:watch
 npm run test:coverage
 npx vitest run src/features/articles/schema.test.ts   # single test file
 npx vitest run -t "pickTranslation"                   # tests matching a name
+npm run test:e2e         # Playwright smoke tests: builds into .next-e2e, serves on :3100 with Supabase offline
+                         # (E2E_BROWSER_CHANNEL=msedge uses an installed browser instead of Playwright's download)
 ```
 
 Local Supabase (Docker must be running; see `supabase/README.md`):
