@@ -7,8 +7,13 @@ import { routing } from '@/i18n/routing'
 
 // /{locale}/blog/rss.xml: one RSS feed per language, listing only articles
 // written in it. Published articles only; an unreachable database yields an
-// empty (still valid) feed. CDN-cached for an hour like llms.txt.
-export const dynamic = 'force-dynamic'
+// empty (still valid) feed. Cached like the pages: purged on admin edits,
+// refreshed at least hourly.
+export const revalidate = 3600
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
 
 export async function GET(_request: Request, { params }: { params: Promise<{ locale: string }> }): Promise<Response> {
   const { locale } = await params

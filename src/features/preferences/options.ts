@@ -137,6 +137,13 @@ export function parseVisitorDesignPreference(value: string | null | undefined): 
   }
 }
 
+/** The visitor's saved preference from a `document.cookie` string ({} when absent). */
+export function readVisitorDesignCookie(cookieString: string): VisitorDesignPreference {
+  const prefix = `${VISITOR_DESIGN_COOKIE}=`
+  const entry = cookieString.split(/;\s*/).find((part) => part.startsWith(prefix))
+  return parseVisitorDesignPreference(entry?.slice(prefix.length))
+}
+
 export function encodeVisitorDesignPreference(preference: VisitorDesignPreference) {
   return encodeURIComponent(JSON.stringify(normalizeVisitorDesignPreference(preference)))
 }

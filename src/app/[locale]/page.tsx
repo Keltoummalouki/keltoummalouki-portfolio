@@ -33,8 +33,9 @@ import { enrichPersonInput, resolveProfileFacts, withUsableHeadline } from '@/fe
 import { PERSON, SCHEMA_IDS, localePath } from '@/features/seo/site'
 import { routing } from '@/i18n/routing'
 
-// Render per request so the public portfolio reflects CMS changes immediately.
-export const dynamic = 'force-dynamic'
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
 
 // The home page stays short: a recruiter skims it in about 30 seconds. Skills,
 // education, certifications and GitHub activity live on /about; the FAQ on

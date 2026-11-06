@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate-public'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/features/auth/session'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -27,12 +28,6 @@ import { uploadImageFromForm, uploadPdfFromForm } from './media'
 import { serviceSlug } from './services'
 import { readSiteProfile } from './site-profile'
 import { defaultSocialLabel, normalizeSocialPlatform } from './social-platforms'
-
-const PUBLIC_LOCALE_PATHS = ['/fr', '/en', '/ar']
-
-function revalidatePublicSite() {
-  for (const path of PUBLIC_LOCALE_PATHS) revalidatePath(path)
-}
 
 function done(path: string): never {
   revalidatePublicSite()

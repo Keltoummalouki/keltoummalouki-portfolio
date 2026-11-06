@@ -31,6 +31,10 @@ import FreelanceLeadForm from './FreelanceLeadForm'
 import FreelancePackages from './FreelancePackages'
 import FreelanceProcess from './FreelanceProcess'
 
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
+
 /** "How I work" steps in order; their copy is in messages (`freelance.process.steps`). */
 const PROCESS_STEPS = ['brief', 'scope', 'build', 'launch'] as const
 

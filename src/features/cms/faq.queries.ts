@@ -1,5 +1,6 @@
 import 'server-only'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import type { Locale } from '@/lib/validation/locale'
 import { mapPublicFaq, type FaqItemRow, type PublicFaqItem } from './faq'
 
@@ -9,7 +10,7 @@ import { mapPublicFaq, type FaqItemRow, type PublicFaqItem } from './faq'
  */
 export async function getPublishedFaq(locale: Locale): Promise<PublicFaqItem[]> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('faq_items')
       .select('*')

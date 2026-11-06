@@ -1,6 +1,7 @@
 import 'server-only'
 import type { Tables } from '@/lib/supabase/database.types'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import type { Locale } from '@/lib/validation/locale'
 import { pickI18n, type I18nMap } from '@/features/content/i18n-json'
 import { readSiteProfile } from './site-profile'
@@ -233,7 +234,7 @@ function mapCertifications(rows: CertificationRow[], locale: Locale): PublicCert
 }
 
 export async function getPublishedCmsContent(locale: Locale): Promise<PublicCmsContent> {
-  const supabase = await createServerSupabaseClient()
+  const supabase = createPublicSupabaseClient()
   const [
     about,
     siteSettings,
@@ -326,7 +327,7 @@ export async function getPublishedCmsContent(locale: Locale): Promise<PublicCmsC
 /** Lightweight design-settings fetch for theming all public pages (layout-level). */
 export async function getPublishedDesignSettings(): Promise<PublicDesignSettings | undefined> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase.from('design_settings').select('*').maybeSingle()
     if (error) throw error
     return mapDesign(data ?? null)

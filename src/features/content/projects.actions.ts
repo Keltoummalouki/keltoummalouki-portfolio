@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate-public'
 import { redirect } from 'next/navigation'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { requireAdmin } from '@/features/auth/session'
@@ -63,9 +64,9 @@ function translationRows(projectId: string, translations: ProjectFormValues['tra
 }
 
 function revalidateProjects() {
-  // The public home, /[locale]/projects and /[locale]/projects/[slug] are all
-  // rendered dynamically (force-dynamic), so they always reflect the latest
-  // projects and case studies; just refresh the admin list cache.
+  // Public pages are cached: purge them so the home page, /projects and the
+  // case studies show the change now.
+  revalidatePublicSite()
   revalidatePath('/admin/projects')
 }
 
@@ -254,7 +255,7 @@ export async function createTechnicalSkillAction(name: string): Promise<CreateSk
 
   // Surface the new skill on the public skills section and the skills dashboard.
   revalidatePath('/admin/skills')
-  for (const path of ['/fr', '/en', '/ar']) revalidatePath(path)
+  revalidatePublicSite()
 
   return {
     ok: true,

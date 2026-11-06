@@ -45,8 +45,15 @@ import { routing } from '@/i18n/routing'
 import { trackClick } from '@/lib/analytics/events'
 import type { Locale } from '@/lib/validation/locale'
 
-// Rendered per request so case-study edits appear without a rebuild.
-export const dynamic = 'force-dynamic'
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
+
+// No slugs at build: each case study is rendered on its first visit, then cached
+// like the other pages. Unknown slugs still 404.
+export function generateStaticParams() {
+  return []
+}
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> }
 

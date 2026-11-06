@@ -53,6 +53,10 @@ import { withUsableHeadline } from '@/features/seo/profile-summary'
 import { PERSON, localePath } from '@/features/seo/site'
 import { routing } from '@/i18n/routing'
 
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
+
 // The canonical profile page for the entity "Keltoum Malouki": fully
 // server-rendered, every fact visible, one JSON-LD graph (ProfilePage + Person
 // + BreadcrumbList + FAQPage) built from the same data as the visible copy.

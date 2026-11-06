@@ -29,6 +29,16 @@ import { PERSON, absoluteUrl, localePath } from '@/features/seo/site'
 import { latestDate } from '@/features/seo/sitemap'
 import type { Locale } from '@/lib/validation/locale'
 
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
+
+// No slugs at build: each article is rendered on its first visit, then cached
+// like the other pages. Unknown slugs still 404.
+export function generateStaticParams() {
+  return []
+}
+
 /**
  * Per-locale locale-less paths (`/blog/<slug>`) of the article's published
  * translations, plus the locale whose URL is canonical for this request: the

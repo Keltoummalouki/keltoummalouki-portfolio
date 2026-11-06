@@ -1,11 +1,12 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { PublicDesignSettings } from '@/features/cms/queries'
 import { buildDesignCss } from '@/features/cms/design-css'
 import {
   mergeVisitorDesign,
   normalizeVisitorDesignPreference,
+  readVisitorDesignCookie,
   visitorDesignCookieString,
   type VisitorDesignPreference,
 } from '@/features/preferences/options'
@@ -36,16 +37,25 @@ function writePreferenceCookie(preference: VisitorDesignPreference) {
   document.cookie = visitorDesignCookieString(preference)
 }
 
+// The visitor's preference cookie is read here, in the browser, not on the
+// server: reading it server-side made every public page render per request.
+// Pages are now cached and shared; the admin design renders first and a saved
+// override applies right after hydration.
 export function PreferenceProvider({
   adminDesign,
-  initialPreference,
   children,
 }: {
   adminDesign?: PublicDesignSettings
-  initialPreference: VisitorDesignPreference
   children: ReactNode
 }) {
-  const [preference, setPreference] = useState(() => normalizeVisitorDesignPreference(initialPreference))
+  const [preference, setPreference] = useState<VisitorDesignPreference>({})
+  // Until the cookie is read, report the panel as seen so it never flashes
+  // open for returning visitors.
+  const [loaded, setLoaded] = useState(false)
+  useEffect(() => {
+    setPreference(readVisitorDesignCookie(document.cookie))
+    setLoaded(true)
+  }, [])
   const design = useMemo(() => mergeVisitorDesign(adminDesign, preference), [adminDesign, preference])
 
   const applyPreference = useCallback((patch: VisitorDesignPreference) => {
@@ -67,12 +77,12 @@ export function PreferenceProvider({
       adminDesign,
       design,
       preference,
-      hasSeenPreference: preference.seen === true,
+      hasSeenPreference: !loaded || preference.seen === true,
       hasVisitorOverrides: hasOverrides(preference),
       applyPreference,
       skipPreference,
     }),
-    [adminDesign, applyPreference, design, preference, skipPreference],
+    [adminDesign, applyPreference, design, loaded, preference, skipPreference],
   )
 
   return (

@@ -1,5 +1,6 @@
 import 'server-only'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import type { Locale } from '@/lib/validation/locale'
 import { mapPublicServices, type PublicService, type ServiceRow } from './services'
 
@@ -12,7 +13,7 @@ const SERVICE_COLUMNS =
 /** Published packages for the freelance page ([] on any failure: the section is hidden). */
 export async function getPublishedServices(locale: Locale): Promise<PublicService[]> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('services')
       .select(SERVICE_COLUMNS)

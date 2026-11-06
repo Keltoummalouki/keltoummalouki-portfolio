@@ -2,6 +2,7 @@ import 'server-only'
 import { unstable_cache } from 'next/cache'
 import { SITE_URL } from '@/features/seo/site'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import type { Database } from '@/lib/supabase/database.types'
 import { framingAllowed } from './projects.embed'
 import { isValidProjectSlug, type ProjectSkillOption } from './projects.schema'
@@ -57,7 +58,7 @@ const DETAIL_SELECT = '*, project_translations(*), project_skills(skill_id, sort
  */
 export async function getPublishedProjects(): Promise<PublicProject[]> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('projects')
       .select(PUBLIC_LIST_SELECT)
@@ -132,7 +133,7 @@ export async function getFramableDemos(urls: (string | null)[]): Promise<string[
 export async function getPublishedProjectBySlug(slug: string): Promise<PublicProjectDetail | null> {
   if (!isValidProjectSlug(slug)) return null
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('projects')
       .select(PUBLIC_DETAIL_SELECT)

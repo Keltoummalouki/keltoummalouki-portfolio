@@ -27,8 +27,8 @@ import { FALLBACK_SAME_AS, absoluteUrl, localePath } from '@/features/seo/site'
 import { routing } from '@/i18n/routing'
 import { pagePath, paginate, parsePageParam } from '@/lib/pagination'
 
-// Rendered per request so newly published projects appear without a rebuild.
-export const dynamic = 'force-dynamic'
+// Rendered per request because of the ?page= parameter; its data reads are
+// cookie-free, so they no longer depend on who is visiting.
 
 /** Case studies per page (2-column grid). Pages are crawlable: /projects?page=N. */
 const PROJECTS_PER_PAGE = 6

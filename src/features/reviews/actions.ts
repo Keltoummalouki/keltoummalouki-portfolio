@@ -1,13 +1,13 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate-public'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/features/auth/session'
 import { verifyTurnstileToken } from '@/features/inbox/turnstile'
 import { reservePublicSubmission } from '@/features/submissions/rate-limit'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { LOCALES } from '@/lib/validation/locale'
 import {
   reviewFormSchema,
   reviewStatusSchema,
@@ -18,7 +18,7 @@ import {
 const FIELDS = ['name', 'rating', 'comment'] as const
 
 function revalidatePublicHome() {
-  for (const locale of LOCALES) revalidatePath(`/${locale}`)
+  revalidatePublicSite()
 }
 
 /**

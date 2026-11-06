@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate-public'
 import { redirect } from 'next/navigation'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { requireAdmin } from '@/features/auth/session'
@@ -89,8 +90,8 @@ function resolvePublishedAt(values: ArticleFormValues): string | null {
 }
 
 function revalidateBlog() {
-  // Public blog index/detail are rendered dynamically, so they always reflect
-  // the latest published content; just refresh the admin list cache.
+  // Public pages are cached: purge them so the change (blog, RSS, home) shows now.
+  revalidatePublicSite()
   revalidatePath('/admin/blog')
 }
 
@@ -211,6 +212,6 @@ export async function deleteArticleAction(formData: FormData): Promise<void> {
   const supabase = await createServerSupabaseClient()
   await supabase.from('articles').delete().eq('id', id) // cascade removes translations
 
-  revalidatePath('/admin/blog')
+  revalidateBlog()
   redirect('/admin/blog')
 }

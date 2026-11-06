@@ -60,7 +60,8 @@ Pure logic (schemas, mappers, translation pickers) sits in separate files so it 
 
 ### Supabase clients and the security model (`src/lib/supabase/`)
 - `client.ts`: browser anon client.
-- `server.ts`: `server-only`, anon key plus request cookies, so queries run under the user's RLS context. This is the default for server reads and writes.
+- `server.ts`: `server-only`, anon key plus request cookies, so queries run under the user's RLS context. Use it for admin reads and every write.
+- `public.ts`: `server-only`, anon key and **no cookies**. Every public `getPublished*` reader uses it, so public pages can be cached. Never use it for admin reads or writes.
 - `admin.ts`: `server-only`, service-role key, **bypasses RLS**. Use it only where needed. Current uses are the public contact and lead inserts and the submission rate limiter.
 - RLS is the real authorization boundary. Admin status comes from the SQL function `public.is_admin()` over the `admin_profiles` table, never from auth metadata. `features/auth/session.ts` exposes `getAdminSession()` and `requireAdmin()`. `app/admin/(protected)/layout.tsx` guards every dashboard page on the server, and each admin Server Action also calls `requireAdmin()`.
 - Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_SECRET_KEY`, `IP_HASH_SECRET`) must only be read from `server-only` modules and must never get a `NEXT_PUBLIC_` prefix.
@@ -75,10 +76,12 @@ Contact messages (`features/inbox`) and freelance leads (`features/freelance`) s
 Error codes returned to the client are deliberately coarse (`invalid`, `captcha`, `rate_limited`, `server`).
 
 ### Public rendering and CMS data
-- `app/[locale]/page.tsx` is `force-dynamic`. It loads `getPublishedCmsContent(locale)` (`features/cms/queries.ts`) and `getPublishedProjects()`, then passes plain props into `components/sections/*`.
+- Public pages are cached (ISR, `revalidate = 3600`, locales pre-rendered). Nothing under `app/[locale]` may read cookies or headers, or the whole route becomes dynamic again. Every admin action that changes published content must call `revalidatePublicSite()` (`lib/revalidate-public.ts`), which purges all public pages at once. `/projects` stays per-request because of `?page=`.
+- There is no `app/layout.tsx`. `app/[locale]/layout.tsx` and `app/admin/layout.tsx` are the two root layouts, sharing `components/layouts/RootDocument.tsx` (fonts, `<html lang dir>`) and `features/seo/root-metadata.ts`. A single root above `[locale]` could only get the locale from request headers.
+- `app/[locale]/page.tsx` loads `getPublishedCmsContent(locale)` (`features/cms/queries.ts`) and `getPublishedProjects()`, then passes plain props into `components/sections/*`.
 - Public queries catch their own errors and return empty or fallback data. `features/cms/fallbacks.ts` builds defaults from `messages/*.json`, so the site still renders when Supabase is unreachable or empty.
 - Public queries filter on `status = 'published'` explicitly, on top of RLS, so an admin viewing the site never sees drafts.
-- Admin-editable theme settings (`design_settings`) become runtime CSS variables through `features/cms/design-css.ts` and `components/ui/DesignSettingsStyle.tsx`. Visitor-level language and display preferences live in a cookie (`features/preferences`).
+- Admin-editable theme settings (`design_settings`) become runtime CSS variables through `features/cms/design-css.ts` and `components/ui/DesignSettingsStyle.tsx`. Visitor-level display preferences live in a cookie (`features/preferences`) that is read in the browser by `PreferenceProvider`, never on the server (that would make pages uncacheable).
 - Blog bodies are Markdown, rendered through `components/ui/Markdown.tsx` with `rehype-sanitize`.
 - Uploads go to Supabase Storage via `features/cms/media.ts`.
 

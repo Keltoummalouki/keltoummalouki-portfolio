@@ -21,8 +21,9 @@ import { buildPageMetadata } from '@/features/seo/metadata'
 import { absoluteUrl, localePath } from '@/features/seo/site'
 import type { Locale } from '@/lib/validation/locale'
 
-// Rendered per request so newly published articles appear without a rebuild.
-export const dynamic = 'force-dynamic'
+// Cached and shared between visitors (ISR). Admin edits purge it at once
+// (revalidatePublicSite); the hourly revalidation is only a safety net.
+export const revalidate = 3600
 
 export async function generateMetadata({
   params,

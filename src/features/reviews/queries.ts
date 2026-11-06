@@ -1,5 +1,6 @@
 import 'server-only'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import { PUBLIC_REVIEW_COLUMNS, toPublicReview, type PublicReviewRow } from './map'
 import { REVIEW_STATUSES, type PublicReview, type ReviewStatus } from './schema'
 
@@ -16,7 +17,7 @@ const PUBLIC_REVIEW_LIMIT = 200
  */
 export async function getApprovedReviews(): Promise<PublicReview[]> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('reviews')
       .select(PUBLIC_REVIEW_COLUMNS)

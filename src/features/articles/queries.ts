@@ -1,5 +1,6 @@
 import 'server-only'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createPublicSupabaseClient } from '@/lib/supabase/public'
 import type { Database } from '@/lib/supabase/database.types'
 
 type ArticleRow = Database['public']['Tables']['articles']['Row']
@@ -19,7 +20,7 @@ const SELECT = '*, article_translations(*)'
  */
 export async function getPublishedArticles(): Promise<AdminArticle[]> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('articles')
       .select(SELECT)
@@ -45,7 +46,7 @@ export async function getPublishedArticleBySlug(
   locale?: string,
 ): Promise<PublishedArticleDetail | null> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
       .from('article_translations')
       .select('*, articles!inner(*)')
@@ -70,7 +71,7 @@ export async function getArticleLocaleSlugs(
   locale?: string,
 ): Promise<Record<string, string>> {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = createPublicSupabaseClient()
     const { data: matches } = await supabase
       .from('article_translations')
       .select('article_id, locale, articles!inner(status)')
