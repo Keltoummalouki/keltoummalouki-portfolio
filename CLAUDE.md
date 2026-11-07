@@ -92,6 +92,10 @@ Umami (cookie-less) loads only on public pages (`components/analytics/Analytics.
 ### Security headers
 `next.config.ts` defines a strict CSP. Any new external origin (scripts, images, fetch targets, iframes) must be added to `cspHeader`, and to `images.remotePatterns` when used with `next/image`. The Umami origins are added only when analytics is configured.
 
+Production pages cannot use eval: only `next dev` sends `'unsafe-eval'`, which React's development build needs. Browser code must not rely on `eval` or `new Function`, which is also why Zod runs jitless in the browser (`src/instrumentation-client.ts`). `e2e/security.spec.ts` fails on any CSP violation, so run the e2e tests after adding a client-side dependency.
+
+`public/.well-known/security.txt` (RFC 9116) carries an `Expires` date of 2027-11-01. Renew it before then, keeping it less than a year ahead.
+
 ## Project docs to consult
 - `PORTFOLIO_CMS_PLAN.md`: the milestone plan (M0–M11) with task IDs, acceptance criteria, a global definition of done, and a Decision Log. When asked to implement a task ID, follow its rules: work on one task at a time, preserve unrelated changes, never touch production Supabase resources without permission, run lint/build/tests, and update the checklist and Decision Log. Many checkboxes are still unchecked even though the work is done, so check the code before assuming a task is outstanding.
 - `design-system/keltoum-malouki-portfolio/MASTER.md`: design tokens and rules (dark-first navy + blue→violet palette, glass/bento surfaces, WCAG AA, reduced-motion safety). A page-specific `design-system/pages/<name>.md` overrides it if one exists. Keep it in sync with `src/app/globals.css`.

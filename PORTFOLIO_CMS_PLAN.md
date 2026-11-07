@@ -763,6 +763,8 @@ Add one line whenever a decision changes architecture, security, data shape, cos
 | --- | --- | --- | --- |
 | YYYY-MM-DD | Supabase proposed as the backend platform | Combines PostgreSQL, Auth, Storage, RLS, and Edge Functions on a suitable free tier | M1-M11 |
 | YYYY-MM-DD | Pending: hosting target | Vercel Hobby has non-commercial restrictions; select a compliant free alternative | M0-T2, M11 |
+| 2026-11-07 | Production CSP no longer allows `'unsafe-eval'` (only `next dev` sends it); Zod runs jitless in the browser | Only React's development build needs eval. Zod's eval check would otherwise log a CSP violation on every page; `e2e/security.spec.ts` now fails on any violation | M10-T1 |
+| 2026-11-07 | Dependabot version updates (weekly, minor and patch grouped, 7-day cooldown) and an RFC 9116 `security.txt` | Dependency updates arrive as CI-checked pull requests; vulnerability reporters get a published contact | M10-T1, M11-T3 |
 
 # Progress summary
 

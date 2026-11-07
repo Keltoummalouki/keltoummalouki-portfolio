@@ -88,7 +88,7 @@ The UI never writes database queries itself. Each domain lives in `src/features/
 - **Translations come in two forms.** Long content (projects, articles, experience) uses `*_translations` tables. Short labels (skills, FAQ, prices) use `{fr, en, ar}` JSON columns. Both fall back to French, then to any available language. Arabic is fully right-to-left, using logical CSS properties throughout.
 - **The site still works when Supabase is down.** Public queries catch their own errors and fall back to defaults built from the translation files, so a database outage degrades the page instead of breaking it.
 - **Schema changes are migrations.** All 20 migrations are in `supabase/migrations`. `supabase db reset` rebuilds the database from version control alone, and the TypeScript types are generated from the schema.
-- **A strict Content Security Policy.** Every external origin is listed in `next.config.ts`, and the analytics origins are added only when analytics is configured.
+- **A strict Content Security Policy.** Every external origin is listed in `next.config.ts`, and the analytics origins are added only when analytics is configured. Production pages cannot run `eval`, and an end-to-end test fails on any CSP violation.
 - **Privacy-friendly analytics.** Umami runs without cookies, honors Do Not Track and reports only from the production domain. Clicks are marked with `data-track` attributes, which keeps Next.js client-side navigation intact.
 - **Built for search engines and AI assistants.** JSON-LD (Person, FAQPage, OfferCatalog, BlogPosting), hreflang, a sitemap, `llms.txt` and RSS. Profile facts are server-rendered and never hidden behind animations.
 
@@ -128,7 +128,7 @@ Turnstile, analytics and new-submission alerts are optional in development: leav
 | `npm run build` | Production build, also the type check |
 | `npm run lint` | ESLint |
 | `npm test` | Unit tests (no database needed) |
-| `npm run test:e2e` | Playwright smoke tests: contact form, language switch, Arabic RTL (no database needed) |
+| `npm run test:e2e` | Playwright tests: contact form, language switch, Arabic RTL, CSP violations, `security.txt` (no database needed) |
 | `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` after a migration |
 
 ## Project structure
@@ -152,3 +152,4 @@ design-system/          design tokens and page rules
 - Website: [keltoummalouki.com](https://www.keltoummalouki.com)
 - LinkedIn: [linkedin.com/in/keltoummalouki](https://www.linkedin.com/in/keltoummalouki)
 - Email: [keltoummalouki@gmail.com](mailto:keltoummalouki@gmail.com)
+- Security issues: please report them privately by email rather than in a public issue (see [security.txt](https://www.keltoummalouki.com/.well-known/security.txt)).
