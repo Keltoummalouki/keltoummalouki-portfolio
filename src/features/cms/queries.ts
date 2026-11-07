@@ -233,7 +233,31 @@ function mapCertifications(rows: CertificationRow[], locale: Locale): PublicCert
     .filter((item): item is PublicCertification => Boolean(item))
 }
 
+/**
+ * Never throws: when Supabase fails or is not configured (a CI build has no
+ * keys), the result is the same as an empty database, so pages render their
+ * built-in fallbacks.
+ */
 export async function getPublishedCmsContent(locale: Locale): Promise<PublicCmsContent> {
+  try {
+    return await loadPublishedCmsContent(locale)
+  } catch (err) {
+    console.error('getPublishedCmsContent failed:', err)
+    return {
+      about: mapAbout(null, null, locale),
+      design: mapDesign(null),
+      socialLinks: [],
+      skillCategories: [],
+      softSkills: [],
+      experiences: [],
+      education: [],
+      certifications: [],
+      languages: resolveLanguages([], locale),
+    }
+  }
+}
+
+async function loadPublishedCmsContent(locale: Locale): Promise<PublicCmsContent> {
   const supabase = createPublicSupabaseClient()
   const [
     about,
