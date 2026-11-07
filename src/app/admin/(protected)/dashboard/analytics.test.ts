@@ -14,7 +14,8 @@ describe('dashboard calendar statistics', () => {
     expect(points.reduce((sum,p)=>sum+p.content+p.inquiries,0)).toBe(3)
   })
   it('uses Casablanca calendar boundaries', () => {
-    const points = activitySeries([record('2026-10-24T23:30:00Z')], 7, '2026-10-25T15:00:00Z')
+    // 2025 on purpose: Morocco's late-2026 offset depends on the tzdata version bundled with Node.
+    const points = activitySeries([record('2025-10-24T23:30:00Z')], 7, '2025-10-25T15:00:00Z')
     expect(points[6].content).toBe(1)
     expect(points[5].content).toBe(0)
   })
