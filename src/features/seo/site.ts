@@ -9,6 +9,9 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.keltou
 
 export const SITE_NAME = 'Keltoum Malouki'
 
+/** How Next.js renders a page's `<title>` (`%s` = the page title) unless it is absolute. */
+export const TITLE_TEMPLATE = `%s | ${SITE_NAME}`
+
 /** The person this site is about — the primary entity for search and AI answers. */
 export const PERSON = {
   name: 'Keltoum Malouki',

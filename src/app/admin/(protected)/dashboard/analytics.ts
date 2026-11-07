@@ -28,3 +28,16 @@ export function activitySeries(records: DashboardRecord[], days: number, now: st
   }
   return points
 }
+
+/**
+ * Y axis for the activity chart: whole-number ticks from 0 in steps of 1, 2 or
+ * 5 (×10ⁿ), at most five intervals and never less than 0–4, so every label sits
+ * exactly on its gridline (rounding fractional ticks used to mislabel them).
+ */
+export function activityScale(peak: number): { max: number; ticks: number[] } {
+  const top = Math.max(4, Math.ceil(Number.isFinite(peak) ? peak : 0))
+  let step = 1
+  for (let i = 1; Math.ceil(top / step) > 5; i++) step = [1, 2, 5][i % 3] * 10 ** Math.floor(i / 3)
+  const max = Math.ceil(top / step) * step
+  return { max, ticks: Array.from({ length: max / step + 1 }, (_, i) => i * step) }
+}

@@ -1,0 +1,7 @@
+# Reporting a security vulnerability in www.keltoummalouki.com (RFC 9116).
+# Please write privately to the address below instead of opening a public
+# GitHub issue, and include the affected URL and the steps to reproduce.
+Contact: mailto:keltoummalouki@gmail.com
+Expires: 2027-11-01T00:00:00.000Z
+Preferred-Languages: en, fr, ar
+Canonical: https://www.keltoummalouki.com/.well-known/security.txt

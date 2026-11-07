@@ -14,9 +14,14 @@ const umami = readUmamiConfig(process.env);
 // frame-src: the home page shows each project's demo (an admin-managed URL,
 // checked server-side before it is framed) live in an iframe, so any https
 // origin may be framed; this also covers the Turnstile widget.
+// 'unsafe-eval' is allowed only under `next dev`, where React's development
+// build uses eval to rebuild server error stacks in the browser. Production
+// pages never need it, so they cannot run strings as code (Zod's eval-based
+// fast path is switched off in the browser: src/instrumentation-client.ts).
+const isDev = process.env.NODE_ENV === 'development';
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com${umami ? ` ${umami.scriptOrigin}` : ''};
+  script-src 'self'${isDev ? " 'unsafe-eval'" : ''} 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com${umami ? ` ${umami.scriptOrigin}` : ''};
   style-src 'self' 'unsafe-inline';
   font-src 'self';
   img-src 'self' data: https://*.supabase.co;

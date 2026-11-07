@@ -1,0 +1,41 @@
+# Dependabot opens pull requests that keep dependencies up to date. CI
+# (.github/workflows/ci.yml) runs lint, unit tests, the build and the
+# Playwright tests on each one; none of them needs a secret.
+#
+# GitHub reads this file from the default branch (main), so it takes effect
+# once it is merged there.
+# Options: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # Only propose a release once it is a week old: a hijacked package version
+    # is usually caught and pulled from npm within days. Security updates are
+    # never delayed.
+    cooldown:
+      default-days: 7
+    groups:
+      # All minor and patch updates arrive together in one pull request. Each
+      # major update gets its own, since it can need code changes.
+      minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+      include: scope

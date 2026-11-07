@@ -21,7 +21,6 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 type BadgeKey = 'newMessages' | 'newLeads' | 'pendingReviews'
 
@@ -95,50 +94,38 @@ export default function AdminNav({
 }) {
   const pathname = usePathname()
 
+  // Styling lives in studio.css (`.studio-nav*`): in the folded rail the icons
+  // keep their exact position while labels and badges fade out, a dot stands in
+  // for the badge, and `data-tip` feeds the rail tooltip in AdminShell.
   return (
-    <nav aria-label="Admin sections" className="flex flex-col gap-5">
+    <nav aria-label="Admin sections" className="studio-nav">
       {groups.map((group) => (
-        <div key={group.label} className="flex flex-col gap-1">
-          <p className="px-3 pb-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            {group.label}
+        <div key={group.label} className="studio-nav-group">
+          <p className="studio-nav-heading">
+            <span>{group.label}</span>
           </p>
           {group.items.map(({ href, label, icon: Icon, badge }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`)
             const count = badge ? counts?.[badge] ?? 0 : 0
+            const shown = count > 99 ? '99+' : String(count)
             return (
               <Link
                 key={href}
                 href={href}
                 onClick={onNavigate}
                 aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'group relative flex items-center gap-2.5 rounded-md py-2 pl-3 pr-2 text-sm font-medium transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
-                  active
-                    ? 'bg-sidebar-accent text-foreground'
-                    : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground',
-                )}
+                className="studio-nav-link"
+                data-tip={count > 0 ? `${label} · ${shown} new` : label}
               >
-                {active && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary"
-                  />
-                )}
-                <Icon
-                  size={17}
-                  className={cn(
-                    'shrink-0 transition-colors',
-                    active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
-                  )}
-                />
-                <span className="truncate">{label}</span>
+                <span className="studio-nav-icon">
+                  <Icon size={18} aria-hidden="true" />
+                  {count > 0 && <span className="studio-nav-dot" aria-hidden="true" />}
+                </span>
+                <span className="studio-nav-label">{label}</span>
                 {count > 0 && (
-                  <span
-                    className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold tabular-nums text-primary-foreground"
-                    aria-label={`${count} new`}
-                  >
-                    {count > 99 ? '99+' : count}
+                  <span className="studio-nav-badge">
+                    {shown}
+                    <span className="sr-only"> new</span>
                   </span>
                 )}
               </Link>
