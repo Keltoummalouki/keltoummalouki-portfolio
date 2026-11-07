@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { LogOut } from 'lucide-react'
 import { getAdminSession } from '@/features/auth/session'
@@ -7,6 +8,7 @@ import { getLeadStatusCounts } from '@/features/freelance/queries'
 import { getReviewStatusCounts } from '@/features/reviews/queries'
 import { Button } from '@/components/ui/button'
 import AdminShell from './AdminShell'
+import { SIDEBAR_COOKIE, isSidebarCollapsed } from './sidebar-state'
 
 // Protected dashboard shell. The server-side guard here (plus RLS in the
 // database) is the security boundary; middleware only keeps tokens fresh.
@@ -43,16 +45,18 @@ export default async function ProtectedAdminLayout({
 
   // Real "new" counts for the nav badges (admin RLS context). Resolved here so
   // every admin page keeps a consistent, up-to-date sidebar.
-  const [messageCounts, leadCounts, reviewCounts] = await Promise.all([
+  const [messageCounts, leadCounts, reviewCounts, cookieStore] = await Promise.all([
     getStatusCounts(),
     getLeadStatusCounts(),
     getReviewStatusCounts(),
+    cookies(),
   ])
 
   return (
     <AdminShell
       email={user.email ?? 'Admin'}
       counts={{ newMessages: messageCounts.new, newLeads: leadCounts.new, pendingReviews: reviewCounts.pending }}
+      defaultCollapsed={isSidebarCollapsed(cookieStore.get(SIDEBAR_COOKIE)?.value)}
     >
       {children}
     </AdminShell>

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Activity, ArrowDownLeft, ArrowRight, ArrowUpRight, Check, ChevronRight, FileText, FolderKanban, Inbox, Layers3, Plus, Search, Sparkles, Target, Zap } from 'lucide-react'
 import { StatusBadge } from '@/components/admin/ui'
-import { activitySeries, type DashboardRecord, type RecordKind } from './analytics'
+import { activityScale, activitySeries, type DashboardRecord, type RecordKind } from './analytics'
 
 const kinds = {
   project: { label: 'Projects', icon: FolderKanban, href: '/admin/projects' },
@@ -27,9 +27,12 @@ export default function DashboardView({ records, now }: { records: DashboardReco
   const unread = records.filter(r => (r.kind === 'message' || r.kind === 'lead') && r.status === 'new')
   const leads = records.filter(r => r.kind === 'lead')
   const totalActivity = series.reduce((sum, p) => sum + p.content + p.inquiries, 0)
-  const maxY = Math.max(4, ...series.map(p => Math.max(p.content, p.inquiries)))
-  const point = (index: number, value: number) => `${40 + index * 660 / (days - 1)},${190 - value / maxY * 155}`
-  const path = (key: 'content' | 'inquiries') => series.map((p, i) => `${i === 0 ? 'M' : 'L'}${point(i, p[key])}`).join(' ')
+  // Chart space is x = day index, y = count (flipped). The SVG stretches to fill
+  // the panel with non-scaling strokes, and the axis labels are HTML, so a wider
+  // panel never scales the chart text up.
+  const scale = activityScale(Math.max(...series.map(p => Math.max(p.content, p.inquiries))))
+  const last = days - 1
+  const path = (key: 'content' | 'inquiries') => series.map((p, i) => `${i === 0 ? 'M' : 'L'}${i},${scale.max - p[key]}`).join(' ')
   const selectedPoint = selected === null ? null : series[selected]
   const visible = records.filter(r => (filter === 'all' || (filter === 'content' ? r.kind === 'project' || r.kind === 'article' : r.kind === 'message' || r.kind === 'lead')) && `${r.title} ${r.detail}`.toLowerCase().includes(search.toLowerCase())).slice(0, 6)
   const tasks = [
@@ -64,14 +67,15 @@ export default function DashboardView({ records, now }: { records: DashboardReco
         <div className="dash-panel-heading"><div><span className="dash-eyebrow">THE BIG PICTURE</span><h2>Workspace activity</h2></div><div className="dash-segment" aria-label="Activity time range">{[7, 30, 90].map(d => <button key={d} aria-pressed={days === d} onClick={() => { setDays(d); setSelected(null) }}>{d} days</button>)}</div></div>
         <div className="dash-chart-summary"><strong>{totalActivity}<small>new records</small></strong><div className="dash-legend"><span><i /> Content created</span><span><i /> Inquiries received</span></div></div>
         <div className="dash-chart" onMouseLeave={() => setSelected(null)}>
-          <svg viewBox="0 0 740 230" role="img" aria-label={`Activity over ${days} days: ${series.reduce((s,p) => s+p.content,0)} content records created and ${series.reduce((s,p) => s+p.inquiries,0)} inquiries received`}>
+          <div className="dash-chart-y" aria-hidden="true">{scale.ticks.map(t => <span key={t} style={{ bottom: `${t / scale.max * 100}%` }}>{t}</span>)}</div>
+          <svg viewBox={`0 0 ${last} ${scale.max}`} preserveAspectRatio="none" role="img" aria-label={`Activity over ${days} days: ${series.reduce((s,p) => s+p.content,0)} content records created and ${series.reduce((s,p) => s+p.inquiries,0)} inquiries received`}>
             <defs><linearGradient id="activity-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3b82f6" stopOpacity=".22" /><stop offset="100%" stopColor="#3b82f6" stopOpacity="0" /></linearGradient></defs>
-            {[0, 1, 2, 3, 4].map(i => <g key={i}><line x1="40" x2="700" y1={190-i*38.75} y2={190-i*38.75} className="dash-gridline" /><text x="25" y={194-i*38.75} textAnchor="end">{Math.round(maxY*i/4)}</text></g>)}
-            <g key={days} className="dash-chart-lines"><path d={`${path('content')} L700,190 L40,190 Z`} fill="url(#activity-fill)" /><path d={path('content')} fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinejoin="round" /><path d={path('inquiries')} fill="none" stroke="#6caec4" strokeWidth="2.5" strokeDasharray="5 5" strokeLinejoin="round" /></g>
-            {[0, Math.floor((days-1)/3), Math.floor((days-1)*2/3), days-1].map(i => <text key={i} x={40+i*660/(days-1)} y="220" textAnchor="middle">{dateLabel(series[i].date+'T12:00:00Z')}</text>)}
-            {series.map((p, i) => <rect key={p.date} x={40+i*660/(days-1)-330/(days-1)} y="25" width={660/(days-1)} height="170" fill="transparent" onMouseEnter={() => setSelected(i)}><title>{dateLabel(p.date+'T12:00:00Z')}: {p.content} content, {p.inquiries} inquiries</title></rect>)}
-            {selected !== null && <line x1={40+selected*660/(days-1)} x2={40+selected*660/(days-1)} y1="25" y2="190" stroke="currentColor" strokeOpacity=".3" strokeDasharray="3 4" />}
+            {scale.ticks.map(t => <line key={t} x1="0" x2={last} y1={scale.max - t} y2={scale.max - t} className="dash-gridline" />)}
+            <g key={days} className="dash-chart-lines"><path d={`${path('content')} L${last},${scale.max} L0,${scale.max} Z`} fill="url(#activity-fill)" /><path d={path('content')} fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinejoin="round" /><path d={path('inquiries')} fill="none" stroke="#6caec4" strokeWidth="2.5" strokeDasharray="5 5" strokeLinejoin="round" /></g>
+            {selected !== null && <line x1={selected} x2={selected} y1="0" y2={scale.max} stroke="currentColor" strokeOpacity=".3" strokeDasharray="3 4" pointerEvents="none" />}
+            {series.map((p, i) => <rect key={p.date} x={Math.max(0, i - .5)} y="0" width={i === 0 || i === last ? .5 : 1} height={scale.max} fill="transparent" onMouseEnter={() => setSelected(i)}><title>{`${dateLabel(p.date+'T12:00:00Z')}: ${p.content} content, ${p.inquiries} inquiries`}</title></rect>)}
           </svg>
+          <div className="dash-chart-x" aria-hidden="true">{[0, Math.floor(last/3), Math.floor(last*2/3), last].map(i => <span key={i} style={{ left: `${i / last * 100}%` }}>{dateLabel(series[i].date+'T12:00:00Z')}</span>)}</div>
           <div className="dash-chart-caption" aria-live="polite">{selectedPoint ? `${dateLabel(selectedPoint.date+'T12:00:00Z')} · ${selectedPoint.content} content created · ${selectedPoint.inquiries} inquiries received` : totalActivity ? 'Created dates · Casablanca time · Hover to explore' : 'No new records in this period. Your next creation starts the story.'}</div>
         </div>
         <details className="dash-chart-data"><summary>View daily data</summary><div><table><thead><tr><th>Date</th><th>Content</th><th>Inquiries</th></tr></thead><tbody>{series.map(p => <tr key={p.date}><td>{p.date}</td><td>{p.content}</td><td>{p.inquiries}</td></tr>)}</tbody></table></div></details>
