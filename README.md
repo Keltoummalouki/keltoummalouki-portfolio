@@ -36,6 +36,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 **Admin dashboard** (`/admin`, sign-in required)
 - Edit projects, articles, experience, education, skills, certifications, FAQ, packages and prices, social links and theme, in all three languages.
 - Read the contact inbox and manage freelance leads through a status pipeline.
+- Get a Telegram, Discord or email alert as soon as a message or project request arrives, with a link to it in the dashboard. Submissions flagged as spam send nothing.
 - Approve reviews before they are published.
 
 ## Architecture
@@ -67,6 +68,7 @@ flowchart LR
     ADM --> AUTH
     PUB -.->|"cached 6 h"| GH[GitHub API]
     PUB -.->|"cookie-less events"| UM[Umami analytics]
+    SUB -.->|"alert after saving"| NT["Telegram · Discord · Resend"]
 ```
 
 The UI never writes database queries itself. Each domain lives in `src/features/<domain>/` with the same layout:
@@ -82,7 +84,7 @@ The UI never writes database queries itself. Each domain lives in `src/features/
 
 - **The database is the security boundary.** Every table has Row Level Security. Admin rights come from a SQL function (`public.is_admin()`) over an `admin_profiles` table, never from user metadata the client could change. Pages and Server Actions check too, but a bug there still can't expose drafts or other people's data.
 - **The service-role key is used in exactly two places:** inserting public submissions and the rate limiter. Everything else runs with the visitor's or admin's own permissions.
-- **Public forms are layered:** Zod validation, a Cloudflare Turnstile check, then a per-IP rate limit. IPs are stored only as HMAC hashes, and errors returned to the browser are deliberately vague (`invalid`, `captcha`, `rate_limited`, `server`).
+- **Public forms are layered:** Zod validation, a Cloudflare Turnstile check, then a per-IP rate limit. IPs are stored only as HMAC hashes, and errors returned to the browser are deliberately vague (`invalid`, `captcha`, `rate_limited`, `server`). Once a submission is saved, the owner alert goes out through `after()`, so the visitor never waits on Telegram, Discord or Resend.
 - **Translations come in two forms.** Long content (projects, articles, experience) uses `*_translations` tables. Short labels (skills, FAQ, prices) use `{fr, en, ar}` JSON columns. Both fall back to French, then to any available language. Arabic is fully right-to-left, using logical CSS properties throughout.
 - **The site still works when Supabase is down.** Public queries catch their own errors and fall back to defaults built from the translation files, so a database outage degrades the page instead of breaking it.
 - **Schema changes are migrations.** All 20 migrations are in `supabase/migrations`. `supabase db reset` rebuilds the database from version control alone, and the TypeScript types are generated from the schema.
@@ -118,7 +120,7 @@ npx supabase db reset           # apply every migration and the seed data
 npm run dev                     # http://localhost:3000
 ```
 
-Turnstile and analytics are optional in development: leave their variables empty and the site works without them.
+Turnstile, analytics and new-submission alerts are optional in development: leave their variables empty and the site works without them.
 
 | Command | Purpose |
 | --- | --- |

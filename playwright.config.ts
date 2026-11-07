@@ -5,8 +5,9 @@ import { defineConfig, devices } from '@playwright/test'
 // The server never talks to a real backend: Supabase points at a closed local
 // port, so public pages render their built-in fallback content (deterministic,
 // no secrets needed in CI) and a form submission can never reach the live
-// database. Turnstile and analytics are switched off. The build goes to
-// `.next-e2e` so it never overwrites the `.next` of a running dev server.
+// database. Turnstile, analytics and new-submission alerts are switched off.
+// The build goes to `.next-e2e` so it never overwrites the `.next` of a
+// running dev server.
 const PORT = 3100
 const OFFLINE_ENV = {
   NEXT_DIST_DIR: '.next-e2e',
@@ -17,6 +18,9 @@ const OFFLINE_ENV = {
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: '',
   TURNSTILE_SECRET_KEY: '',
   NEXT_PUBLIC_UMAMI_WEBSITE_ID: '',
+  TELEGRAM_BOT_TOKEN: '',
+  DISCORD_WEBHOOK_URL: '',
+  RESEND_API_KEY: '',
   NEXT_TELEMETRY_DISABLED: '1',
 }
 

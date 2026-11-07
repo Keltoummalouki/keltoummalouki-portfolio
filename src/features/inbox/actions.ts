@@ -1,8 +1,11 @@
 'use server'
 
+import { randomUUID } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { after } from 'next/server'
 import { requireAdmin } from '@/features/auth/session'
+import { notifyNewSubmission } from '@/features/submissions/notify'
 import { reservePublicSubmission } from '@/features/submissions/rate-limit'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -21,7 +24,8 @@ export interface ContactSubmitInput {
  * Public contact submission. Validates with Zod, optionally verifies Turnstile,
  * reserves an IP-based submission slot, and inserts with the server-only
  * service role. The browser never reads stored messages, and errors are
- * returned as coarse, non-leaking codes.
+ * returned as coarse, non-leaking codes. Once the response is sent, the owner
+ * gets an alert unless the message was flagged as spam.
  */
 export async function submitContactMessage(input: ContactSubmitInput): Promise<ContactSubmitResult> {
   const parsed = contactMessageSchema.safeParse(input)
@@ -33,9 +37,12 @@ export async function submitContactMessage(input: ContactSubmitInput): Promise<C
   const submissionGate = await reservePublicSubmission('contact_message')
   if (!submissionGate.ok) return { ok: false, error: submissionGate.error }
 
+  // Generated here rather than read back, so the alert can link to the message.
+  const id = randomUUID()
   try {
     const supabase = createAdminSupabaseClient()
     const { error } = await supabase.from('contact_messages').insert({
+      id,
       name: parsed.data.name,
       email: parsed.data.email,
       subject: parsed.data.subject,
@@ -55,6 +62,10 @@ export async function submitContactMessage(input: ContactSubmitInput): Promise<C
       error instanceof Error ? error.message : 'unknown error',
     )
     return { ok: false, error: 'server' }
+  }
+
+  if (!submissionGate.shouldMarkSpam) {
+    after(() => notifyNewSubmission({ kind: 'contact_message', id, ...parsed.data }))
   }
 
   return { ok: true }

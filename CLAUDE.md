@@ -34,7 +34,7 @@ npm run db:types         # regenerate src/lib/supabase/database.types.ts
 
 `database.types.ts` is checked in. Regenerate it after every schema migration. Every schema change must be a new file in `supabase/migrations/`, because `db reset` has to rebuild the database from version-controlled files alone.
 
-Env setup: copy `.env.example` to `.env.local`. Turnstile keys are optional in dev: with no site key the widget is not rendered, and with no secret the server check is skipped. Analytics (Umami) is optional too: with no `NEXT_PUBLIC_UMAMI_WEBSITE_ID`, no script loads and the CSP does not allow Umami.
+Env setup: copy `.env.example` to `.env.local`. Turnstile keys are optional in dev: with no site key the widget is not rendered, and with no secret the server check is skipped. Analytics (Umami) is optional too: with no `NEXT_PUBLIC_UMAMI_WEBSITE_ID`, no script loads and the CSP does not allow Umami. So are new-submission alerts: each channel (Telegram, Discord, Resend email) turns on only when all of its variables are set.
 
 ## Architecture
 
@@ -64,14 +64,15 @@ Pure logic (schemas, mappers, translation pickers) sits in separate files so it 
 - `public.ts`: `server-only`, anon key and **no cookies**. Every public `getPublished*` reader uses it, so public pages can be cached. Never use it for admin reads or writes.
 - `admin.ts`: `server-only`, service-role key, **bypasses RLS**. Use it only where needed. Current uses are the public contact and lead inserts and the submission rate limiter.
 - RLS is the real authorization boundary. Admin status comes from the SQL function `public.is_admin()` over the `admin_profiles` table, never from auth metadata. `features/auth/session.ts` exposes `getAdminSession()` and `requireAdmin()`. `app/admin/(protected)/layout.tsx` guards every dashboard page on the server, and each admin Server Action also calls `requireAdmin()`.
-- Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_SECRET_KEY`, `IP_HASH_SECRET`) must only be read from `server-only` modules and must never get a `NEXT_PUBLIC_` prefix.
+- Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_SECRET_KEY`, `IP_HASH_SECRET`, `TELEGRAM_BOT_TOKEN`, `DISCORD_WEBHOOK_URL`, `RESEND_API_KEY`) must only be read from `server-only` modules and must never get a `NEXT_PUBLIC_` prefix.
 
 ### Public submissions
 Contact messages (`features/inbox`) and freelance leads (`features/freelance`) share one flow:
 1. Zod validation.
 2. Turnstile check (`inbox/turnstile.ts`).
 3. `reservePublicSubmission()` (`features/submissions/rate-limit.ts`): HMAC-hashes the IP, rate-limits, and can mark the submission as spam.
-4. Insert with the admin client.
+4. Insert with the admin client. The action generates the row id (`randomUUID()`) instead of reading it back.
+5. Unless the submission was marked as spam, `after(() => notifyNewSubmission(...))` (`features/submissions/notify.ts`) sends the owner a short alert with a dashboard link once the response is out. A failed alert is only logged. The alert text and each provider's request are built in the pure, unit-tested `submissions/notifications.ts`.
 
 Error codes returned to the client are deliberately coarse (`invalid`, `captcha`, `rate_limited`, `server`).
 

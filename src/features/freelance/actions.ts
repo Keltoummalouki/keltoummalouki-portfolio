@@ -1,9 +1,12 @@
 'use server'
 
+import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { after } from 'next/server'
 import { requireAdmin } from '@/features/auth/session'
+import { notifyNewSubmission } from '@/features/submissions/notify'
 import { reservePublicSubmission } from '@/features/submissions/rate-limit'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -37,6 +40,8 @@ function fieldErrorState(error: z.ZodError): LeadSubmitState {
  * Public freelance inquiry. Validates with Zod, optionally verifies Turnstile,
  * reserves an IP-based submission slot, and inserts with the server-only
  * service role. No `.select()` / RETURNING — leads are never browser-readable.
+ * Once the response is sent, the owner gets an alert unless the lead was
+ * flagged as spam.
  */
 export async function submitFreelanceLeadAction(
   _prev: LeadSubmitState,
@@ -52,9 +57,12 @@ export async function submitFreelanceLeadAction(
   if (!submissionGate.ok) return { ok: false, error: submissionGate.error }
 
   const v = parsed.data
+  // Generated here rather than read back, so the alert can link to the lead.
+  const id = randomUUID()
   try {
     const supabase = createAdminSupabaseClient()
     const { error } = await supabase.from('freelance_leads').insert({
+      id,
       name: v.name,
       email: v.email,
       company: v.company,
@@ -77,6 +85,10 @@ export async function submitFreelanceLeadAction(
       error instanceof Error ? error.message : 'unknown error',
     )
     return { ok: false, error: 'server' }
+  }
+
+  if (!submissionGate.shouldMarkSpam) {
+    after(() => notifyNewSubmission({ kind: 'freelance_lead', id, ...v }))
   }
 
   return { ok: true }
