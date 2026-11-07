@@ -82,7 +82,8 @@ export default function ProjectsSection({ projects, total, index, livePreviews =
                 </div>
                 <div className={styles.screen}>
                   {project.image ? <>
-                    <Image src={project.image} alt="" fill sizes="64px" unoptimized={!isOptimizableImageSrc(project.image)} className={styles.ambient} />
+                    {/* Blurred backdrop copy: `alt` is for crawlers (Bing flags empty ones); aria-hidden keeps screen readers on the real cover below. */}
+                    <Image src={project.image} alt={tp('coverAlt', { title: project.title })} aria-hidden="true" fill sizes="64px" unoptimized={!isOptimizableImageSrc(project.image)} className={styles.ambient} />
                     <Image
                       src={project.image}
                       alt={tp('coverAlt', { title: project.title })}

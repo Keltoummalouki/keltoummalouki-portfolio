@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { PERSON, SITE_NAME, SITE_URL, isIndexable } from "./site";
+import { PERSON, SITE_NAME, SITE_URL, TITLE_TEMPLATE, isIndexable } from "./site";
 
 // Site-wide metadata defaults. `app/[locale]/layout.tsx` only localizes the
 // default description; every public page sets its own title, canonical,
@@ -15,7 +15,7 @@ export const rootMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: `${PERSON.name} — ${PERSON.jobTitle}`,
-    template: `%s | ${SITE_NAME}`,
+    template: TITLE_TEMPLATE,
   },
   description:
     "Keltoum Malouki, Full Stack Web Developer in Casablanca, Morocco, builds web applications with React, Next.js, NestJS, Laravel and Ruby on Rails.",

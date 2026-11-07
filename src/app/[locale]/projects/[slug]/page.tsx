@@ -120,6 +120,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path,
     localizedPaths,
     title: t('detail.metaTitle', { title: project.title }),
+    // Project titles often carry a tagline; if the result is too long for
+    // search results, the "— Case study" label is dropped first.
+    shortTitle: project.title,
     description: caseStudyDescription(project, t('detail.metaDescriptionFallback', { title: project.title })),
     type: 'article',
     modifiedTime: project.updatedAt,

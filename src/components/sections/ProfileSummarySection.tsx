@@ -57,6 +57,7 @@ export default async function ProfileSummarySection({
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14 xl:gap-20">
           <Portrait
             src={avatarUrl}
+            name={facts.name}
             note={t('note')}
             className="order-first"
           />
@@ -125,7 +126,7 @@ export default async function ProfileSummarySection({
 }
 
 /** Portrait in a studio arch, circled by an orbit line, with a code badge and a floating note. */
-function Portrait({ src, note, className }: { src: string; note: string; className?: string }) {
+function Portrait({ src, name, note, className }: { src: string; name: string; note: string; className?: string }) {
   return (
     <div className={cn('relative mx-auto w-full max-w-[19rem] sm:max-w-sm lg:max-w-none', className)}>
       {/* Orbit ring behind the arch. */}
@@ -138,8 +139,10 @@ function Portrait({ src, note, className }: { src: string; note: string; classNa
       <div data-portrait-destination className="relative aspect-[4/5] overflow-hidden rounded-t-full bg-[var(--portrait-backdrop)] [mask-image:linear-gradient(to_bottom,black_72%,transparent)]">
         <Image
           src={src}
-          // Decorative here: the hero already shows (and names) the same portrait.
-          alt=""
+          // `alt` names the photo for crawlers (Bing flags empty ones), while
+          // aria-hidden keeps screen readers from repeating the hero portrait.
+          alt={name}
+          aria-hidden="true"
           fill
           sizes="(min-width: 1280px) 440px, (min-width: 1024px) 38vw, (min-width: 640px) 384px, 304px"
           unoptimized={!isOptimizableImageSrc(src)}

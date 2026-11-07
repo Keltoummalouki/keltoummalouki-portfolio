@@ -1,12 +1,16 @@
 import type { MetadataRoute } from 'next'
 import { SITE_URL, absoluteUrl, isIndexable } from '@/features/seo/site'
 
-// /robots.txt. Production: everything public is crawlable (admin and API are
-// not). AI answer engines and search-assistant crawlers are welcomed
-// explicitly, so a future blanket rule can't silently hide the site from AI
-// search. Preview/development deployments block all crawling.
+// /robots.txt. Production: everything public is crawlable (admin, API and
+// Cloudflare's /cdn-cgi/ are not). AI answer engines and search-assistant
+// crawlers are welcomed explicitly, so a future blanket rule can't silently
+// hide the site from AI search. Preview/development deployments block all
+// crawling.
 
-const DISALLOW = ['/admin', '/api']
+// /cdn-cgi/ is Cloudflare's own endpoint, not site content. Its email
+// obfuscation rewrites mailto: links to /cdn-cgi/l/email-protection, which
+// returns 4xx to crawlers; Cloudflare recommends disallowing the whole path.
+const DISALLOW = ['/admin', '/api', '/cdn-cgi/']
 
 /** Search-answer and AI crawlers allowed explicitly (same rules as everyone). */
 const AI_CRAWLERS = [

@@ -1,16 +1,25 @@
 import type { Metadata } from 'next'
-import { DEFAULT_LOCALE, LOCALES, OG_LOCALES, SITE_NAME, absoluteUrl, localePath } from './site'
+import { DEFAULT_LOCALE, LOCALES, OG_LOCALES, SITE_NAME, TITLE_TEMPLATE, absoluteUrl, localePath } from './site'
 
 // One builder for every public page's metadata, so canonical, hreflang, Open
 // Graph and Twitter tags are always complete and consistent. Next.js merges
 // metadata SHALLOWLY (a page's `openGraph` replaces the layout's entirely), so
 // each page must emit the full object — this helper guarantees that.
 
+/** Longest `<title>` allowed: Bing Webmaster Tools flags titles over 70 characters. */
+export const MAX_TITLE_LENGTH = 70
+
 export interface PageMetadataInput {
   locale: string
   /** Locale-less path, e.g. `/`, `/about`, `/projects/event-booking-app`. */
   path: string
   title: string
+  /**
+   * Fallback `<title>` for when `title` plus the ` | Keltoum Malouki` suffix is
+   * over MAX_TITLE_LENGTH (e.g. the project name without "— Case study").
+   * Open Graph and Twitter keep `title`.
+   */
+  shortTitle?: string
   description: string
   /** Use the title as-is (skip the `%s | Keltoum Malouki` template). */
   absoluteTitle?: boolean
@@ -54,6 +63,7 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
     locale,
     path,
     title,
+    shortTitle,
     description,
     absoluteTitle = false,
     type = 'website',
@@ -99,7 +109,7 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
         : { ...openGraphBase, type: 'website' }
 
   return {
-    title: absoluteTitle ? { absolute: title } : title,
+    title: absoluteTitle ? { absolute: title } : fitTitle(shortTitle ? [title, shortTitle] : [title]),
     description,
     alternates: {
       canonical,
@@ -117,8 +127,29 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
   }
 }
 
+/**
+ * A `<title>` of at most `max` characters, as rendered. The first candidate
+ * that fits with the site-name suffix wins; otherwise the last candidate is
+ * used without the suffix, cut on a word boundary if it is still too long.
+ */
+export function fitTitle(
+  candidates: readonly [string, ...string[]],
+  max = MAX_TITLE_LENGTH,
+): string | { absolute: string } {
+  const suffixLength = TITLE_TEMPLATE.length - '%s'.length
+  const fits = candidates.find((candidate) => candidate.length + suffixLength <= max)
+  if (fits !== undefined) return fits
+  const last = candidates[candidates.length - 1]
+  return { absolute: last.length <= max ? last : truncateOnWord(last, max) }
+}
+
 /** Trim text to a meta-description-friendly length on a word boundary. */
 export function truncateDescription(text: string, max = 160): string {
+  return truncateOnWord(text, max)
+}
+
+/** Cut text to at most `max` characters on a word boundary, ending with an ellipsis. */
+function truncateOnWord(text: string, max: number): string {
   const clean = text.replace(/\s+/g, ' ').trim()
   if (clean.length <= max) return clean
   const cut = clean.slice(0, max - 1)
