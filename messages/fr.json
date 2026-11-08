@@ -160,7 +160,19 @@
       "limited": "Disponibilité limitée",
       "unavailable": "Non disponible"
     },
-    "location": "Casablanca (mobilité / relocation)"
+    "location": "Casablanca (mobilité / relocation)",
+    "iceBear": {
+      "alt": "Ice Bear, un ours polaire à lunettes de soleil, un ordinateur portable sous le bras et un café à la patte",
+      "poke": "Taquiner Ice Bear",
+      "quips": {
+        "code": "Ice Bear écrit du code.",
+        "friday": "Ice Bear déploie le vendredi.",
+        "darkMode": "Ice Bear préfère le mode sombre.",
+        "review": "Ice Bear a approuvé votre pull request.",
+        "coffee": "Ice Bear a besoin de plus de café.",
+        "bugs": "Ice Bear ne fait pas de bugs."
+      }
+    }
   },
   "about": {
     "description": "Je suis Keltoum Malouki, développeuse web full stack basée à Casablanca, Maroc. Formée chez YouCode (UM6P), je livre des solutions web complètes, de l'interface utilisateur à l'architecture back-end. Je privilégie le code propre, l'expérience utilisateur et l'apprentissage continu.",

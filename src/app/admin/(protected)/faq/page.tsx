@@ -1,11 +1,11 @@
 import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
-import { MessageCircleQuestion, Trash2 } from 'lucide-react'
+import { MessageCircleQuestion } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteFaqItemAction, saveFaqItemAction } from '@/features/cms/actions'
 import type { FaqItemRow } from '@/features/cms/faq'
 import { getAdminFaqItems } from '@/features/cms/faq.queries'
 import { AdminCard, EmptyState, ErrorNotice, Field, I18nInputs, PageHeader, StatusSelect, i18nValues } from '@/components/admin/CmsAdmin'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 
 function FaqItemForm({ item }: { item?: FaqItemRow }) {
   return (
@@ -66,10 +66,7 @@ export default async function AdminFaqPage({
                 <FaqItemForm item={item} />
                 <form action={deleteFaqItemAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
-                  <Button type="submit" variant="destructive" size="sm">
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  <DeleteButton />
                 </form>
               </EditorDisclosure>
             ))}

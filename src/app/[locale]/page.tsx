@@ -10,7 +10,6 @@ import ContactSection from '@/components/sections/ContactSection'
 import ExperienceSection from '@/components/sections/ExperienceSection'
 import HeroSection from '@/components/sections/HeroSection'
 import ProfileSummarySection from '@/components/sections/ProfileSummarySection'
-import PortraitTransition from '@/components/sections/PortraitTransition'
 import ProjectsSection from '@/components/sections/ProjectsSection'
 import ReviewsSection from '@/components/sections/ReviewsSection'
 import ShowcaseGroup from '@/components/sections/showcase/ShowcaseGroup'
@@ -127,9 +126,10 @@ export default async function HomePage({ params }: PageProps) {
       <Header brandName={cms.about?.fullName} design={cms.design} />
 
       <main id="main-content">
-        <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} avatarUrl="/images/keltoum-portrait.jpg" />
+        {/* Ice Bear (hero) blows away as snow on scroll and the snow forms the
+            portrait below (data-portrait-destination): see components/three/ice-bear. */}
+        <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} />
         <ProfileSummarySection locale={locale} facts={facts} avatarUrl="/images/keltoum-portrait.jpg" />
-        <PortraitTransition />
         <ExperienceSection items={cms.experiences} />
         {/* Numbered block (03–04), continuing after the profile (01) and experience (02). */}
         <ShowcaseGroup>

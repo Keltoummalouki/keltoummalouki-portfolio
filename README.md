@@ -27,6 +27,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 
 **Public site** (`/fr`, `/en`, `/ar`)
 - A short home page: hero, profile summary, experience, three featured projects, reviews and a contact form.
+- A WebGL hero mascot (Ice Bear) that is built from a snowstorm, turns toward the cursor, and blows away as snow on scroll. The snow then forms the portrait in the profile section. Reduced-motion and no-WebGL visitors get the still picture.
 - Case studies for each project (`/projects/[slug]`), written in Markdown.
 - A full profile page (`/about`): education, skills, certifications and live GitHub activity.
 - A blog, with an RSS feed per language (`/en/blog/rss.xml`).
@@ -34,6 +35,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 - Public forms for contact messages, project requests and moderated reviews.
 
 **Admin dashboard** (`/admin`, sign-in required)
+- A 3D overview: glass volumes that grow with your projects, articles, messages and leads, a deck of your latest work you can shuffle, activity charts, and a quick-actions orb. Every page gets an animated header and stat cards that count up, and a ⌘K / Ctrl+K palette jumps anywhere.
 - Edit projects, articles, experience, education, skills, certifications, FAQ, packages and prices, social links and theme, in all three languages.
 - Read the contact inbox and manage freelance leads through a status pipeline.
 - Get a Telegram, Discord or email alert as soon as a message or project request arrives, with a link to it in the dashboard. Submissions flagged as spam send nothing.
@@ -98,7 +100,7 @@ The UI never writes database queries itself. Each domain lives in `src/features/
 | --- | --- |
 | Framework | Next.js 15 (App Router, Server Actions), React 19, TypeScript (strict) |
 | Data | Supabase: Postgres, Row Level Security, Auth, Storage |
-| UI | Tailwind CSS 4, shadcn/ui (Radix), GSAP, Framer Motion, Three.js |
+| UI | Tailwind CSS 4, shadcn/ui (Radix), Three.js, GSAP (ScrollTrigger), anime.js, Lenis, Framer Motion |
 | i18n | next-intl (fr default, en, ar right-to-left) |
 | Validation & security | Zod, Cloudflare Turnstile, HMAC-hashed rate limiting, CSP |
 | Content | Markdown rendered with `rehype-sanitize` |

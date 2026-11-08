@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { EmptyState, StatusBadge, table } from '@/components/admin/ui'
+import { DeleteButton, EditLink, EmptyState, StatusBadge, table } from '@/components/admin/ui'
 import { cn } from '@/lib/utils'
 import { deleteArticleAction } from '@/features/articles/actions'
 import {
@@ -142,10 +142,8 @@ export default function ArticlesTable({ articles }: { articles: ArticleRowVM[] }
                     </div>
                   </td>
                   <td className={table.td}>
-                    <div className="flex justify-end gap-1">
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/admin/blog/${a.id}`}>Edit</Link>
-                      </Button>
+                    <div className="flex justify-end gap-2">
+                      <EditLink href={`/admin/blog/${a.id}`} label={`Edit ${a.title || 'article'}`} />
                       <form
                         action={deleteArticleAction}
                         onSubmit={(e) => {
@@ -155,9 +153,7 @@ export default function ArticlesTable({ articles }: { articles: ArticleRowVM[] }
                         }}
                       >
                         <input type="hidden" name="id" value={a.id} />
-                        <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                          Delete
-                        </Button>
+                        <DeleteButton label={`Delete ${a.title || 'article'}`} />
                       </form>
                     </div>
                   </td>

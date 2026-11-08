@@ -1,11 +1,11 @@
 import { CollectionOverview } from '@/components/admin/Workspace'
-import { Briefcase, CalendarDays, ExternalLink, MapPin, Pencil, Trash2 } from 'lucide-react'
+import { Briefcase, CalendarDays, ExternalLink, MapPin, Pencil } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteExperienceAction, saveExperienceAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
 import { AdminCard, EmptyState, ErrorNotice, FileField, PageHeader, StatusBadge, TextArea, fieldClass, labelClass } from '@/components/admin/CmsAdmin'
 import { AdminSelectField, CheckboxField, DatePickerField } from '@/components/admin/AdminFormControls'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 import SkillIcon from '@/components/ui/SkillIcon'
 import { LOCALES, type Locale } from '@/lib/validation/locale'
 
@@ -305,10 +305,7 @@ function ExperienceCard({
           )}
           <form action={deleteExperienceAction}>
             <input type="hidden" name="id" value={item.id} />
-            <Button type="submit" variant="destructive" size="sm">
-              <Trash2 size={14} />
-              Delete
-            </Button>
+            <DeleteButton />
           </form>
         </div>
       </div>

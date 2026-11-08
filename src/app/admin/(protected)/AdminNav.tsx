@@ -24,22 +24,23 @@ import {
 
 type BadgeKey = 'newMessages' | 'newLeads' | 'pendingReviews'
 
-interface NavItem {
+export interface NavItem {
   href: string
   label: string
   icon: LucideIcon
   badge?: BadgeKey
 }
 
-interface NavGroup {
+export interface NavGroup {
   label: string
   items: NavItem[]
 }
 
 // Grouped by everyday work: content, conversations, profile, and settings.
 // Badges on Inbox, Leads and Reviews are fed real
-// "new"/"pending" counts from the layout — never invented.
-const groups: NavGroup[] = [
+// "new"/"pending" counts from the layout — never invented. The command
+// palette (⌘K) lists the same pages.
+export const NAV_GROUPS: readonly NavGroup[] = [
   {
     label: 'Overview',
     items: [{ href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard }],
@@ -99,7 +100,7 @@ export default function AdminNav({
   // for the badge, and `data-tip` feeds the rail tooltip in AdminShell.
   return (
     <nav aria-label="Admin sections" className="studio-nav">
-      {groups.map((group) => (
+      {NAV_GROUPS.map((group) => (
         <div key={group.label} className="studio-nav-group">
           <p className="studio-nav-heading">
             <span>{group.label}</span>

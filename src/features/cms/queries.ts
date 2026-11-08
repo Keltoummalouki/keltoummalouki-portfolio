@@ -1,4 +1,5 @@
 import 'server-only'
+import { cache } from 'react'
 import type { Tables } from '@/lib/supabase/database.types'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createPublicSupabaseClient } from '@/lib/supabase/public'
@@ -8,6 +9,7 @@ import { readSiteProfile } from './site-profile'
 import { defaultSocialLabel, normalizeSocialPlatform } from './social-platforms'
 import { normalizeNavItems, type HeaderPosition, type NavItemKey } from './design-options'
 import { resolveLanguages, type PublicLanguage } from './languages'
+import { ABOUT_FALLBACK } from './fallbacks'
 
 type AboutRow = Tables<'about_profile'>
 type SiteSettingsRow = Tables<'site_settings'>
@@ -360,6 +362,33 @@ export async function getPublishedDesignSettings(): Promise<PublicDesignSettings
     return undefined
   }
 }
+
+export interface AdminProfileSummary {
+  fullName: string
+  avatarUrl: string
+}
+
+/**
+ * Name and photo for the admin sidebar, greeting and profile card (admin RLS
+ * context). Falls back to the built-in profile and never throws, so the
+ * dashboard renders even before the profile is filled in. Cached per request:
+ * the layout and the dashboard page share one query.
+ */
+export const getAdminProfileSummary = cache(async function getAdminProfileSummary(): Promise<AdminProfileSummary> {
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data, error } = await supabase.from('about_profile').select('full_name, avatar_url').maybeSingle()
+    // PostgREST errors are plain objects: wrap so the log shows the message.
+    if (error) throw new Error(error.message)
+    return {
+      fullName: data?.full_name || ABOUT_FALLBACK.fullName,
+      avatarUrl: data?.avatar_url || ABOUT_FALLBACK.avatarUrl,
+    }
+  } catch (err) {
+    console.error('getAdminProfileSummary failed:', err instanceof Error ? err.message : err)
+    return { fullName: ABOUT_FALLBACK.fullName, avatarUrl: ABOUT_FALLBACK.avatarUrl }
+  }
+})
 
 export async function getAdminCmsData(): Promise<AdminCmsData> {
   const supabase = await createServerSupabaseClient()

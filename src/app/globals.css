@@ -366,17 +366,3 @@
     font-size: 17px;
   }
 }
-
-/* The moving portrait stays below navigation and never captures input. */
-.portrait-travel-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  overflow: hidden;
-  pointer-events: none;
-  transform-origin: top left;
-  will-change: transform;
-  background: var(--card);
-  mask-image: linear-gradient(to bottom, black 72%, transparent);
-}

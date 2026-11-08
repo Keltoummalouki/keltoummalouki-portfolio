@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Code2, FolderTree, Layers3, Pencil, Sparkles, Trash2 } from 'lucide-react'
+import { Code2, FolderTree, Layers3, Pencil, Sparkles } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import {
   deleteSkillAction,
   deleteSkillCategoryAction,
@@ -22,7 +23,6 @@ import {
 } from '@/components/admin/CmsAdmin'
 import { AdminSelectField } from '@/components/admin/AdminFormControls'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 import SkillIcon from '@/components/ui/SkillIcon'
 import SkillFormFields, { type SkillFieldsValues } from './SkillFormFields'
 
@@ -305,10 +305,7 @@ function SkillEditor({
 
         <form action={deleteSkillAction}>
           <input type="hidden" name="id" value={skill.id} />
-          <Button type="submit" variant="destructive" size="sm">
-            <Trash2 size={14} />
-            Delete
-          </Button>
+          <DeleteButton />
         </form>
       </div>
 
@@ -533,10 +530,7 @@ export default async function AdminSkillsPage({
                     <CategoryForm category={category} />
                     <form action={deleteSkillCategoryAction} className="mt-3 flex justify-end">
                       <input type="hidden" name="id" value={category.id} />
-                      <Button type="submit" variant="destructive" size="sm">
-                        <Trash2 size={14} />
-                        Delete category
-                      </Button>
+                      <DeleteButton label="Delete category" />
                     </form>
                   </div>
                 </details>

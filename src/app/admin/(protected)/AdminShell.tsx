@@ -3,12 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ExternalLink, LogOut, Menu, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { ExternalLink, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { signOutAction } from '@/features/auth/actions'
+import { getLenisInstance } from '@/lib/motion/smooth-scroll'
+import { useStudioSmoothScroll } from '@/lib/motion/studio-motion'
 import AdminNav, { type AdminNavCounts } from './AdminNav'
+import CommandPalette, { openCommandPalette } from './CommandPalette'
 import { sidebarCookie } from './sidebar-state'
+import 'lenis/dist/lenis.css'
 import './studio.css'
 
 // Mobile drawer lifecycle: 'closing' keeps the native <dialog> open while its
@@ -23,11 +27,27 @@ interface Tip {
 
 const DESKTOP_QUERY = '(min-width: 1024px)'
 
-function BrandLink({ inert }: { inert?: boolean }) {
+interface Profile {
+  fullName: string
+  avatarUrl: string
+}
+
+/** The admin's own photo (About profile) as the studio mark; initials if it can't load. */
+function ProfileMark({ profile }: { profile: Profile }) {
+  const [failed, setFailed] = useState(false)
+  if (failed || !profile.avatarUrl) {
+    const initials = profile.fullName.split(/\s+/).filter(Boolean).map(part => part[0]).join('').slice(0, 2).toUpperCase()
+    return <span className="studio-mark-initials">{initials || 'KM'}</span>
+  }
+  // eslint-disable-next-line @next/next/no-img-element -- admin-managed URL (Storage or /public), same as the About editor
+  return <img src={profile.avatarUrl} alt="" width={36} height={36} onError={() => setFailed(true)} />
+}
+
+function BrandLink({ inert, profile }: { inert?: boolean; profile: Profile }) {
   return (
     <Link href="/admin/dashboard" className="studio-brand-link" inert={inert}>
       <span className="studio-monogram" aria-hidden="true">
-        KM
+        <ProfileMark profile={profile} />
       </span>
       <span className="studio-brand-text">
         <span>Portfolio studio</span>
@@ -64,16 +84,20 @@ function Account({ email }: { email: string }) {
 
 export default function AdminShell({
   email,
+  profile,
   counts,
   defaultCollapsed = false,
   children,
 }: {
   email: string
+  profile: Profile
   counts: AdminNavCounts
   defaultCollapsed?: boolean
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  // Smooth scrolling for every admin page (survives client-side navigation).
+  useStudioSmoothScroll()
 
   // ── Desktop: full sidebar ⇄ icon rail ──────────────────────────────────
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
@@ -119,6 +143,12 @@ export default function AdminShell({
   }
   const hideTip = () => setTip(null)
 
+  // The search pill shows the platform's shortcut (⌘K on Apple devices).
+  const [mac, setMac] = useState(false)
+  useEffect(() => {
+    setMac(/Mac|iPhone|iPad/.test(navigator.userAgent))
+  }, [])
+
   // ── Mobile: slide-in drawer ────────────────────────────────────────────
   const [drawer, setDrawer] = useState<DrawerState>('closed')
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -157,14 +187,17 @@ export default function AdminShell({
     return () => query.removeEventListener('change', onChange)
   }, [])
 
-  // Lock background scroll while the drawer is on screen.
+  // Lock background scroll (smooth scroll included) while the drawer is on screen.
   const drawerShown = drawer !== 'closed'
   useEffect(() => {
     if (!drawerShown) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const lenis = getLenisInstance()
+    lenis?.stop()
     return () => {
       document.body.style.overflow = previous
+      lenis?.start()
     }
   }, [drawerShown])
 
@@ -189,7 +222,7 @@ export default function AdminShell({
         onBlur={hideTip}
       >
         <div className="studio-brand">
-          <BrandLink inert={collapsed} />
+          <BrandLink inert={collapsed} profile={profile} />
           <button
             ref={collapseRef}
             type="button"
@@ -204,7 +237,7 @@ export default function AdminShell({
           >
             <PanelLeftClose size={18} aria-hidden="true" />
           </button>
-          {/* In the rail the KM mark itself reopens the sidebar. */}
+          {/* In the rail your photo itself reopens the sidebar. */}
           <button
             ref={expandRef}
             type="button"
@@ -217,13 +250,15 @@ export default function AdminShell({
             inert={!collapsed}
           >
             <span className="studio-monogram">
-              <span className="studio-expand-letters">KM</span>
+              <span className="studio-expand-letters">
+                <ProfileMark profile={profile} />
+              </span>
               <PanelLeftOpen size={18} className="studio-expand-icon" aria-hidden="true" />
             </span>
           </button>
         </div>
 
-        <div className="studio-nav-scroll" onScroll={hideTip}>
+        <div className="studio-nav-scroll" onScroll={hideTip} data-lenis-prevent>
           <AdminNav counts={counts} />
         </div>
 
@@ -239,15 +274,27 @@ export default function AdminShell({
       </aside>
 
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
-        <div className="studio-topbar hidden items-center justify-between gap-4 border-b border-border px-8 text-xs text-muted-foreground lg:flex">
-          <span>Workspace <span className="mx-3 opacity-40">/</span> <span className="capitalize text-foreground">{pathname.split('/')[2]?.replaceAll('-', ' ') || 'Overview'}</span></span>
-          <div className="flex items-center gap-3">
-            <Link href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-primary">Visit portfolio <ExternalLink size={13} aria-hidden="true" /></Link>
-            <span className="h-4 w-px bg-border" aria-hidden="true" />
+        <div className="studio-topbar">
+          <p className="studio-crumbs">
+            <span>Workspace</span>
+            <span aria-hidden="true">/</span>
+            <strong>{pathname.split('/')[2]?.replaceAll('-', ' ') || 'Overview'}</strong>
+          </p>
+          <div className="studio-topbar-actions">
+            <button type="button" className="studio-search" onClick={openCommandPalette} aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
+              <span className="studio-search-text">Search or jump to…</span>
+              <kbd aria-hidden="true">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+              <span className="studio-search-icon" aria-hidden="true">
+                <Search size={15} />
+              </span>
+            </button>
             {/* Fixed box: the toggle renders after mount, so reserve its space. */}
-            <span className="inline-flex size-9 items-center justify-center">
+            <span className="studio-round">
               <ThemeToggle />
             </span>
+            <Link href="/" target="_blank" rel="noreferrer" className="studio-round" aria-label="Visit portfolio (opens in a new tab)" title="Visit portfolio">
+              <ExternalLink size={16} aria-hidden="true" />
+            </Link>
           </div>
         </div>
         {/* Mobile top bar */}
@@ -263,8 +310,11 @@ export default function AdminShell({
           >
             <Menu size={18} />
           </Button>
-          <BrandLink />
-          <div className="ml-auto">
+          <BrandLink profile={profile} />
+          <div className="ml-auto flex items-center gap-1">
+            <Button type="button" variant="ghost" size="icon" className="rounded-full" onClick={openCommandPalette} aria-label="Search pages and actions" aria-haspopup="dialog">
+              <Search size={18} />
+            </Button>
             <ThemeToggle />
           </div>
         </header>
@@ -290,6 +340,7 @@ export default function AdminShell({
         }}
         className="studio-drawer"
         aria-label="Admin navigation"
+        data-lenis-prevent
       >
         <div
           className="studio-drawer-panel"
@@ -298,7 +349,7 @@ export default function AdminShell({
           }}
         >
           <div className="studio-brand">
-            <BrandLink />
+            <BrandLink profile={profile} />
             <button
               ref={drawerCloseRef}
               type="button"
@@ -323,6 +374,8 @@ export default function AdminShell({
           </div>
         </div>
       </dialog>
+
+      <CommandPalette counts={counts} />
     </div>
   )
 }
