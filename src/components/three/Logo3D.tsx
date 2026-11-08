@@ -35,7 +35,7 @@ function CoreShape({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: nu
             {/* Inner solid with low opacity */}
             <mesh ref={meshRef} geometry={geometry}>
                 <meshBasicMaterial
-                    color="#3B82F6"
+                    color="#2A6AFF"
                     transparent
                     opacity={0.05}
                 />
@@ -43,7 +43,7 @@ function CoreShape({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: nu
 
             {/* Wireframe edges */}
             <lineSegments ref={edgesRef} geometry={edges}>
-                <lineBasicMaterial color="#3B82F6" linewidth={2} />
+                <lineBasicMaterial color="#2A6AFF" linewidth={2} />
             </lineSegments>
         </group>
     )
@@ -90,7 +90,7 @@ function OrbitingParticles({ mouse }: { mouse: React.MutableRefObject<{ x: numbe
                 <mesh key={i} position={[0, 0, 0]}>
                     <sphereGeometry args={[0.05, 8, 8]} />
                     <meshBasicMaterial
-                        color={particle.isBlue ? '#60A5FA' : '#3B82F6'}
+                        color={particle.isBlue ? '#2A6AFF' : '#2A6AFF'}
                         transparent
                         opacity={0.9}
                     />
@@ -121,7 +121,7 @@ function ConnectingLines({ mouse }: { mouse: React.MutableRefObject<{ x: number;
             const endZ = Math.sin(angle) * 2
             return {
                 points: [[0, 0, 0], [endX, 0, endZ]] as [number, number, number][],
-                color: i % 2 === 0 ? '#3B82F6' : '#60A5FA'
+                color: i % 2 === 0 ? '#2A6AFF' : '#2A6AFF'
             }
         })
     }, [])

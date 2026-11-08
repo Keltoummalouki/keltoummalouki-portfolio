@@ -3,14 +3,13 @@ import { CalendarClock } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Header from '@/components/layouts/Header'
 import Footer from '@/components/layouts/Footer'
+import { pillOutline } from '@/components/sections/showcase/classes'
 import JsonLd from '@/components/seo/JsonLd'
-import { Button } from '@/components/ui/button'
 import { fallbackFaq } from '@/features/cms/faq'
 import { getPublishedFaq } from '@/features/cms/faq.queries'
 import { getPublishedCmsContent } from '@/features/cms/queries'
 import { SERVICE_CURRENCY, formatStartingPrice } from '@/features/cms/services'
 import { getPublishedServices } from '@/features/cms/services.queries'
-import { PROJECT_TYPES } from '@/features/freelance/schema'
 import {
   breadcrumbSchema,
   faqSchema,
@@ -23,11 +22,13 @@ import {
   websiteSchema,
 } from '@/features/seo/jsonld'
 import { buildPageMetadata } from '@/features/seo/metadata'
+import { normalizeAvailability } from '@/features/seo/profile-summary'
 import { SCHEMA_IDS, localePath } from '@/features/seo/site'
 import { trackClick } from '@/lib/analytics/events'
+import { cn } from '@/lib/utils'
 import type { Locale } from '@/lib/validation/locale'
+import BriefStudio from './BriefStudio'
 import FreelanceFaq from './FreelanceFaq'
-import FreelanceLeadForm from './FreelanceLeadForm'
 import FreelancePackages from './FreelancePackages'
 import FreelanceProcess from './FreelanceProcess'
 
@@ -103,85 +104,106 @@ export default async function FreelancePage({
     faqItems.length > 0 && faqSchema(pagePath, faqItems),
   )
 
+  const availability = normalizeAvailability(cms.about?.availabilityStatus)
+  const emailLink = cms.socialLinks.find((link) => link.url.toLowerCase().startsWith('mailto:'))
+
   return (
     <div className="min-h-screen relative">
       <JsonLd data={jsonLd} />
       <Header brandName={cms.about?.fullName} design={cms.design} />
-      <main id="main-content" className="section-padding">
-        <div className="container-main max-w-4xl">
-          <header className="mb-10 text-center">
-            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">{t('title')}</h1>
-            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">{t('subtitle')}</p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              {/* A call takes less effort than a written brief, so it leads when a booking page is set. */}
+      <main id="main-content">
+        <BriefStudio
+          bookingUrl={bookingUrl}
+          intro={
+            <header>
+              <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur">
+                <span aria-hidden="true" className="relative flex size-2">
+                  {availability === 'available' && (
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  )}
+                  <span
+                    className={cn(
+                      'relative inline-flex size-2 rounded-full',
+                      availability === 'available' && 'bg-green-500',
+                      availability === 'limited' && 'bg-amber-500',
+                      availability === 'unavailable' && 'bg-muted-foreground',
+                    )}
+                  />
+                </span>
+                {t(`availability.${availability}`)}
+              </p>
+              <h1
+                id="freelance-title"
+                className="mt-5 text-5xl font-bold leading-[1.02] tracking-tight text-foreground text-balance sm:text-6xl xl:text-7xl"
+              >
+                {t('title')}
+              </h1>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground text-pretty md:text-lg">
+                {t('lead')}
+              </p>
+              {/* A call takes less effort than a written request, so it stays one click away. */}
               {bookingUrl && (
-                <Button asChild size="lg">
-                  <a href={bookingUrl} target="_blank" rel="noopener noreferrer" {...trackClick('booking-click', { from: 'freelance' })}>
-                    <CalendarClock aria-hidden="true" />
-                    {t('cta.book')}
-                    <span className="sr-only">{t('cta.newTab')}</span>
-                  </a>
-                </Button>
-              )}
-              <Button asChild size="lg" variant={bookingUrl ? 'outline' : 'default'}>
-                <a href="#request" {...trackClick('contact-cta', { from: 'freelance' })}>
-                  {t('cta.request')}
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${pillOutline} mt-5`}
+                  {...trackClick('booking-click', { from: 'freelance' })}
+                >
+                  <CalendarClock aria-hidden="true" className="size-4" />
+                  {t('cta.book')}
+                  <span className="sr-only">{t('cta.newTab')}</span>
                 </a>
-              </Button>
-            </div>
-          </header>
+              )}
+            </header>
+          }
+          alternatives={
+            emailLink && (
+              <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2 text-sm text-muted-foreground">
+                {t('alternatives.email')}
+                <a
+                  href={emailLink.url}
+                  dir="ltr"
+                  className="inline-flex min-h-11 items-center rounded-sm font-medium text-primary-text underline-offset-4 hover:underline"
+                  {...trackClick('contact-link', { channel: 'email', from: 'freelance' })}
+                >
+                  {emailLink.url.replace(/^mailto:/i, '').split('?')[0]}
+                </a>
+              </p>
+            )
+          }
+        />
 
-          <section className="mb-10 rounded-2xl border border-border bg-card p-6 sm:p-8">
-            <h2 className="text-lg font-semibold text-foreground">{t('helpTitle')}</h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {PROJECT_TYPES.map((value) => (
-                <li key={value} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span aria-hidden className="size-1.5 rounded-full bg-primary" />
-                  {t(`options.projectType.${value}`)}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-sm text-muted-foreground">{t('intro')}</p>
-          </section>
+        <FreelanceProcess
+          title={t('process.title')}
+          lead={t('process.lead')}
+          cta={t('cta.request')}
+          steps={PROCESS_STEPS.map((id) => ({
+            id,
+            title: t(`process.steps.${id}.title`),
+            text: t(`process.steps.${id}.text`),
+          }))}
+        />
 
-          <FreelanceProcess
-            title={t('process.title')}
-            lead={t('process.lead')}
-            steps={PROCESS_STEPS.map((id) => ({
-              id,
-              title: t(`process.steps.${id}.title`),
-              text: t(`process.steps.${id}.text`),
-            }))}
-          />
+        <FreelancePackages
+          title={t('packages.title')}
+          lead={t('packages.lead')}
+          leadQuote={t('packages.leadQuote')}
+          fromLabel={t('packages.from')}
+          quoteLabel={t('packages.quote')}
+          includesLabel={t('packages.includes')}
+          ctaLabel={t('packages.cta')}
+          items={packages}
+        />
 
-          <FreelancePackages
-            title={t('packages.title')}
-            lead={t('packages.lead')}
-            fromLabel={t('packages.from')}
-            quoteLabel={t('packages.quote')}
-            includesLabel={t('packages.includes')}
-            items={packages}
-          />
-
-          <section
-            id="request"
-            aria-labelledby="request-title"
-            className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 sm:p-8"
-          >
-            <h2 id="request-title" className="mb-6 text-lg font-semibold text-foreground">
-              {t('formTitle')}
-            </h2>
-            <FreelanceLeadForm />
-          </section>
-
-          <FreelanceFaq
-            title={faqT('title')}
-            lead={faqT('subtitle')}
-            more={faqT('more')}
-            moreCta={faqT('moreCta')}
-            items={faqItems}
-          />
-        </div>
+        <FreelanceFaq
+          title={faqT('title')}
+          lead={faqT('subtitle')}
+          more={faqT('more')}
+          moreCta={faqT('moreCta')}
+          cta={t('cta.request')}
+          items={faqItems}
+        />
       </main>
       <Footer links={cms.socialLinks} />
     </div>

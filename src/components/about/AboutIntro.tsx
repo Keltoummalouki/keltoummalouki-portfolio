@@ -47,10 +47,6 @@ export default function AboutIntro({
     <section aria-labelledby="about-title" className="mt-8 md:mt-10">
       <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[auto_1fr] md:gap-12">
         <div className="relative w-fit">
-          <div
-            aria-hidden="true"
-            className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/15 to-violet-500/15 blur-2xl"
-          />
           {/* Optimized + preloaded (LCP). Hosts outside images.remotePatterns render unoptimized. */}
           <Image
             src={photoUrl}

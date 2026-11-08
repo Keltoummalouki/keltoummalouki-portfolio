@@ -284,8 +284,8 @@ export function DatePickerField({
 }
 
 const COLOR_PRESETS = [
+  '#2A6AFF',
   '#2563EB',
-  '#3B82F6',
   '#7C3AED',
   '#8B5CF6',
   '#06B6D4',
@@ -314,7 +314,7 @@ export function ColorPickerField({
   defaultValue: string
   className?: string
 }) {
-  const initial = normalizeHex(defaultValue) ?? '#2563EB'
+  const initial = normalizeHex(defaultValue) ?? '#2A6AFF'
   const [value, setValue] = useState(initial)
   const [draft, setDraft] = useState(initial)
   const [open, setOpen] = useState(false)
@@ -381,10 +381,10 @@ export function ColorPickerField({
               id={`${name}-hex`}
               value={draft}
               onChange={(event) => apply(event.target.value)}
-              placeholder="#2563EB"
+              placeholder="#2A6AFF"
               className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
             />
-            {!normalizeHex(draft) && <p className="text-xs text-destructive">Use a valid HEX color like #2563EB.</p>}
+            {!normalizeHex(draft) && <p className="text-xs text-destructive">Use a valid HEX color like #2A6AFF.</p>}
           </div>
         </div>
       )}

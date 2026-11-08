@@ -9,14 +9,27 @@
   },
   "freelance": {
     "title": "Work with me",
-    "subtitle": "Available for freelance and contract projects.",
-    "helpTitle": "What I can help with",
-    "intro": "Share a few details about your project and I’ll reply with next steps.",
-    "formTitle": "Tell me about your project",
+    "lead": "Describe your project in three short steps. It takes shape as you answer, and I reply with the next steps.",
+    "availability": {
+      "available": "Available for freelance and contract projects",
+      "limited": "Limited availability for new projects",
+      "unavailable": "Not taking new projects right now"
+    },
+    "alternatives": {
+      "email": "Prefer email?"
+    },
     "cta": {
       "book": "Book a call",
       "newTab": "(opens in a new tab)",
       "request": "Describe your project"
+    },
+    "scene": {
+      "project": "Project",
+      "scope": "Budget & timing",
+      "details": "Details",
+      "pending": "Not set yet",
+      "fields": "{done} of 3 required fields",
+      "ready": "Ready to send"
     },
     "process": {
       "title": "How I work",
@@ -24,7 +37,7 @@
       "steps": {
         "brief": {
           "title": "Share your project",
-          "text": "Send your goals, budget range and timeline through the form below, by email or on a call."
+          "text": "Send your goals, budget range and timeline through the form on this page, by email or on a call."
         },
         "scope": {
           "title": "Agree on scope and price",
@@ -45,28 +58,78 @@
       "lead": "Starting prices for typical projects. You get a precise quote once we agree on the scope.",
       "from": "Starting from",
       "quote": "Quote on request",
-      "includes": "Included"
+      "includes": "Included",
+      "leadQuote": "The projects I take on most often. You get a precise quote once we agree on the scope.",
+      "cta": "Start with this package",
+      "line": "Package: {title}",
+      "selected": "Added to your request: {title}",
+      "remove": "Remove the package {title} from your request"
     },
     "form": {
-      "name": "Full name",
-      "email": "Email",
-      "company": "Company (optional)",
+      "stepsLabel": "Steps of your request",
+      "steps": {
+        "project": {
+          "label": "Project",
+          "title": "What are we building?",
+          "hint": "Pick the closest match. You can change it later."
+        },
+        "scope": {
+          "label": "Budget & timing",
+          "title": "What’s the budget and timing?",
+          "hint": "A rough idea is enough. Both are optional."
+        },
+        "details": {
+          "label": "Details",
+          "title": "Tell me about it",
+          "hint": "A few sentences are enough. I’ll ask about the rest."
+        }
+      },
+      "stepStatus": "Step {current} of {total}: {label}",
+      "next": "Continue",
+      "back": "Back",
+      "reassure": "Three short steps, about 2 minutes.",
+      "optional": "Optional",
+      "answers": "Your answers so far",
+      "changeAnswer": "Change: {answer}",
       "projectType": "Project type",
+      "projectHints": {
+        "web_app": "Dashboards, SaaS, internal tools",
+        "website": "Company site, landing page, portfolio",
+        "ecommerce": "Online store, catalogue, payments",
+        "api": "REST APIs, integrations, data",
+        "consulting": "Audit, architecture, advice",
+        "other": "Something else, or not sure yet"
+      },
       "budget": "Budget",
       "timeline": "Timeline",
-      "contactPreference": "Preferred contact",
       "details": "Project details",
       "detailsPlaceholder": "Goals, scope, links, deadlines…",
-      "selectPlaceholder": "Select…",
-      "submit": "Send inquiry",
+      "starters": {
+        "label": "Start with:",
+        "goal": "The main goal is…",
+        "deadline": "I’d like it live by…",
+        "reference": "An example I like:"
+      },
+      "contactGroup": "How can I reach you?",
+      "name": "Full name",
+      "email": "Email",
+      "contactPreference": "Preferred contact",
+      "company": "Company (optional)",
+      "addCompany": "Add your company",
+      "requiredHint": "Required fields",
+      "submit": "Send my request",
       "sending": "Sending…",
-      "success": "Thanks — your inquiry has been received. I’ll be in touch soon.",
+      "sentTitle": "Thanks {name}, your request is in.",
+      "sentBody": "I’ll read it and reply with questions and a proposal. We agree on the features, timeline and price before development starts.",
+      "sentProjects": "See my projects",
+      "sentAnother": "Send another request",
       "errorGeneric": "Something went wrong. Please try again.",
       "errorRateLimited": "Too many messages from your network. Please try again in 24 hours.",
+      "errorCaptcha": "Please complete the security check, then send your request again.",
       "errors": {
         "nameRequired": "Please enter your name.",
         "emailInvalid": "Please enter a valid email.",
-        "detailsRequired": "Please add a few details."
+        "detailsRequired": "Please add a few details (at least 10 characters)."
       }
     },
     "options": {
@@ -258,7 +321,8 @@
       }
     },
     "paginationLabel": "Project pages",
-    "heading": "Featured projects"
+    "heading": "Featured projects",
+    "allProjects": "{count, plural, one {View the project} other {All # projects}}"
   },
   "certifications": {
     "viewCredential": "View on LinkedIn",
@@ -688,6 +752,31 @@
     },
     "position": "Review {current} of {total}",
     "previous": "Previous review",
-    "next": "Next review"
+    "next": "Next review",
+    "browse": {
+      "heading": "All reviews",
+      "rating": "Rating",
+      "allRatings": "All ratings",
+      "stars": "{rating, plural, one {# star} other {# stars}}",
+      "sort": "Sort by",
+      "newest": "Newest first",
+      "highest": "Highest rated",
+      "lowest": "Lowest rated",
+      "distribution": "Rating breakdown",
+      "filterStars": "Show {count} reviews rated {rating} out of 5",
+      "loading": "Loading reviews…",
+      "error": "Reviews could not be loaded. Please try again.",
+      "retry": "Try again",
+      "range": "Showing {start}–{end} of {total}",
+      "noMatches": "No reviews with this rating",
+      "tryAll": "Choose another rating or browse all reviews.",
+      "pagination": "Review pages",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of {pages}",
+      "readMore": "Read full review",
+      "readLess": "Show less"
+    }
   }
 }

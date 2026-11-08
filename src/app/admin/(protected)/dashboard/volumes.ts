@@ -27,7 +27,7 @@ export interface VolumeModel {
 }
 
 const TYPES: readonly { kind: RecordKind; label: string; href: string; color: string; lights: readonly string[]; word: string; rest: string }[] = [
-  { kind: 'project', label: 'Projects', href: '/admin/projects', color: '#3b82f6', lights: ['published'], word: 'published', rest: 'not published' },
+  { kind: 'project', label: 'Projects', href: '/admin/projects', color: '#2a6aff', lights: ['published'], word: 'published', rest: 'not published' },
   { kind: 'article', label: 'Articles', href: '/admin/blog', color: '#8b5cf6', lights: ['published'], word: 'published', rest: 'not published' },
   { kind: 'message', label: 'Inbox', href: '/admin/inbox', color: '#14b8a6', lights: ['new'], word: 'unread', rest: 'handled' },
   { kind: 'lead', label: 'Leads', href: '/admin/leads', color: '#f59e0b', lights: ['new', 'qualified', 'meeting', 'proposal'], word: 'open', rest: 'closed' },

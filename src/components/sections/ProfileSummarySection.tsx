@@ -35,41 +35,17 @@ const STATS: { key: PortfolioStatKey; icon: LucideIcon }[] = [
   { key: 'commits', icon: Github },
 ]
 
-type Trait = { key: string; icon: LucideIcon; well: string; border: string; move: string }
+type Trait = { key: string; icon: LucideIcon; move: string }
 
 /**
  * Trait chips: an icon in a tinted well, and each icon has its own small move
  * when its chip is hovered. Whole class strings, so Tailwind can find them.
  */
 const TRAITS = [
-  {
-    key: 'creative',
-    icon: Sparkles,
-    well: 'bg-violet-500/10 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300',
-    border: 'hover:border-violet-400/50',
-    move: 'group-hover:rotate-12 group-hover:scale-110',
-  },
-  {
-    key: 'problemSolver',
-    icon: Puzzle,
-    well: 'bg-sky-500/10 text-sky-700 dark:bg-sky-400/15 dark:text-sky-300',
-    border: 'hover:border-sky-400/50',
-    move: 'group-hover:-rotate-12',
-  },
-  {
-    key: 'teamPlayer',
-    icon: Users,
-    well: 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-    border: 'hover:border-amber-400/50',
-    move: 'group-hover:-translate-y-0.5',
-  },
-  {
-    key: 'dedicated',
-    icon: Target,
-    well: 'bg-rose-500/10 text-rose-600 dark:bg-rose-400/15 dark:text-rose-300',
-    border: 'hover:border-rose-400/50',
-    move: 'group-hover:scale-110',
-  },
+  { key: 'creative', icon: Sparkles, move: 'group-hover:rotate-12 group-hover:scale-110' },
+  { key: 'problemSolver', icon: Puzzle, move: 'group-hover:-rotate-12' },
+  { key: 'teamPlayer', icon: Users, move: 'group-hover:-translate-y-0.5' },
+  { key: 'dedicated', icon: Target, move: 'group-hover:scale-110' },
 ] as const satisfies readonly Trait[]
 
 export default async function ProfileSummarySection({
@@ -94,12 +70,6 @@ export default async function ProfileSummarySection({
 
   return (
     <section id="profile" aria-labelledby="profile-title" className="relative overflow-hidden bg-background py-20 md:py-28">
-      {/* Backdrop: one glow behind the portrait + a faint dot field. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -start-40 top-1/4 size-[36rem] rounded-full bg-[radial-gradient(closest-side,var(--glow-color),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle,color-mix(in_oklab,var(--foreground)_14%,transparent)_1px,transparent_1px)] bg-size-[22px_22px] opacity-40 [mask-image:radial-gradient(60%_60%_at_25%_45%,black,transparent)]" />
-      </div>
-
       <div className="relative container-main">
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14 xl:gap-20">
           <Portrait
@@ -114,7 +84,7 @@ export default async function ProfileSummarySection({
             <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_10.5rem] xl:gap-10">
               <div>
                 <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-primary-text rtl:tracking-normal">
-                  <span aria-hidden="true" className="size-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+                  <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
                   {t('eyebrow')}
                 </p>
 
@@ -124,7 +94,7 @@ export default async function ProfileSummarySection({
                   className="mt-6 text-4xl font-medium leading-[1.08] tracking-tight text-foreground text-balance sm:text-5xl ltr:font-serif! ltr:font-normal"
                 >
                   {t('tagline.lead')}{' '}
-                  <span className="block bg-linear-to-r from-primary via-indigo-600 to-violet-600 bg-clip-text pb-1 text-transparent rtl:bg-linear-to-l dark:from-sky-300 dark:via-primary-text dark:to-violet-400">
+                  <span className="block pb-1 text-primary">
                     {t('tagline.accent')}
                   </span>
                 </h2>
@@ -152,15 +122,12 @@ export default async function ProfileSummarySection({
             {/* Below the notes column, so the four chips share one row on wide screens.
                 The narrow two-column range (lg) gets an even 2×2 instead of wrapping 3+1. */}
             <ul aria-label={t('traitsLabel')} className="mt-6 flex flex-wrap gap-2.5 lg:grid lg:grid-cols-2 xl:flex">
-              {TRAITS.map(({ key, icon: Icon, well, border, move }) => (
+              {TRAITS.map(({ key, icon: Icon, move }) => (
                 <li
                   key={key}
-                  className={cn(
-                    'group inline-flex items-center gap-2.5 rounded-full border border-border bg-card/70 py-1 ps-1 pe-4 text-sm font-medium text-foreground backdrop-blur transition-colors duration-200',
-                    border,
-                  )}
+                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card/70 py-1 ps-1 pe-4 text-sm font-medium text-foreground backdrop-blur transition-colors duration-200 hover:border-primary/50"
                 >
-                  <span aria-hidden="true" className={cn('flex size-7 shrink-0 items-center justify-center rounded-full', well)}>
+                  <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-text">
                     <Icon className={cn('size-3.5 transition-transform duration-300 ease-fluid', move)} strokeWidth={2} />
                   </span>
                   {about(`qualities.${key}`)}
@@ -170,7 +137,7 @@ export default async function ProfileSummarySection({
 
             <dl
               aria-label={t('statsLabel')}
-              className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-xl shadow-primary/5 sm:grid-cols-4"
+              className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4"
             >
               {STATS.map(({ key, icon: Icon }) => (
                 // justify-end (top, in a reversed column): a label wrapping to two lines must not lift its number above the others.
@@ -199,11 +166,10 @@ function Portrait({ src, name, note, className }: { src: string; name: string; n
       {/* Orbit ring behind the arch. */}
       <div
         aria-hidden="true"
-        className="absolute -inset-x-[14%] top-[34%] h-[52%] -rotate-12 rounded-[50%] border border-primary/30 shadow-[0_0_40px_-12px_var(--glow-color)]"
+        className="absolute -inset-x-[14%] top-[34%] h-[52%] -rotate-12 rounded-[50%] border border-primary/30"
       />
 
-      {/* The arch fades out at the bottom so the cropped portrait melts into the page. */}
-      <div data-portrait-destination className="relative aspect-[4/5] overflow-hidden rounded-t-full bg-[var(--portrait-backdrop)] [mask-image:linear-gradient(to_bottom,black_72%,transparent)]">
+      <div data-portrait-destination className="relative aspect-[4/5] overflow-hidden rounded-t-full bg-[var(--portrait-backdrop)]">
         <Image
           src={src}
           // `alt` names the photo for crawlers (Bing flags empty ones), while
@@ -219,13 +185,13 @@ function Portrait({ src, name, note, className }: { src: string; name: string; n
 
       <span
         aria-hidden="true"
-        data-portrait-detail className="absolute -end-3 top-[46%] flex size-14 items-center justify-center rounded-full border border-border bg-card/80 text-primary-text shadow-lg shadow-primary/20 backdrop-blur-xl sm:-end-5"
+        data-portrait-detail className="absolute -end-3 top-[46%] flex size-14 items-center justify-center rounded-full border border-border bg-card/80 text-primary-text backdrop-blur-xl sm:-end-5"
       >
         <Code2 className="size-6" strokeWidth={1.75} />
       </span>
 
       <p data-portrait-detail className="absolute -start-2 top-8 max-w-[12.5rem] rounded-2xl border border-border bg-card/80 p-4 text-sm leading-snug text-foreground shadow-xl shadow-black/10 backdrop-blur-xl sm:-start-8">
-        <span aria-hidden="true" className="mb-2 block size-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+        <span aria-hidden="true" className="mb-2 block size-1.5 rounded-full bg-primary" />
         {note}
       </p>
     </div>
@@ -252,8 +218,8 @@ function Annotations({ role, note }: { role: string; note: string }) {
 }
 
 const TONE = {
-  keyword: 'text-violet-600 dark:text-violet-300',
-  name: 'text-sky-700 dark:text-sky-300',
+  keyword: 'text-primary-text',
+  name: 'text-foreground',
   call: 'text-primary-text',
   plain: 'text-muted-foreground',
 } as const
@@ -277,12 +243,12 @@ function CodeWindow() {
     <div className="float mt-8 ms-2">
       <div
         dir="ltr"
-        className="pointer-events-auto w-40 rotate-3 overflow-hidden rounded-xl border border-border bg-card/90 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-[rotate,translate] duration-500 ease-fluid hover:-translate-y-1 hover:rotate-0"
+        className="pointer-events-auto w-40 rotate-3 overflow-hidden rounded-xl border border-border bg-card/90 shadow-2xl shadow-black/20 backdrop-blur-xl transition-[rotate,translate] duration-500 ease-fluid hover:-translate-y-1 hover:rotate-0"
       >
         <div className="flex items-center gap-1 border-b border-border px-3 py-2">
-          <span className="size-1.5 rounded-full bg-rose-400/80" />
-          <span className="size-1.5 rounded-full bg-amber-400/80" />
-          <span className="size-1.5 rounded-full bg-emerald-400/80" />
+          <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+          <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+          <span className="size-1.5 rounded-full bg-muted-foreground/40" />
           <span className="ml-auto font-mono text-[9px] text-muted-foreground">idea.ts</span>
         </div>
         <div className="px-3 py-2.5 text-left font-mono text-[10px] leading-[1.8]">

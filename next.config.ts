@@ -11,9 +11,9 @@ const umami = readUmamiConfig(process.env);
 // The production domain is proxied through Cloudflare, which injects its Web
 // Analytics beacon (static.cloudflareinsights.com) into HTML responses; the
 // beacon reports to cloudflareinsights.com.
-// frame-src: the home page shows each project's demo (an admin-managed URL,
-// checked server-side before it is framed) live in an iframe, so any https
-// origin may be framed; this also covers the Turnstile widget.
+// frame-src: the home and /projects pages show each project's demo (an
+// admin-managed URL, checked server-side before it is framed) live in an iframe,
+// so any https origin may be framed; this also covers the Turnstile widget.
 // 'unsafe-eval' is allowed only under `next dev`, where React's development
 // build uses eval to rebuild server error stacks in the browser. Production
 // pages never need it, so they cannot run strings as code (Zod's eval-based

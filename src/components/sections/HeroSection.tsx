@@ -123,7 +123,6 @@ export default function HeroSection({
       className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background"
       aria-label="Introduction"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none" />
       <div className="absolute inset-0 grid-pattern opacity-40 pointer-events-none" />
 
       {/* No z-index on the grid: Ice Bear's fixed WebGL canvas (z-1) must slot
@@ -142,7 +141,7 @@ export default function HeroSection({
               {displayName}
             </span>
             <span className="sr-only"> — </span>
-            <span className="hero-role mt-5 block text-xl md:text-2xl lg:text-3xl font-medium leading-snug text-gradient">
+            <span className="hero-role mt-5 block text-xl md:text-2xl lg:text-3xl font-medium leading-snug text-primary">
               {role}
             </span>
           </h1>

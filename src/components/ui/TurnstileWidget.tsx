@@ -13,7 +13,6 @@ const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
 
 interface TurnstileApi {
-  ready: (callback: () => void) => void
   render: (el: HTMLElement, options: Record<string, unknown>) => string
   remove: (widgetId: string) => void
 }
@@ -45,7 +44,7 @@ export default function TurnstileWidget({
 
     const cleanup = () => {
       disposed = true
-      script?.removeEventListener('load', ready)
+      script?.removeEventListener('load', render)
       if (widgetId !== undefined) window.turnstile?.remove(widgetId)
     }
 
@@ -61,10 +60,8 @@ export default function TurnstileWidget({
         'error-callback': () => { if (!disposed) onTokenRef.current(null) },
       })
     }
-    const ready = () => window.turnstile?.ready(render)
-
     if (window.turnstile) {
-      ready()
+      render()
       return cleanup
     }
 
@@ -75,10 +72,10 @@ export default function TurnstileWidget({
         script.src = SCRIPT_SRC
         script.async = true
         script.defer = true
-        script.addEventListener('load', ready)
+        script.addEventListener('load', render)
         document.head.appendChild(script)
       } else {
-        script.addEventListener('load', ready)
+        script.addEventListener('load', render)
       }
     }
 

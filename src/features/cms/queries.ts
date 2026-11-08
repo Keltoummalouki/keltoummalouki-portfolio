@@ -93,7 +93,6 @@ export interface PublicCertification {
 
 export interface PublicDesignSettings {
   primaryColor: string
-  accentColor: string
   defaultTheme: 'light' | 'dark' | 'system'
   fontBody: string
   fontHeading: string
@@ -167,7 +166,6 @@ function mapDesign(row: DesignRow | null): PublicDesignSettings | undefined {
   }
   return {
     primaryColor: row.primary_color ?? '',
-    accentColor: row.accent_color ?? '',
     defaultTheme: row.default_theme as PublicDesignSettings['defaultTheme'],
     fontBody: row.font_body ?? '',
     fontHeading: row.font_heading ?? '',

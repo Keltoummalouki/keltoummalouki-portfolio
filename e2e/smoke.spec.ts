@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 
 // Smoke tests for what unit tests can't see: real rendering, routing, the
 // browser side of forms, and right-to-left layout. The server runs with an
@@ -80,6 +80,45 @@ test.describe('home profile', () => {
     await expect(profile).toContainText('a Full Stack Web Developer from Casablanca')
     await expect(profile.getByRole('list', { name: 'Qualities' }).getByRole('listitem')).toHaveCount(4)
     await expect(profile.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/en/about')
+  })
+})
+
+test.describe('experience cards', () => {
+  /** Puts the card's centre at this share of the viewport height. */
+  const scrollCardTo = (card: Locator, share: number) =>
+    card.evaluate((el, share) => {
+      const item = el.closest('.timeline-item')!.getBoundingClientRect()
+      window.scrollTo(0, window.scrollY + item.top + item.height / 2 - share * window.innerHeight)
+    }, share)
+
+  /** Drawn width over layout width: below 1 while the card is scaled down or turned. */
+  const drawnScale = (card: Locator) =>
+    card.evaluate((el) => el.getBoundingClientRect().width / (el as HTMLElement).offsetWidth)
+
+  test.describe('with motion allowed', () => {
+    test.use({ reducedMotion: 'no-preference' })
+
+    test('shrink at the edge of the screen and rest full size in the middle', async ({ page, context, baseURL }) => {
+      // Marks the first-visit preference panel as seen, so it can't pause the scroll.
+      await context.addCookies([{ name: 'visitor-design', value: encodeURIComponent('{"seen":true}'), url: baseURL! }])
+      await page.goto('/en')
+      const card = page.locator('#experience [data-card]').first()
+
+      await scrollCardTo(card, 0.9)
+      await expect.poll(() => drawnScale(card)).toBeLessThan(0.9)
+
+      await scrollCardTo(card, 0.5)
+      await expect.poll(() => drawnScale(card)).toBeCloseTo(1, 2)
+    })
+  })
+
+  test('stay flat under reduced motion', async ({ page }) => {
+    await page.goto('/en')
+    await page.waitForLoadState('networkidle')
+    const card = page.locator('#experience [data-card]').first()
+
+    await scrollCardTo(card, 0.9)
+    await expect(card).toHaveCSS('transform', 'none')
   })
 })
 

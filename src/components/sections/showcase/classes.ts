@@ -9,9 +9,9 @@ export const surface = 'rounded-2xl border border-border bg-card/80 backdrop-blu
 export const pillOutline =
   'group/pill inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-card/60 px-5 text-sm font-semibold text-foreground backdrop-blur transition-[border-color,background-color,scale] duration-200 ease-fluid hover:border-primary/50 hover:bg-primary/10 active:scale-[0.98]'
 
-/** Primary gradient pill. Ends on violet-600 so white text stays ≥4.5:1 across the whole fill. */
+/** Primary pill, in the site's one flat colour. */
 export const pillPrimary =
-  'group/pill inline-flex h-11 items-center justify-center gap-2 rounded-full bg-linear-135 from-primary to-violet-600 px-5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-[box-shadow,scale] duration-200 ease-fluid hover:shadow-primary/45 active:scale-[0.98]'
+  'group/pill inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-[background-color,scale] duration-200 ease-fluid hover:bg-primary/90 active:scale-[0.98]'
 
 /** Round icon-only control (carousel arrows, card links). Needs an aria-label or sr-only text. */
 export const iconButton =

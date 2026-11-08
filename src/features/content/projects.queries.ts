@@ -101,7 +101,7 @@ async function framingProblem(url: string): Promise<string | null> {
 }
 
 /**
- * Whether a demo can be shown live in the home page's browser frame: it must
+ * Whether a demo can be shown live in a project row's browser frame: it must
  * answer 2xx over https and let this site frame it. Every outcome, timeouts
  * included, is cached for 6 hours, so a dead or slow demo costs one check
  * rather than one per visit; its cover image is shown instead.

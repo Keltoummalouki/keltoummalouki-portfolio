@@ -226,12 +226,6 @@ export default function CommandPalette({
             onKeyDown={handleKeyDown}
             className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-background/95 shadow-2xl shadow-black/30 backdrop-blur-2xl ring-1 ring-black/5"
           >
-            {/* Gradient sheen */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
-            />
-
             {/* Search input */}
             <div className="flex items-center gap-3 border-b border-border px-4">
               <Search size={18} className="shrink-0 text-muted-foreground" aria-hidden />

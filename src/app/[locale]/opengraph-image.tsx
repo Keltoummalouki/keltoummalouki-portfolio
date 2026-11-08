@@ -24,11 +24,10 @@ const LOCATION: Record<string, string> = {
 
 // Site palette (dark theme): background, foreground, muted, primary, accent.
 const COLORS = {
-  background: '#0B0F19',
-  foreground: '#F8FAFC',
-  muted: '#94A3B8',
-  primary: '#60A5FA',
-  gradient: 'linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%)',
+  background: '#000000',
+  foreground: '#FAFAFA',
+  muted: '#A3A3A3',
+  primary: '#2A6AFF',
 }
 
 async function photoDataUri(): Promise<string | null> {
@@ -63,8 +62,6 @@ export default async function OpenGraphImage({
           alignItems: 'center',
           padding: '0 88px',
           backgroundColor: COLORS.background,
-          backgroundImage:
-            'radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.35), rgba(11, 15, 25, 0) 45%), radial-gradient(circle at 92% 88%, rgba(139, 92, 246, 0.28), rgba(11, 15, 25, 0) 45%)',
           color: COLORS.foreground,
         }}
       >
@@ -74,7 +71,7 @@ export default async function OpenGraphImage({
               display: 'flex',
               padding: 8,
               borderRadius: 9999,
-              backgroundImage: COLORS.gradient,
+              backgroundColor: COLORS.primary,
               flexShrink: 0,
             }}
           >
@@ -108,7 +105,7 @@ export default async function OpenGraphImage({
               width: 120,
               height: 6,
               borderRadius: 6,
-              backgroundImage: COLORS.gradient,
+              backgroundColor: COLORS.primary,
             }}
           />
           <div style={{ display: 'flex', marginTop: 24, fontSize: 30, color: COLORS.foreground }}>

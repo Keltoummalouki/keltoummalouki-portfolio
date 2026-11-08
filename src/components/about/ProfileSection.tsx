@@ -41,7 +41,7 @@ export default function ProfileSection({
       </h2>
       <div
         aria-hidden="true"
-        className="mt-3 h-1 w-12 rounded-full bg-gradient-to-r from-primary to-violet-500 rtl:bg-gradient-to-l"
+        className="mt-3 h-1 w-12 rounded-full bg-primary"
       />
       {lead && <p className="mt-4 max-w-2xl text-muted-foreground text-pretty">{lead}</p>}
       <div className="mt-8">{children}</div>

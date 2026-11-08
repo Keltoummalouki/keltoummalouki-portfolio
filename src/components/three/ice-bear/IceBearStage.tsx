@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { animate, scrambleText, svg } from 'animejs'
 import { cn } from '@/lib/utils'
 import { prefersReducedMotion } from '@/lib/motion/reduced-motion'
+import { wantsWebGL } from '../webgl-support'
 import { ICE_BEAR } from './bear'
 import type { IceBearScene } from './scene'
 import styles from './ice-bear.module.css'
@@ -16,13 +17,6 @@ const QUIPS = ['code', 'friday', 'darkMode', 'review', 'coffee', 'bugs'] as cons
 /** Glyphs for the caption's scramble. Never `<`, `>` or `&`: scrambleText writes innerHTML. */
 function scrambleChars(): string {
   return document.documentElement.lang === 'ar' ? 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي' : 'A-Za-z0-9{}[]()/=+*#%$_'
-}
-
-/** Skip the 3D scene where it would cost the visitor (data saver, very low memory). */
-function wantsWebGL(): boolean {
-  const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number }
-  if (nav.connection?.saveData) return false
-  return nav.deviceMemory === undefined || nav.deviceMemory >= 2
 }
 
 /**

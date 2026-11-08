@@ -152,7 +152,7 @@ export function GaugeCard({ published, drafts, archived }: { published: number; 
         <svg viewBox="0 0 220 124" aria-hidden="true">
           <path d={ARC} className="d3-gauge-track" pathLength={1} />
           {d > 0 && <path d={ARC} className="d3-gauge-drafts" pathLength={1} strokeDasharray={`${d} 1`} strokeDashoffset={-p} data-arc={d} data-arc-offset={p} />}
-          {p > 0 && <path d={ARC} className="d3-gauge-value" stroke="#2563eb" pathLength={1} strokeDasharray={`${p} 1`} data-arc={p} />}
+          {p > 0 && <path d={ARC} className="d3-gauge-value" stroke="#2a6aff" pathLength={1} strokeDasharray={`${p} 1`} data-arc={p} />}
         </svg>
         <div className="d3-gauge-center">
           <strong>

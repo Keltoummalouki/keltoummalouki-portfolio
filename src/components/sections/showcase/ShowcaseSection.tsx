@@ -65,7 +65,7 @@ export default function ShowcaseSection({
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
           <p className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary-text rtl:tracking-normal">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-gradient-primary shadow-[0_0_10px_var(--glow-color)]" />
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
             <span aria-hidden="true" dir="ltr" className="tabular-nums">
               {index}.
             </span>

@@ -16,7 +16,7 @@ const LEVEL_FILL: Record<ContributionLevel, string> = {
   1: 'fill-primary/35',
   2: 'fill-primary/60',
   3: 'fill-primary/85',
-  4: 'fill-violet-500',
+  4: 'fill-primary',
 }
 
 /**

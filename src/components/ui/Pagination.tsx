@@ -30,7 +30,7 @@ type PaginationProps = {
 const itemBase =
   'inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border px-3 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
 const itemIdle = 'border-border bg-card/80 text-muted-foreground hover:border-primary/40 hover:text-foreground'
-const itemActive = 'border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/20'
+const itemActive = 'border-primary bg-primary text-primary-foreground'
 const itemDisabled = 'pointer-events-none border-border bg-card/40 text-muted-foreground/50'
 
 export default function Pagination(props: PaginationProps) {

@@ -299,7 +299,7 @@ export function PageHeader({
 }) {
   // Each section gets its own icon, line and accent colour.
   const designs: Record<string, { icon: LucideIcon; eyebrow: string; color: string }> = {
-    Projects: { icon: FolderKanban, eyebrow: 'The work that defines you', color: '#3b82f6' },
+    Projects: { icon: FolderKanban, eyebrow: 'The work that defines you', color: '#2a6aff' },
     Blog: { icon: FileText, eyebrow: 'Your ideas, in your words', color: '#8b5cf6' },
     Inbox: { icon: Inbox, eyebrow: 'Every conversation starts here', color: '#14b8a6' },
     'Freelance leads': { icon: Target, eyebrow: 'Turn conversations into opportunities', color: '#f59e0b' },
@@ -311,7 +311,7 @@ export function PageHeader({
     Certifications: { icon: Award, eyebrow: 'Milestones worth sharing', color: '#eab308' },
     FAQ: { icon: MessageCircleQuestion, eyebrow: 'Good questions. Clear answers.', color: '#a855f7' },
     'Services & pricing': { icon: BadgeEuro, eyebrow: 'What you offer, clearly priced', color: '#10b981' },
-    'Social & contact links': { icon: Share2, eyebrow: 'Your presence, connected', color: '#3b82f6' },
+    'Social & contact links': { icon: Share2, eyebrow: 'Your presence, connected', color: '#2a6aff' },
     About: { icon: UserRound, eyebrow: 'Introduce the person behind the work', color: '#7c3aed' },
     'About & profile': { icon: UserRound, eyebrow: 'Introduce the person behind the work', color: '#7c3aed' },
     'Theme & design': { icon: Palette, eyebrow: 'Make every detail yours', color: '#ec4899' },
@@ -319,8 +319,8 @@ export function PageHeader({
   const editor = /^(New|Edit) (project|article)$/.test(title)
   const isProject = title.includes('project')
   const back = isProject ? '/admin/projects' : '/admin/blog'
-  const editorDesign = { icon: isProject ? FolderKanban : FileText, eyebrow: 'From the first draft to the final detail', color: isProject ? '#3b82f6' : '#8b5cf6' }
-  const { icon: Icon, eyebrow, color } = designs[title] ?? (editor ? editorDesign : { icon: Layers3, eyebrow: 'Your portfolio workspace', color: '#3b82f6' })
+  const editorDesign = { icon: isProject ? FolderKanban : FileText, eyebrow: 'From the first draft to the final detail', color: isProject ? '#2a6aff' : '#8b5cf6' }
+  const { icon: Icon, eyebrow, color } = designs[title] ?? (editor ? editorDesign : { icon: Layers3, eyebrow: 'Your portfolio workspace', color: '#2a6aff' })
   return (
     <header className="admin-page-header" style={{ '--header-accent': color } as React.CSSProperties}>
       <PageMotion />

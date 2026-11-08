@@ -28,10 +28,11 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 **Public site** (`/fr`, `/en`, `/ar`)
 - A short home page: hero, profile summary, experience, three featured projects, reviews and a contact form.
 - A WebGL hero mascot (Ice Bear) that is built from a snowstorm, turns toward the cursor, and blows away as snow on scroll. The snow then forms the portrait in the profile section. Reduced-motion and no-WebGL visitors get the still picture.
+- Featured projects as a 3D concertina of hinged screens: pick a name in the list, or drag, and its screen unfolds, showing the live site when a demo allows it. Reduced-motion visitors get still frames, and no-WebGL visitors a plain browser window.
 - Case studies for each project (`/projects/[slug]`), written in Markdown.
 - A full profile page (`/about`): education, skills, certifications and live GitHub activity.
 - A blog, with an RSS feed per language (`/en/blog/rss.xml`).
-- A freelance page: how I work, packages with starting prices, an optional booking link and a project request form.
+- A freelance page that opens on a three-step project request beside a WebGL model of a web app: each answer builds it (project type on its screen, budget as lit modules, deadline as data speed), and sending launches it. Reduced-motion visitors get still frames, and no-WebGL visitors get a drawing. Below it: how I work, packages with starting prices, an optional booking link and the FAQ.
 - Public forms for contact messages, project requests and moderated reviews.
 
 **Admin dashboard** (`/admin`, sign-in required)

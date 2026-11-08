@@ -1,48 +1,70 @@
+import { ArrowUp, ClipboardCheck, GitBranch, MessagesSquare, Rocket, type LucideIcon } from 'lucide-react'
+import { pillOutline } from '@/components/sections/showcase/classes'
+import { trackClick } from '@/lib/analytics/events'
+import styles from './freelance.module.css'
+
+const ICONS: Record<string, LucideIcon> = {
+  brief: MessagesSquare,
+  scope: ClipboardCheck,
+  build: GitBranch,
+  launch: Rocket,
+}
+
 /**
- * "How I work": numbered steps joined by a line, a vertical timeline on small
- * screens and a row from `md`. Logical start/end offsets mirror it in RTL.
- *
- * One connector per layout, each with plain (non-responsive) offsets: the dev
- * CSS pipeline drops logical insets inside media queries (`md:start-*`).
+ * "How I work": what happens after the request. A vertical rail on small screens
+ * and a row from `md`, whose line fills as it scrolls into view.
  */
 export default function FreelanceProcess({
   title,
   lead,
   steps,
+  cta,
 }: {
   title: string
   lead: string
   steps: { id: string; title: string; text: string }[]
+  /** Back up to the form. */
+  cta: string
 }) {
   return (
-    <section aria-labelledby="process-title" className="mb-10 rounded-2xl border border-border bg-card p-6 sm:p-8">
-      <h2 id="process-title" className="text-lg font-semibold text-foreground">
-        {title}
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">{lead}</p>
+    <section aria-labelledby="process-title" className="border-t border-border py-20 md:py-28">
+      <div className="container-main">
+        <div className="grid gap-4 lg:grid-cols-2 lg:items-end lg:gap-14">
+          <h2 id="process-title" className="text-3xl font-bold tracking-tight text-foreground text-balance sm:text-4xl lg:text-5xl">
+            {title}
+          </h2>
+          <p className="max-w-xl text-base leading-relaxed text-muted-foreground text-pretty md:text-lg">{lead}</p>
+        </div>
 
-      <ol className="mt-8 grid gap-6 md:grid-cols-4 md:gap-4">
-        {steps.map((step, index) => (
-          <li key={step.id} className="relative flex gap-4 md:flex-col md:gap-3">
-            {index < steps.length - 1 && (
-              <>
-                <span aria-hidden="true" className="absolute start-4.5 top-11 -bottom-4 w-px bg-border md:hidden" />
-                <span aria-hidden="true" className="absolute start-11 -end-2 top-4.5 hidden h-px bg-border md:block" />
-              </>
-            )}
-            <span
-              aria-hidden="true"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary tabular-nums ring-1 ring-primary/30"
-            >
-              {index + 1}
-            </span>
-            <div className="min-w-0">
-              <h3 className="font-semibold text-foreground text-balance">{step.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{step.text}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+        <ol className={styles.rail}>
+          {steps.map((step, index) => {
+            const Icon = ICONS[step.id] ?? MessagesSquare
+            return (
+              <li key={step.id} className={styles.railStep}>
+                {index < steps.length - 1 && (
+                  <>
+                    <span aria-hidden="true" className={styles.railLineDown} />
+                    <span aria-hidden="true" className={styles.railLineAcross} />
+                  </>
+                )}
+                <span aria-hidden="true" className={styles.railWell}>
+                  <Icon className="size-5" strokeWidth={1.75} />
+                </span>
+                <span aria-hidden="true" className={styles.railNumber}>
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="text-lg font-semibold leading-snug text-foreground text-balance">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">{step.text}</p>
+              </li>
+            )
+          })}
+        </ol>
+
+        <a href="#request" className={`${pillOutline} mt-12`} {...trackClick('contact-cta', { from: 'freelance-process' })}>
+          {cta}
+          <ArrowUp aria-hidden="true" className="size-4" />
+        </a>
+      </div>
     </section>
   )
 }

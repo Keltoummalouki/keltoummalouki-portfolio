@@ -1,0 +1,149 @@
+/* The concertina's stage. The canvas bleeds past the stage so a folded panel can
+   leave its column: to the screen's edge on a phone, up to the list on desktop. */
+
+.stage {
+  --bleed: 1rem;
+  position: relative;
+  aspect-ratio: 3 / 2;
+}
+
+@media (min-width: 640px) {
+  .stage {
+    --bleed: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    /* The layout's column gap. */
+    --bleed: clamp(3rem, 5vw, 4.5rem);
+  }
+}
+
+.windowBox {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: opacity 400ms ease-out;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease-out, visibility 0s linear 300ms;
+}
+
+.slide[data-current] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.canvas {
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  width: calc(100% + var(--bleed) * 2);
+  height: calc(100% + var(--bleed) * 2);
+  opacity: 0;
+  pointer-events: none;
+  touch-action: pan-y;
+  transition: opacity 400ms ease-out;
+}
+
+/* Only a panel in mid-swing ever reaches the border, for a moment: this softens
+   that, and is too narrow to read as a fade on anything at rest. */
+@media (min-width: 1024px) {
+  .canvas {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 1.5%, black 98.5%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 1.5%, black 98.5%, transparent);
+  }
+}
+
+.stage[data-mode='live'] .canvas {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stage[data-mode='live'] .windowBox {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms ease-out, visibility 0s linear 400ms;
+}
+
+/* Same box as the canvas: the scene reports positions in canvas pixels, so this
+   stays left to right on Arabic pages too. */
+.overlay {
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  overflow: hidden;
+  direction: ltr;
+  pointer-events: none;
+}
+
+.liveBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background: var(--background);
+  border-radius: 0 0 36px 36px;
+  opacity: 0;
+  transform-origin: 0 0;
+  transition: opacity 120ms ease-out;
+}
+
+.liveBox[data-show] {
+  opacity: 1;
+  transition: opacity 500ms ease-out;
+}
+
+.liveBox iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Follows the mouse: says what a click on the panel underneath will do. */
+.pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2rem;
+  padding-inline: 0.8rem;
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 150ms ease-out, translate 90ms linear;
+}
+
+.pill[data-show] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .pill {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .windowBox,
+  .slide,
+  .canvas,
+  .liveBox,
+  .pill {
+    transition: none;
+  }
+}
