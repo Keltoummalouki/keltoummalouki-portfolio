@@ -1,11 +1,11 @@
 import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
-import { BadgeEuro, Trash2 } from 'lucide-react'
+import { BadgeEuro } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteServiceAction, saveServiceAction } from '@/features/cms/actions'
 import { formatStartingPrice, type ServiceRow } from '@/features/cms/services'
 import { getAdminServices } from '@/features/cms/services.queries'
 import { AdminCard, EmptyState, ErrorNotice, Field, I18nInputs, PageHeader, StatusSelect, i18nValues } from '@/components/admin/CmsAdmin'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 
 function ServiceForm({ service }: { service?: ServiceRow }) {
   return (
@@ -79,10 +79,7 @@ export default async function AdminServicesPage({
                 <ServiceForm service={service} />
                 <form action={deleteServiceAction} className="flex justify-end">
                   <input type="hidden" name="id" value={service.id} />
-                  <Button type="submit" variant="destructive" size="sm">
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  <DeleteButton />
                 </form>
               </EditorDisclosure>
             ))}

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { EmptyState, StatusBadge, table } from '@/components/admin/ui'
+import { DeleteButton, EditLink, EmptyState, StatusBadge, table } from '@/components/admin/ui'
 import { cn } from '@/lib/utils'
 import { deleteProjectAction } from '@/features/content/projects.actions'
 import {
@@ -145,10 +145,8 @@ export default function ProjectsTable({ projects }: { projects: ProjectRowVM[] }
                     </div>
                   </td>
                   <td className={table.td}>
-                    <div className="flex justify-end gap-1">
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/admin/projects/${p.id}`}>Edit</Link>
-                      </Button>
+                    <div className="flex justify-end gap-2">
+                      <EditLink href={`/admin/projects/${p.id}`} label={`Edit ${p.title || 'project'}`} />
                       <form
                         action={deleteProjectAction}
                         onSubmit={(e) => {
@@ -158,9 +156,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRowVM[] }
                         }}
                       >
                         <input type="hidden" name="id" value={p.id} />
-                        <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                          Delete
-                        </Button>
+                        <DeleteButton label={`Delete ${p.title || 'project'}`} />
                       </form>
                     </div>
                   </td>

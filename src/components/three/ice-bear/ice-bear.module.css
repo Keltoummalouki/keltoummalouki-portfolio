@@ -1,0 +1,136 @@
+/* Ice Bear hero stage. The stage hugs the picture's box; the orb, ring and
+   ground glow are sized from it. Nothing here may create a stacking context
+   (no z-index, transform, filter or opacity < 1 on the stage): the fixed WebGL
+   canvas must layer against the hero text and the profile section below. */
+
+.stage {
+  position: relative;
+}
+
+/* A planet-like disc behind him (a blue dusk in light mode, night in dark). */
+.orb {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 148%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 36% 30%, rgb(255 255 255 / 0.95), transparent 46%),
+    radial-gradient(circle at 50% 50%, #e3ebff 0%, #ccdaff 58%, #b7c9f7 100%);
+  box-shadow:
+    inset 10px 14px 40px rgb(255 255 255 / 0.7),
+    inset -24px -32px 70px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 40px 90px -30px color-mix(in oklab, var(--primary) 45%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+:global(.dark) .orb {
+  background:
+    radial-gradient(circle at 34% 28%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 52%),
+    radial-gradient(circle at 50% 50%, #0b1328 0%, #070c1a 60%, #04070f 100%);
+  box-shadow:
+    inset 6px 10px 36px color-mix(in oklab, var(--primary) 28%, transparent),
+    inset -26px -36px 70px rgb(0 0 0 / 0.65),
+    0 0 110px -10px color-mix(in oklab, var(--primary) 40%, transparent),
+    0 0 0 1px rgb(148 163 184 / 0.08);
+}
+
+/* Soft contact shadow (light) / glow (dark) under his feet. */
+.ground {
+  position: absolute;
+  left: 50%;
+  bottom: -3%;
+  width: 120%;
+  height: 9%;
+  translate: -50% 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgb(15 23 42 / 0.22), transparent);
+}
+
+:global(.dark) .ground {
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--primary) 38%, transparent), transparent);
+}
+
+/* Orbit ring without WebGL: the back half behind him, the front half (clipped
+   to the lower half of the ellipse) over him. WebGL draws its own. */
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 200%;
+  height: 34%;
+  translate: -50% -50%;
+  rotate: -16deg;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent);
+  box-shadow: 0 0 40px -12px var(--glow-color);
+  pointer-events: none;
+}
+
+.ringFront {
+  clip-path: inset(50% 0 0 0);
+}
+
+.stage[data-mode='live'] .ring {
+  display: none;
+}
+
+.static {
+  transform-origin: 50% 100%;
+}
+
+.note {
+  transition: opacity 0.4s ease-out;
+}
+
+/* With JavaScript and motion allowed, the 3D scene builds him in a snowstorm,
+   so the picture (and his caption) start hidden. If the scene never shows up
+   (slow network, no WebGL), CSS brings both back on its own after 2.6s. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .stage:not([data-mode='static']) .static,
+  .stage:not([data-mode='static']) .note {
+    opacity: 0;
+    animation: fallback-reveal 0.6s ease-out 2.6s forwards;
+  }
+
+  .stage[data-mode='live'] .static {
+    visibility: hidden;
+    animation: none;
+  }
+
+  .stage[data-mode='live'] .note {
+    animation: none;
+  }
+
+  .stage[data-mode='live'] .note[data-on] {
+    opacity: 1;
+  }
+}
+
+@keyframes fallback-reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+/* One fixed canvas over the viewport, under the hero text (z-10) and the
+   header. `lvh` keeps it from resizing as mobile browser bars slide. */
+.canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  z-index: 1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.canvas[data-active] {
+  visibility: visible;
+}

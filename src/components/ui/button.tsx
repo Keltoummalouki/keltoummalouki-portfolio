@@ -50,6 +50,8 @@ function Button({
   return (
     <Comp
       data-slot="button"
+      // Lets a surface restyle one variant (the admin studio turns `default` into an ink pill).
+      data-variant={variant ?? "default"}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

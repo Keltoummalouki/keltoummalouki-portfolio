@@ -22,7 +22,7 @@ export interface AdminSelectOption {
 
 const labelClass = 'text-sm font-medium text-foreground'
 const triggerClass =
-  'flex min-h-10 w-full items-center justify-between gap-3 rounded-md border border-border bg-background px-3 py-2 text-left text-sm text-foreground shadow-xs outline-none transition-colors hover:bg-secondary/60 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]'
+  'admin-field-trigger flex min-h-10 w-full items-center justify-between gap-3 rounded-md border border-border bg-background px-3 py-2 text-left text-sm text-foreground shadow-xs outline-none transition-colors hover:bg-secondary/60 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]'
 
 function useClickOutside<T extends HTMLElement>(onOutside: () => void) {
   const ref = useRef<T>(null)
@@ -79,7 +79,7 @@ export function AdminSelectField({
       </label>
       {name && <input type="hidden" name={name} value={selectedValue} />}
       <Select value={selectedValue} onValueChange={handleValueChange}>
-        <SelectTrigger id={`${id}-trigger`} className="w-full">
+        <SelectTrigger id={`${id}-trigger`} className="admin-field-trigger w-full">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent id={`${id}-listbox`}>
@@ -89,7 +89,7 @@ export function AdminSelectField({
                 <span className="flex flex-col gap-0.5">
                   <span className="font-medium">{option.label}</span>
                   {option.description && (
-                    <span className="text-xs text-muted-foreground">{option.description}</span>
+                    <span className="admin-select-hint text-xs text-muted-foreground">{option.description}</span>
                   )}
                 </span>
               </SelectItem>

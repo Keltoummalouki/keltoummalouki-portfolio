@@ -71,6 +71,18 @@ test.describe('language switch', () => {
   })
 })
 
+test.describe('home profile', () => {
+  test('shows the built-in bio with the CMS offline, its traits and a link to the full profile', async ({ page }) => {
+    await page.goto('/en')
+    const profile = page.locator('#profile')
+
+    // messages `about.description`: the text the dashboard form pre-fills too.
+    await expect(profile).toContainText('a Full Stack Web Developer from Casablanca')
+    await expect(profile.getByRole('list', { name: 'Qualities' }).getByRole('listitem')).toHaveCount(4)
+    await expect(profile.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/en/about')
+  })
+})
+
 test.describe('Arabic right-to-left layout', () => {
   test('renders the Arabic site right to left', async ({ page }) => {
     await page.goto('/ar')

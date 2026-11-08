@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ArrowUpRight, ChevronDown, Layers3, CheckCircle2, PenLine, Archive } from 'lucide-react'
 import Link from 'next/link'
+import { formatCount } from '@/lib/format-count'
 import { StatusBadge } from './ui'
 
 export function CollectionOverview({ items, label = 'entries' }: { items: { status: string | null }[]; label?: string }) {
@@ -12,9 +13,11 @@ export function CollectionOverview({ items, label = 'entries' }: { items: { stat
     { label: 'Archived', value: items.filter(item => item.status === 'archived').length, hint: 'Kept off the public site', icon: <Archive size={18} /> },
   ]} />
 }
+// Numbers count up and the cards tilt in 3D (PageMotion, mounted by PageHeader).
 export function OverviewMetrics({ items }: { items: { label: string; value: number | string; hint: string; icon?: ReactNode; href?: string }[] }) {
   return <section className="admin-overview" aria-label="Collection statistics">{items.map((item,index) => {
-    const content = <><div className="admin-overview-label"><span>{item.label}</span>{item.icon || <Layers3 size={18} aria-hidden="true" />}</div><strong>{item.value}</strong><p>{item.hint}</p>{item.href && <ArrowUpRight size={14} className="admin-overview-arrow" aria-hidden="true" />}</>
+    const value = typeof item.value === 'number' ? <strong data-count={item.value}>{formatCount(item.value)}</strong> : <strong>{item.value}</strong>
+    const content = <><div className="admin-overview-label"><span>{item.label}</span><span className="admin-overview-icon">{item.icon || <Layers3 size={18} aria-hidden="true" />}</span></div>{value}<p>{item.hint}</p>{item.href && <ArrowUpRight size={14} className="admin-overview-arrow" aria-hidden="true" />}</>
     return item.href ? <Link className={index === 0 ? 'admin-overview-featured' : ''} key={item.label} href={item.href}>{content}</Link> : <div className={index === 0 ? 'admin-overview-featured' : ''} key={item.label}>{content}</div>
   })}</section>
 }

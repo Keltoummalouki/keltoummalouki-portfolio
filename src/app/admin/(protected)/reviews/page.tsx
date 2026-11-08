@@ -1,9 +1,8 @@
 import { OverviewMetrics } from '@/components/admin/Workspace'
-import { Check, MessageSquareQuote, ShieldAlert, Trash2, X } from 'lucide-react'
+import { Check, MessageSquareQuote, ShieldAlert, X } from 'lucide-react'
 import StarRating from '@/components/reviews/StarRating'
-import { EmptyState, FilterTabs, PageHeader, StatusBadge } from '@/components/admin/ui'
+import { EmptyState, FilterTabs, PageHeader, StatusBadge, DeleteButton } from '@/components/admin/ui'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 import { deleteReviewAction, updateReviewStatusAction } from '@/features/reviews/actions'
 import { getReviewStatusCounts, listReviews, type AdminReview } from '@/features/reviews/queries'
 import { REVIEW_STATUSES, reviewStatusSchema, type ReviewStatus } from '@/features/reviews/schema'
@@ -139,10 +138,7 @@ export default async function AdminReviewsPage({
                 <form action={deleteReviewAction} className="ms-auto">
                   <input type="hidden" name="id" value={review.id} />
                   {activeStatus && <input type="hidden" name="filter" value={activeStatus} />}
-                  <Button type="submit" variant="destructive" size="sm">
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  <DeleteButton />
                 </form>
               </div>
             </li>

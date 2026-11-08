@@ -1,8 +1,14 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { ArrowLeft, Award, Briefcase, FileText, FolderKanban, GraduationCap, Inbox, Languages, Layers3, MessageCircleQuestion, MessageSquareQuote, Palette, Share2, Sparkles, Target, UserRound } from 'lucide-react'
+import {
+  Archive, ArrowLeft, Award, BadgeEuro, Ban, Briefcase, CalendarClock, CheckCheck, CircleCheck, CircleDot, Clock3, FileText, FolderKanban, GraduationCap, Handshake,
+  Inbox, Languages, Layers3, MessageCircleQuestion, MessageSquareQuote, OctagonAlert, Palette, PenLine, Pencil, Reply, Send, Share2, Sparkles, Target, Trash2, Trophy,
+  UserRound, XCircle,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import HeaderArt from './HeaderArt'
+import PageMotion from './PageMotion'
 
 /**
  * Shared admin UI kit. Single source of truth for the chrome that used to be
@@ -144,6 +150,32 @@ export function badgeToneForStatus(status: string): BadgeTone {
   return statusTone[status] ?? 'neutral'
 }
 
+const statusIcon: Record<string, LucideIcon> = {
+  published: CircleCheck,
+  draft: PenLine,
+  archived: Archive,
+  new: CircleDot,
+  read: CheckCheck,
+  replied: Reply,
+  spam: OctagonAlert,
+  pending: Clock3,
+  approved: CircleCheck,
+  rejected: Ban,
+  qualified: Handshake,
+  meeting: CalendarClock,
+  proposal: Send,
+  won: Trophy,
+  lost: XCircle,
+}
+
+// Shown as a bare icon, the way messaging apps do: blue double ticks for a
+// read message (WhatsApp-style) and a warning octagon for spam. The label
+// stays available to screen readers and as a tooltip.
+const iconOnly: Record<string, string> = {
+  read: 'text-sky-600 dark:text-sky-400',
+  spam: 'text-destructive',
+}
+
 export function StatusBadge({
   status,
   tone,
@@ -153,6 +185,15 @@ export function StatusBadge({
   tone?: BadgeTone
   className?: string
 }) {
+  const Icon = statusIcon[status]
+  if (Icon && iconOnly[status]) {
+    return (
+      <span title={status.charAt(0).toUpperCase() + status.slice(1)} className={cn('admin-status-icon inline-flex size-7 shrink-0 items-center justify-center rounded-full', iconOnly[status], className)}>
+        <Icon className="size-[18px]" strokeWidth={2.25} aria-hidden="true" />
+        <span className="sr-only">{status}</span>
+      </span>
+    )
+  }
   return (
     <span
       className={cn(
@@ -161,8 +202,33 @@ export function StatusBadge({
         className,
       )}
     >
+      {Icon && <Icon className="size-3" aria-hidden="true" />}
       {status}
     </span>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Row actions: icon-only edit and delete                                     */
+/* -------------------------------------------------------------------------- */
+
+const iconAction = 'admin-icon-action inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors'
+
+/** Pencil link to an edit screen. `label` names the item for screen readers. */
+export function EditLink({ href, label = 'Edit' }: { href: string; label?: string }) {
+  return (
+    <Link href={href} className={cn(iconAction, 'text-foreground')} aria-label={label} title="Edit">
+      <Pencil className="size-4" aria-hidden="true" />
+    </Link>
+  )
+}
+
+/** Trash submit button for a delete form (the form keeps its own confirmation, if any). */
+export function DeleteButton({ label = 'Delete' }: { label?: string }) {
+  return (
+    <button type="submit" className={cn(iconAction, 'admin-icon-danger text-destructive')} aria-label={label} title="Delete">
+      <Trash2 className="size-4" aria-hidden="true" />
+    </button>
   )
 }
 
@@ -231,35 +297,43 @@ export function PageHeader({
   description?: string
   action?: ReactNode
 }) {
-  const designs: Record<string, { icon: LucideIcon; eyebrow: string }> = {
-    Projects: { icon: FolderKanban, eyebrow: 'The work that defines you' },
-    Blog: { icon: FileText, eyebrow: 'Your ideas, in your words' },
-    Inbox: { icon: Inbox, eyebrow: 'Every conversation starts here' },
-    'Freelance leads': { icon: Target, eyebrow: 'Turn conversations into opportunities' },
-    Reviews: { icon: MessageSquareQuote, eyebrow: 'A little perspective from your audience' },
-    Skills: { icon: Sparkles, eyebrow: 'The tools behind your craft' },
-    Languages: { icon: Languages, eyebrow: 'Connect across cultures' },
-    Education: { icon: GraduationCap, eyebrow: 'The foundations of your journey' },
-    Experience: { icon: Briefcase, eyebrow: 'Your professional story' },
-    Certifications: { icon: Award, eyebrow: 'Milestones worth sharing' },
-    FAQ: { icon: MessageCircleQuestion, eyebrow: 'Good questions. Clear answers.' },
-    'Social & contact links': { icon: Share2, eyebrow: 'Your presence, connected' },
-    'About': { icon: UserRound, eyebrow: 'Introduce the person behind the work' },
-    'About & profile': { icon: UserRound, eyebrow: 'Introduce the person behind the work' },
-    'Theme & design': { icon: Palette, eyebrow: 'Make every detail yours' },
+  // Each section gets its own icon, line and accent colour.
+  const designs: Record<string, { icon: LucideIcon; eyebrow: string; color: string }> = {
+    Projects: { icon: FolderKanban, eyebrow: 'The work that defines you', color: '#3b82f6' },
+    Blog: { icon: FileText, eyebrow: 'Your ideas, in your words', color: '#8b5cf6' },
+    Inbox: { icon: Inbox, eyebrow: 'Every conversation starts here', color: '#14b8a6' },
+    'Freelance leads': { icon: Target, eyebrow: 'Turn conversations into opportunities', color: '#f59e0b' },
+    Reviews: { icon: MessageSquareQuote, eyebrow: 'A little perspective from your audience', color: '#ec4899' },
+    Skills: { icon: Sparkles, eyebrow: 'The tools behind your craft', color: '#6366f1' },
+    Languages: { icon: Languages, eyebrow: 'Connect across cultures', color: '#06b6d4' },
+    Education: { icon: GraduationCap, eyebrow: 'The foundations of your journey', color: '#22c55e' },
+    Experience: { icon: Briefcase, eyebrow: 'Your professional story', color: '#0ea5e9' },
+    Certifications: { icon: Award, eyebrow: 'Milestones worth sharing', color: '#eab308' },
+    FAQ: { icon: MessageCircleQuestion, eyebrow: 'Good questions. Clear answers.', color: '#a855f7' },
+    'Services & pricing': { icon: BadgeEuro, eyebrow: 'What you offer, clearly priced', color: '#10b981' },
+    'Social & contact links': { icon: Share2, eyebrow: 'Your presence, connected', color: '#3b82f6' },
+    About: { icon: UserRound, eyebrow: 'Introduce the person behind the work', color: '#7c3aed' },
+    'About & profile': { icon: UserRound, eyebrow: 'Introduce the person behind the work', color: '#7c3aed' },
+    'Theme & design': { icon: Palette, eyebrow: 'Make every detail yours', color: '#ec4899' },
   }
   const editor = /^(New|Edit) (project|article)$/.test(title)
-  const back = title.includes('project') ? '/admin/projects' : '/admin/blog'
-  const { icon: Icon, eyebrow } = designs[title] ?? { icon: Layers3, eyebrow: editor ? 'From the first draft to the final detail' : 'Your portfolio workspace' }
+  const isProject = title.includes('project')
+  const back = isProject ? '/admin/projects' : '/admin/blog'
+  const editorDesign = { icon: isProject ? FolderKanban : FileText, eyebrow: 'From the first draft to the final detail', color: isProject ? '#3b82f6' : '#8b5cf6' }
+  const { icon: Icon, eyebrow, color } = designs[title] ?? (editor ? editorDesign : { icon: Layers3, eyebrow: 'Your portfolio workspace', color: '#3b82f6' })
   return (
-    <header className="admin-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        {editor && <Link href={back} className="admin-editor-back"><ArrowLeft size={13} aria-hidden="true" /> Back to {title.includes('project') ? 'projects' : 'articles'}</Link>}
+    <header className="admin-page-header" style={{ '--header-accent': color } as React.CSSProperties}>
+      <PageMotion />
+      <div className="admin-page-header-text">
+        {editor && <Link href={back} className="admin-editor-back"><ArrowLeft size={13} aria-hidden="true" /> Back to {isProject ? 'projects' : 'articles'}</Link>}
         <p className="admin-eyebrow">{eyebrow}</p>
-        <div className="admin-page-title"><span><Icon size={23} aria-hidden="true" /></span><h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1></div>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <div className="admin-page-title"><span><Icon size={22} aria-hidden="true" /></span><h1>{title}</h1></div>
+        {description && <p className="admin-page-description">{description}</p>}
+        {action && <div className="admin-page-action">{action}</div>}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      <HeaderArt>
+        <Icon aria-hidden="true" />
+      </HeaderArt>
     </header>
   )
 }

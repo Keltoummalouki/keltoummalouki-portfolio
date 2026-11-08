@@ -1,10 +1,10 @@
 import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
-import { GraduationCap, Trash2 } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteEducationAction, saveEducationAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
 import { AdminCard, EmptyState, ErrorNotice, Field, FileField, PageHeader, StatusSelect, TextArea } from '@/components/admin/CmsAdmin'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 import { LOCALES, type Locale } from '@/lib/validation/locale'
 
 function tr(
@@ -85,10 +85,7 @@ export default async function AdminEducationPage({
                 <EducationForm item={item} />
                 <form action={deleteEducationAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
-                  <Button type="submit" variant="destructive" size="sm">
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  <DeleteButton />
                 </form>
               </EditorDisclosure>
             ))}

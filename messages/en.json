@@ -160,7 +160,19 @@
       "limited": "Limited availability",
       "unavailable": "Not available"
     },
-    "location": "Casablanca (mobile / relocation)"
+    "location": "Casablanca (mobile / relocation)",
+    "iceBear": {
+      "alt": "Ice Bear, a polar bear in sunglasses with a laptop under one arm and a coffee in his paw",
+      "poke": "Poke Ice Bear",
+      "quips": {
+        "code": "Ice Bear writes code.",
+        "friday": "Ice Bear deploys on Fridays.",
+        "darkMode": "Ice Bear prefers dark mode.",
+        "review": "Ice Bear approved your pull request.",
+        "coffee": "Ice Bear needs more coffee.",
+        "bugs": "Ice Bear does not do bugs."
+      }
+    }
   },
   "about": {
     "description": "I'm Keltoum Malouki, a Full Stack Web Developer from Casablanca, Morocco. With hands-on training at YouCode (UM6P), I deliver complete web solutions from front-end interfaces to back-end architecture. I care about clean code, user experience, and continuous learning.",
@@ -536,7 +548,8 @@
         "cleanCode": "Clean code, better products"
       },
       "traitsLabel": "Qualities",
-      "statsLabel": "In numbers"
+      "statsLabel": "In numbers",
+      "more": "More about me"
     }
   },
   "seo": {

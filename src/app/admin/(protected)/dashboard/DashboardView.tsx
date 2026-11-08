@@ -1,107 +1,265 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import Link from 'next/link'
-import { Activity, ArrowDownLeft, ArrowRight, ArrowUpRight, Check, ChevronRight, FileText, FolderKanban, Inbox, Layers3, Plus, Search, Sparkles, Target, Zap } from 'lucide-react'
-import { StatusBadge } from '@/components/admin/ui'
-import { activityScale, activitySeries, type DashboardRecord, type RecordKind } from './analytics'
+import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
+import { FileText, FolderKanban, Inbox, Moon, PenLine, Plus, Sun, Target, Zap } from 'lucide-react'
+import './dashboard.css'
+import { openCommandPalette } from '../CommandPalette'
+import { formatCount, isContent, recordKey, type DashboardRecord, type DashboardStats, type RecordKind } from './analytics'
+import { buildVolumes, type VolumeModel } from './volumes'
+import { ActivityCard, FeedCard, FocusCard, GaugeCard, KpiCard, PipelineCard, ProfileCard, StackCard, type FocusTask, type KpiProps } from './cards'
+import { useDashboardMotion } from './motion'
+import type { StackItem } from './scenes/CardStackScene'
 
-const kinds = {
-  project: { label: 'Projects', icon: FolderKanban, href: '/admin/projects' },
-  article: { label: 'Articles', icon: FileText, href: '/admin/blog' },
-  message: { label: 'Messages', icon: Inbox, href: '/admin/inbox' },
-  lead: { label: 'Freelance leads', icon: Target, href: '/admin/leads' },
+// The 3D scenes are client-only and load after the page: three.js never
+// touches the server bundle or the first paint.
+const VolumesScene = dynamic(() => import('./scenes/VolumesScene'), { ssr: false })
+const PulseOrb = dynamic(() => import('./scenes/PulseOrb'), { ssr: false })
+
+const noop = () => () => undefined
+/** False on the server and during hydration, true afterwards: for browser-only UI. */
+const useHydrated = () => useSyncExternalStore(noop, () => true, () => false)
+
+interface DashboardProps {
+  records: DashboardRecord[]
+  /** Calendar-dependent values, computed on the server (see dashboardStats). */
+  stats: DashboardStats
+  profile: { fullName: string; avatarUrl: string; email: string }
+  reviews: { approved: number; pending: number }
 }
-const dateLabel = (date: string) => new Date(date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', timeZone: 'Africa/Casablanca' })
 
-export default function DashboardView({ records, now }: { records: DashboardRecord[]; now: string }) {
-  const [days, setDays] = useState(30)
-  const [filter, setFilter] = useState<'all' | 'content' | 'inquiries'>('all')
-  const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState<number | null>(null)
-  const series = useMemo(() => activitySeries(records, days, now), [records, days, now])
-  const content = records.filter(r => r.kind === 'project' || r.kind === 'article')
-  const published = content.filter(r => r.status === 'published').length
-  const drafts = content.filter(r => r.status === 'draft').length
-  const archived = content.length - published - drafts
-  const unread = records.filter(r => (r.kind === 'message' || r.kind === 'lead') && r.status === 'new')
-  const leads = records.filter(r => r.kind === 'lead')
-  const totalActivity = series.reduce((sum, p) => sum + p.content + p.inquiries, 0)
-  // Chart space is x = day index, y = count (flipped). The SVG stretches to fill
-  // the panel with non-scaling strokes, and the axis labels are HTML, so a wider
-  // panel never scales the chart text up.
-  const scale = activityScale(Math.max(...series.map(p => Math.max(p.content, p.inquiries))))
-  const last = days - 1
-  const path = (key: 'content' | 'inquiries') => series.map((p, i) => `${i === 0 ? 'M' : 'L'}${i},${scale.max - p[key]}`).join(' ')
-  const selectedPoint = selected === null ? null : series[selected]
-  const visible = records.filter(r => (filter === 'all' || (filter === 'content' ? r.kind === 'project' || r.kind === 'article' : r.kind === 'message' || r.kind === 'lead')) && `${r.title} ${r.detail}`.toLowerCase().includes(search.toLowerCase())).slice(0, 6)
-  const tasks = [
-    { label: 'Reply to new messages', count: unread.filter(r => r.kind === 'message').length, href: '/admin/inbox?status=new', icon: Inbox },
-    { label: 'Explore new opportunities', count: unread.filter(r => r.kind === 'lead').length, href: '/admin/leads?status=new', icon: Target },
-    { label: 'Finish project drafts', count: content.filter(r => r.kind === 'project' && r.status === 'draft').length, href: '/admin/projects', icon: FolderKanban },
-    { label: 'Continue your stories', count: content.filter(r => r.kind === 'article' && r.status === 'draft').length, href: '/admin/blog', icon: FileText },
-  ]
-
-  return <div className="dash">
-    <header className="dash-heading">
-      <div><div className="dash-eyebrow"><span /> YOUR PORTFOLIO, AT A GLANCE</div><h1>Big ideas. <span>Clear overview.</span></h1><p>Welcome to your studio. Let’s make your next move count.</p></div>
-      <Link className="studio-primary" href="/admin/projects/new"><Plus size={17} /> Create project</Link>
-    </header>
-
-    <section className="dash-metrics" aria-label="All-time statistics">
-      {(Object.entries(kinds) as [RecordKind, typeof kinds.project][]).map(([kind, config], index) => {
-        const items = records.filter(r => r.kind === kind)
-        const isContent = kind === 'project' || kind === 'article'
-        const highlighted = items.filter(r => r.status === (isContent ? 'published' : 'new')).length
-        const Icon = config.icon
-        return <Link href={config.href} key={kind} className={`dash-metric ${index === 0 ? 'dash-metric-featured' : ''}`}>
-          <div className="dash-metric-top"><span className="dash-icon"><Icon size={19} /></span><span>{config.label}</span><ArrowUpRight size={16} /></div>
-          <div className="dash-metric-value">{items.length.toLocaleString()}<span>all time</span></div>
-          <div className="dash-metric-bottom"><span>{isContent ? <Check size={12} /> : <ArrowDownLeft size={12} />}{highlighted} {isContent ? 'published' : 'new'}</span><span>{isContent ? `${items.filter(r => r.status === 'draft').length} drafts` : kind === 'lead' ? 'View leads' : 'Open inbox'} <ChevronRight size={12} /></span></div>
-        </Link>
-      })}
-    </section>
-
-    <div className="dash-main-grid">
-      <section className="dash-panel dash-chart-panel">
-        <div className="dash-panel-heading"><div><span className="dash-eyebrow">THE BIG PICTURE</span><h2>Workspace activity</h2></div><div className="dash-segment" aria-label="Activity time range">{[7, 30, 90].map(d => <button key={d} aria-pressed={days === d} onClick={() => { setDays(d); setSelected(null) }}>{d} days</button>)}</div></div>
-        <div className="dash-chart-summary"><strong>{totalActivity}<small>new records</small></strong><div className="dash-legend"><span><i /> Content created</span><span><i /> Inquiries received</span></div></div>
-        <div className="dash-chart" onMouseLeave={() => setSelected(null)}>
-          <div className="dash-chart-y" aria-hidden="true">{scale.ticks.map(t => <span key={t} style={{ bottom: `${t / scale.max * 100}%` }}>{t}</span>)}</div>
-          <svg viewBox={`0 0 ${last} ${scale.max}`} preserveAspectRatio="none" role="img" aria-label={`Activity over ${days} days: ${series.reduce((s,p) => s+p.content,0)} content records created and ${series.reduce((s,p) => s+p.inquiries,0)} inquiries received`}>
-            <defs><linearGradient id="activity-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3b82f6" stopOpacity=".22" /><stop offset="100%" stopColor="#3b82f6" stopOpacity="0" /></linearGradient></defs>
-            {scale.ticks.map(t => <line key={t} x1="0" x2={last} y1={scale.max - t} y2={scale.max - t} className="dash-gridline" />)}
-            <g key={days} className="dash-chart-lines"><path d={`${path('content')} L${last},${scale.max} L0,${scale.max} Z`} fill="url(#activity-fill)" /><path d={path('content')} fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinejoin="round" /><path d={path('inquiries')} fill="none" stroke="#6caec4" strokeWidth="2.5" strokeDasharray="5 5" strokeLinejoin="round" /></g>
-            {selected !== null && <line x1={selected} x2={selected} y1="0" y2={scale.max} stroke="currentColor" strokeOpacity=".3" strokeDasharray="3 4" pointerEvents="none" />}
-            {series.map((p, i) => <rect key={p.date} x={Math.max(0, i - .5)} y="0" width={i === 0 || i === last ? .5 : 1} height={scale.max} fill="transparent" onMouseEnter={() => setSelected(i)}><title>{`${dateLabel(p.date+'T12:00:00Z')}: ${p.content} content, ${p.inquiries} inquiries`}</title></rect>)}
-          </svg>
-          <div className="dash-chart-x" aria-hidden="true">{[0, Math.floor(last/3), Math.floor(last*2/3), last].map(i => <span key={i} style={{ left: `${i / last * 100}%` }}>{dateLabel(series[i].date+'T12:00:00Z')}</span>)}</div>
-          <div className="dash-chart-caption" aria-live="polite">{selectedPoint ? `${dateLabel(selectedPoint.date+'T12:00:00Z')} · ${selectedPoint.content} content created · ${selectedPoint.inquiries} inquiries received` : totalActivity ? 'Created dates · Casablanca time · Hover to explore' : 'No new records in this period. Your next creation starts the story.'}</div>
+function VolumesCard({ volumes, scroll }: { volumes: VolumeModel[]; scroll: { current: number } }) {
+  const router = useRouter()
+  const hydrated = useHydrated()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [active, setActive] = useState<RecordKind | null>(null)
+  const dark = resolvedTheme === 'dark'
+  return (
+    <section className="d3-card d3-volumes" aria-labelledby="d3-volumes-title" data-stage>
+      <header className="d3-card-head">
+        <div>
+          <p className="d3-eyebrow">Studio in volume</p>
+          <h2 id="d3-volumes-title">Your work at a glance</h2>
+          <p className="d3-card-sub">Each volume grows with its records. The solid core is what’s published, unread or open.</p>
         </div>
-        <details className="dash-chart-data"><summary>View daily data</summary><div><table><thead><tr><th>Date</th><th>Content</th><th>Inquiries</th></tr></thead><tbody>{series.map(p => <tr key={p.date}><td>{p.date}</td><td>{p.content}</td><td>{p.inquiries}</td></tr>)}</tbody></table></div></details>
-      </section>
-
-      <section className="dash-panel dash-content-panel"><div className="dash-panel-heading"><div><span className="dash-eyebrow">FROM IDEA TO LIVE</span><h2>Content balance</h2></div><Layers3 size={20} className="text-primary" /></div>
-        <div className="dash-ring-wrap"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="76" className="dash-ring-track" />{content.length > 0 && <><circle cx="100" cy="100" r="76" stroke="#3b82f6" strokeDasharray={`${published/content.length*477.52} 477.52`} /><circle cx="100" cy="100" r="76" stroke="#a9c6ff" strokeDasharray={`${drafts/content.length*477.52} 477.52`} strokeDashoffset={-published/content.length*477.52} /></>}</svg><div><strong>{content.length ? Math.round(published/content.length*100) : 0}<small>%</small></strong><span>published</span></div></div>
-        <div className="dash-content-legend">{[['Published',published,'#3b82f6'],['In draft',drafts,'#a9c6ff'],['Archived / other',archived,'var(--border)']].map(([label,count,color]) => <div key={label}><span><i style={{background: String(color)}} />{label}</span><strong>{count}</strong></div>)}</div>
-        <Link href="/admin/projects" className="dash-panel-link">Manage your content <ArrowRight size={15} /></Link>
-      </section>
-    </div>
-
-    <div className="dash-lower-grid">
-      <section className="dash-panel dash-feed"><div className="dash-panel-heading"><div><span className="dash-eyebrow">FRESH FROM YOUR WORKSPACE</span><h2>Recent activity</h2></div><span className="dash-total">{records.length} records</span></div>
-        <div className="dash-feed-toolbar"><div className="dash-segment" aria-label="Filter recent activity">{(['all','content','inquiries'] as const).map(f => <button key={f} aria-pressed={filter===f} onClick={() => setFilter(f)}>{f === 'all' ? 'All activity' : f}</button>)}</div><label className="dash-search"><Search size={15} /><input aria-label="Search recent activity" value={search} onChange={e => setSearch(e.target.value)} placeholder="Find something…" /></label></div>
-        <div className="dash-feed-labels"><span>Item</span><span>Status / created</span></div>
-        <div className="dash-feed-list">{visible.length ? visible.map(r => { const Icon = kinds[r.kind].icon; return <Link key={`${r.kind}-${r.id}`} href={r.href} className="dash-feed-row"><span className={`dash-feed-icon dash-feed-icon-${r.kind}`}><Icon size={18} /></span><div className="dash-feed-title"><strong>{r.title}</strong><span>{r.detail}</span></div><StatusBadge status={r.status} /><time dateTime={r.createdAt}>{dateLabel(r.createdAt)}</time><ChevronRight size={14} /></Link> }) : <div className="dash-empty"><Activity size={25} /><strong>{search ? 'No matching records' : 'A clean slate'}</strong><p>{search ? 'Try a different name or clear your search.' : 'New projects, stories, and conversations will appear here.'}</p>{search && <button onClick={() => setSearch('')}>Clear search</button>}</div>}</div>
-      </section>
-      <div className="dash-right-column">
-        <section className="dash-panel dash-focus"><div className="dash-panel-heading"><div><span className="dash-eyebrow">MAKE SPACE FOR WHAT’S NEXT</span><h2>Your focus list</h2></div><span className="dash-focus-count">{tasks.reduce((s,t)=>s+t.count,0)}</span></div>{tasks.map(t => { const Icon=t.icon; return <Link className="dash-task" href={t.href} key={t.href}><Icon size={17} /><span>{t.label}</span><strong>{t.count}</strong><ChevronRight size={14} /></Link> })}</section>
-        <section className="dash-launch"><div className="dash-launch-orbit" aria-hidden="true"><span /><span /><Sparkles size={38} /></div><span className="dash-eyebrow">THE NEXT CHAPTER</span><h2>Ideas belong<br />out in the world.</h2><Link href="/admin/blog/new">Write something new <ArrowUpRight size={17} /></Link></section>
+        {hydrated && (
+          <button type="button" className="d3-chip-btn" onClick={() => setTheme(dark ? 'light' : 'dark')}>
+            {dark ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
+            {dark ? 'Day view' : 'Night view'}
+          </button>
+        )}
+      </header>
+      <div className="d3-volumes-stage">
+        {hydrated && <VolumesScene className="d3-scene" volumes={volumes} dark={dark} active={active} onHover={setActive} onSelect={href => router.push(href)} scroll={scroll} />}
       </div>
-    </div>
-
-    <section className="dash-panel dash-pipeline"><div className="dash-panel-heading"><div><span className="dash-eyebrow">OPPORTUNITY BOARD</span><h2>Your freelance pipeline</h2></div><Link href="/admin/leads">View leads <ArrowUpRight size={16} /></Link></div><div className="dash-pipeline-stages">{['new','qualified','meeting','proposal','won','lost'].map((status,index) => { const count = leads.filter(l=>l.status===status).length; return <Link href={`/admin/leads?status=${status}`} key={status}><span><i />{status}</span><strong>{count}</strong><div className="dash-stage-track"><span style={{transform:`scaleX(${leads.length ? count/leads.length : 0})`,opacity:1-index*.1}} /></div></Link> })}</div></section>
-    <footer className="dash-footer"><span><Zap size={13} /> Built around your work.</span><span>Statistics reflect saved records · {dateLabel(now)}</span></footer>
-  </div>
+      <ul className="d3-legend">
+        {volumes.map(volume => (
+          <li key={volume.kind}>
+            <Link
+              href={volume.href}
+              style={{ '--tower': volume.color } as CSSProperties}
+              data-active={active === volume.kind ? '' : undefined}
+              onMouseEnter={() => setActive(volume.kind)}
+              onMouseLeave={() => setActive(null)}
+              onFocus={() => setActive(volume.kind)}
+              onBlur={() => setActive(null)}
+            >
+              <span className="d3-legend-name">
+                <i aria-hidden="true" />
+                {volume.label}
+              </span>
+              <strong data-count={volume.total}>{formatCount(volume.total)}</strong>
+              <span className="d3-legend-sub">{volume.litLabel}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
 }
 
+/** Floating "Quick actions" button: the liquid orb opens the command palette. */
+function PulseButton({ attention }: { attention: number }) {
+  const hydrated = useHydrated()
+  const [excited, setExcited] = useState(false)
+  const [mac, setMac] = useState(false)
+  useEffect(() => {
+    setMac(/Mac|iPhone|iPad/.test(navigator.userAgent))
+  }, [])
+  return (
+    <button
+      type="button"
+      className="d3-fab"
+      onClick={openCommandPalette}
+      onPointerEnter={() => setExcited(true)}
+      onPointerLeave={() => setExcited(false)}
+      onFocus={() => setExcited(true)}
+      onBlur={() => setExcited(false)}
+      aria-keyshortcuts="Control+K Meta+K"
+    >
+      <span className="d3-fab-orb" aria-hidden="true">
+        {hydrated && <PulseOrb className="d3-fab-canvas" energy={0.3 + Math.min(attention, 6) * 0.09} excited={excited} />}
+      </span>
+      <span className="d3-fab-label">Quick actions</span>
+      {attention > 0 && (
+        <span className="d3-fab-badge">
+          {attention}
+          <span className="sr-only"> waiting for you</span>
+        </span>
+      )}
+      <kbd aria-hidden="true">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+    </button>
+  )
+}
+
+export default function DashboardView({ records, stats, profile, reviews }: DashboardProps) {
+  const root = useRef<HTMLDivElement>(null)
+  const volumesScroll = useRef(0.5)
+  useDashboardMotion(root, volumesScroll)
+
+  const data = useMemo(() => {
+    const of = (kind: RecordKind) => records.filter(r => r.kind === kind)
+    const projects = of('project')
+    const articles = of('article')
+    const messages = of('message')
+    const leads = of('lead')
+    const content = records.filter(r => isContent(r.kind))
+    const count = (list: DashboardRecord[], status: string) => list.filter(r => r.status === status).length
+    const unread = count(messages, 'new')
+    const newLeads = count(leads, 'new')
+    const openLeads = leads.filter(l => ['new', 'qualified', 'meeting', 'proposal'].includes(l.status)).length
+    const series = (kind: RecordKind) => stats.weekly[kind]
+
+    const kpis: (KpiProps & { key: string })[] = [
+      { key: 'project', href: '/admin/projects', label: 'Projects', icon: FolderKanban, value: projects.length, series: series('project'), chart: 'bars', accent: '#3b82f6', chip: `${count(projects, 'published')} published`, note: `${count(projects, 'draft')} in draft` },
+      { key: 'article', href: '/admin/blog', label: 'Articles', icon: FileText, value: articles.length, series: series('article'), chart: 'line', accent: '#8b5cf6', chip: `${count(articles, 'published')} published`, note: `+${stats.lastMonth.article} this month` },
+      { key: 'message', href: '/admin/inbox', label: 'Inbox', icon: Inbox, value: unread, unit: 'unread', series: series('message'), chart: 'bars', accent: '#14b8a6', chip: `${messages.length} messages`, note: unread ? 'Reply now' : 'All caught up' },
+      { key: 'lead', href: '/admin/leads', label: 'Open leads', icon: Target, value: openLeads, unit: 'open', series: series('lead'), chart: 'line', accent: '#f59e0b', featured: true, chip: `${count(leads, 'won')} won`, note: `${leads.length} total` },
+    ]
+
+    const tasks: FocusTask[] = [
+      { label: 'Reply to new messages', count: unread, href: '/admin/inbox?status=new', icon: Inbox },
+      { label: 'Explore new opportunities', count: newLeads, href: '/admin/leads?status=new', icon: Target },
+      { label: 'Finish project drafts', count: count(projects, 'draft'), href: '/admin/projects', icon: FolderKanban },
+      { label: 'Continue your stories', count: count(articles, 'draft'), href: '/admin/blog', icon: PenLine },
+    ]
+
+    // The three most recent projects (topped up with articles) become the 3D deck.
+    const picks = [...projects, ...articles].slice(0, 3)
+    const stack: StackItem[] = picks.length
+      ? picks.map(r => ({ id: recordKey(r), title: r.title, status: r.status, label: r.kind === 'project' ? 'PROJECT' : 'ARTICLE', date: stats.labels[recordKey(r)]?.month ?? '', href: r.href }))
+      : [
+          { id: 'idea-project', title: 'Your next big project', status: 'idea', label: 'PROJECT', date: '', href: '/admin/projects/new' },
+          { id: 'idea-article', title: 'A story worth telling', status: 'idea', label: 'ARTICLE', date: '', href: '/admin/blog/new' },
+        ]
+
+    return {
+      kpis,
+      tasks,
+      stack,
+      leads,
+      volumes: buildVolumes(records),
+      published: count(content, 'published'),
+      drafts: count(content, 'draft'),
+      archived: content.length - count(content, 'published') - count(content, 'draft'),
+      wonLeads: count(leads, 'won'),
+      unread,
+      newLeads,
+    }
+  }, [records, stats])
+
+  const firstName = profile.fullName.trim().split(/\s+/)[0] || 'there'
+  const hello = `${stats.greeting},`
+  const attention = data.unread + data.newLeads + reviews.pending
+  const waiting = [
+    data.unread && `${data.unread} unread ${data.unread === 1 ? 'message' : 'messages'}`,
+    data.newLeads && `${data.newLeads} new ${data.newLeads === 1 ? 'lead' : 'leads'}`,
+    reviews.pending && `${reviews.pending} ${reviews.pending === 1 ? 'review' : 'reviews'} to moderate`,
+  ].filter(Boolean)
+  const lede = waiting.length ? `Waiting for you: ${waiting.join(', ')}.` : 'Inbox zero. A perfect moment to build something new.'
+
+  return (
+    <>
+      <div className="d3" ref={root}>
+        <header className="d3-hero">
+          <div className="d3-hero-text">
+            <p className="d3-date" data-intro>
+              <span className="d3-live" aria-hidden="true" />
+              {stats.today}
+            </p>
+            <h1 className="d3-title">
+              <span className="sr-only">{`${hello} ${firstName}`}</span>
+              <span aria-hidden="true">
+                {hello.split(' ').map(word => (
+                  <span className="d3-word" key={word}>
+                    <span>{word}</span>
+                  </span>
+                ))}
+                <span className="d3-word">
+                  <span className="d3-name">{firstName}</span>
+                </span>
+              </span>
+            </h1>
+            <p className="d3-lede" data-intro>{lede}</p>
+          </div>
+          <div className="d3-hero-actions" data-intro>
+            <Link href="/admin/blog/new" className="d3-btn d3-btn-soft">
+              <PenLine size={16} aria-hidden="true" /> New article
+            </Link>
+            <Link href="/admin/projects/new" className="d3-btn d3-btn-ink" data-magnetic>
+              <Plus size={16} aria-hidden="true" /> New project
+            </Link>
+          </div>
+        </header>
+
+        <section className="d3-kpis" aria-label="Totals">
+          {data.kpis.map(({ key, ...kpi }) => (
+            <KpiCard key={key} {...kpi} />
+          ))}
+        </section>
+
+        <div className="d3-grid">
+          <VolumesCard volumes={data.volumes} scroll={volumesScroll} />
+          <div className="d3-side">
+            <ProfileCard
+              name={profile.fullName}
+              email={profile.email}
+              avatarUrl={profile.avatarUrl}
+              stats={[
+                { label: 'Published', value: data.published },
+                { label: 'Reviews', value: reviews.approved },
+                { label: 'Leads won', value: data.wonLeads },
+              ]}
+            />
+            <GaugeCard published={data.published} drafts={data.drafts} archived={data.archived} />
+          </div>
+        </div>
+
+        <div className="d3-grid d3-grid-b">
+          <ActivityCard activity={stats.activity} trend={stats.trend} />
+          <StackCard items={data.stack} />
+        </div>
+
+        <div className="d3-grid">
+          <FeedCard records={records} labels={stats.labels} />
+          <div className="d3-side">
+            <FocusCard tasks={data.tasks} />
+            <PipelineCard leads={data.leads} />
+          </div>
+        </div>
+
+        <footer className="d3-footer" data-reveal>
+          <span>
+            <Zap size={13} aria-hidden="true" /> Built around your work.
+          </span>
+          <span>Statistics reflect saved records · {stats.today}</span>
+        </footer>
+      </div>
+      {/* Outside .d3: its container query would otherwise become the button's containing block. */}
+      <PulseButton attention={attention} />
+    </>
+  )
+}

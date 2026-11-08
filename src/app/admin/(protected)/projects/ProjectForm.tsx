@@ -79,7 +79,7 @@ export default function ProjectForm({ action, submitLabel, technicalSkills, defa
   const err = (key: string) => state.errors?.[key]
 
   return (
-    <form action={formAction} className="max-w-3xl space-y-8" noValidate>
+    <form action={formAction} className="admin-editor-form space-y-6" noValidate>
       {state.message && (
         <p
           role="alert"

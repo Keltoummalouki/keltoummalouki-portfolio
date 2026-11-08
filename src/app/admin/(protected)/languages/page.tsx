@@ -1,10 +1,10 @@
 import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
-import { Languages as LanguagesIcon, Trash2 } from 'lucide-react'
+import { Languages as LanguagesIcon } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteLanguageAction, saveLanguageAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
 import { AdminCard, EmptyState, ErrorNotice, Field, I18nInputs, PageHeader, StatusSelect, i18nValues } from '@/components/admin/CmsAdmin'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 
 type LanguageItem = Awaited<ReturnType<typeof getAdminCmsData>>['languages'][number]
 
@@ -61,10 +61,7 @@ export default async function AdminLanguagesPage({
                 <LanguageForm item={item} />
                 <form action={deleteLanguageAction} className="flex justify-end">
                   <input type="hidden" name="id" value={item.id} />
-                  <Button type="submit" variant="destructive" size="sm">
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  <DeleteButton />
                 </form>
               </EditorDisclosure>
             ))}

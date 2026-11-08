@@ -1,5 +1,6 @@
 import { CollectionOverview, EditorDisclosure } from '@/components/admin/Workspace'
-import { ExternalLink, Plus, Trash2 } from 'lucide-react'
+import { ExternalLink, Plus } from 'lucide-react'
+import { DeleteButton } from '@/components/admin/ui'
 import { deleteSocialLinkAction, saveSocialLinkAction } from '@/features/cms/actions'
 import { getAdminCmsData } from '@/features/cms/queries'
 import { CMS_STATUSES } from '@/features/cms/schema'
@@ -12,7 +13,6 @@ import {
 import { AdminSelectField } from '@/components/admin/AdminFormControls'
 import { AdminCard, EmptyState, ErrorNotice, FileField, PageHeader, StatusBadge, fieldClass, labelClass } from '@/components/admin/CmsAdmin'
 import FormStatusButton from '@/components/admin/FormStatusButton'
-import { Button } from '@/components/ui/button'
 import SocialIcon from '@/components/ui/SocialIcon'
 
 type SocialLinkRow = {
@@ -200,10 +200,7 @@ function ExistingLinkCard({ link }: { link: SocialLinkRow }) {
           </a>
           <form action={deleteSocialLinkAction}>
             <input type="hidden" name="id" value={link.id} />
-            <Button type="submit" variant="destructive" size="sm" className="shrink-0">
-              <Trash2 size={14} />
-              Delete
-            </Button>
+            <DeleteButton />
           </form>
         </div>
       </div>
