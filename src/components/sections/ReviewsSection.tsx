@@ -24,7 +24,7 @@ if (typeof window !== 'undefined') {
  * rating summary under the section lead, and the moderated review form behind
  * a disclosure button (kept mounted once opened so typed text survives).
  */
-export default function ReviewsSection({ reviews, index }: { reviews: PublicReview[]; index: string }) {
+export default function ReviewsSection({ reviews: initialReviews, index }: { reviews: PublicReview[]; index: string }) {
   const t = useTranslations('reviews')
   const format = useFormatter()
   const uid = useId()
@@ -36,6 +36,25 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
   const [formOpen, setFormOpen] = useState(false)
   const [formMounted, setFormMounted] = useState(false)
   const lastStep = useRef<1 | -1 | 0>(0)
+  const [reviews, setReviews] = useState(initialReviews)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    async function refresh() {
+      try {
+        const response = await fetch('/api/reviews', { cache: 'no-store', signal: controller.signal })
+        if (!response.ok) return
+        const data: { reviews: PublicReview[] } = await response.json()
+        if (controller.signal.aborted) return
+        setReviews(data.reviews)
+        setCurrent((value) => Math.max(0, Math.min(value, data.reviews.length - 1)))
+      } catch {
+        // Keep server-rendered reviews when the network is unavailable.
+      }
+    }
+    void refresh()
+    return () => controller.abort()
+  }, [])
 
   const summary = useMemo(() => summarizeReviews(reviews), [reviews])
   const review = reviews[current]
@@ -149,7 +168,7 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
                   {review.comment}
                 </p>
               </blockquote>
-              <figcaption className="mt-6 flex min-w-0 items-center gap-3 sm:pe-40">
+              <figcaption className="mt-6 flex min-w-0 items-center gap-3">
                 <span
                   aria-hidden="true"
                   className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-primary text-sm font-bold text-white ring-2 ring-background"
@@ -157,7 +176,7 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
                   {reviewerInitials(review.name)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-foreground">{review.name}</p>
+                  <p dir="auto" className="break-words font-semibold text-foreground">{review.name}</p>
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <StarRating value={review.rating} size={12} label={t('starsAria', { rating: review.rating })} />
                     <time dateTime={review.date} className="text-xs text-muted-foreground">
@@ -169,7 +188,7 @@ export default function ReviewsSection({ reviews, index }: { reviews: PublicRevi
             </figure>
 
             {reviews.length > 1 && (
-              <div className="mt-5 flex items-center justify-end gap-2 sm:absolute sm:end-7 sm:bottom-7 sm:mt-0">
+              <div className="mt-5 flex items-center justify-end gap-2 border-t border-border pt-4">
                 <p aria-live="polite" className="me-1 text-xs font-medium tabular-nums text-muted-foreground">
                   <span className="sr-only">{t('position', { current: current + 1, total: reviews.length })}</span>
                   <span aria-hidden="true" dir="ltr">

@@ -15,7 +15,7 @@ const PUBLIC_REVIEW_LIMIT = 200
  * RLS) so an admin browsing the site never sees pending reviews, and never
  * throws: the page renders without reviews if the table is missing/unreachable.
  */
-export async function getApprovedReviews(): Promise<PublicReview[]> {
+export async function getApprovedReviews({ throwOnError = false }: { throwOnError?: boolean } = {}): Promise<PublicReview[]> {
   try {
     const supabase = createPublicSupabaseClient()
     const { data, error } = await supabase
@@ -30,6 +30,7 @@ export async function getApprovedReviews(): Promise<PublicReview[]> {
     return ((data ?? []) as PublicReviewRow[]).map(toPublicReview)
   } catch (error) {
     console.error('reviews: loading approved reviews failed:', error instanceof Error ? error.message : error)
+    if (throwOnError) throw error
     return []
   }
 }
