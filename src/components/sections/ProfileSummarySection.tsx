@@ -1,16 +1,29 @@
 import Image from 'next/image'
 import { Caveat } from 'next/font/google'
 import { getTranslations } from 'next-intl/server'
-import { CalendarDays, Code2, FolderOpen, Github, Layers, type LucideIcon } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarDays,
+  Code2,
+  FolderOpen,
+  Github,
+  Layers,
+  Puzzle,
+  Sparkles,
+  Target,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
+import { Link } from '@/i18n/navigation'
 import { isOptimizableImageSrc } from '@/lib/images'
 import { cn } from '@/lib/utils'
 import { statValue, type PortfolioStatKey } from '@/features/stats/portfolio'
-import { composeProfileSummary, type ProfileFacts } from '@/features/seo/profile-summary'
+import type { ProfileFacts } from '@/features/seo/profile-summary'
 
-// Server component on purpose: the definitional paragraph and stats must be in
-// the initial HTML (no client-side animation gating their
-// visibility), so search engines and AI crawlers read exactly what visitors see.
-// The portrait transfer progressively enhances this markup on the client.
+// Server component on purpose: the bio and stats must be in the initial HTML
+// (no client-side animation gating their visibility), so search engines and AI
+// crawlers read exactly what visitors see. The portrait transfer progressively
+// enhances this markup on the client.
 
 /** Handwritten annotations (decorative, xl+ only): fetched on demand, never preloaded. */
 const hand = Caveat({ subsets: ['latin'], weight: '500', display: 'swap', preload: false })
@@ -22,28 +35,62 @@ const STATS: { key: PortfolioStatKey; icon: LucideIcon }[] = [
   { key: 'commits', icon: Github },
 ]
 
-/** Trait chips, each with its own accent dot. */
+type Trait = { key: string; icon: LucideIcon; well: string; border: string; move: string }
+
+/**
+ * Trait chips: an icon in a tinted well, and each icon has its own small move
+ * when its chip is hovered. Whole class strings, so Tailwind can find them.
+ */
 const TRAITS = [
-  { key: 'creative', dot: 'bg-violet-400' },
-  { key: 'problemSolver', dot: 'bg-sky-400' },
-  { key: 'teamPlayer', dot: 'bg-amber-400' },
-  { key: 'dedicated', dot: 'bg-rose-400' },
-] as const
+  {
+    key: 'creative',
+    icon: Sparkles,
+    well: 'bg-violet-500/10 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300',
+    border: 'hover:border-violet-400/50',
+    move: 'group-hover:rotate-12 group-hover:scale-110',
+  },
+  {
+    key: 'problemSolver',
+    icon: Puzzle,
+    well: 'bg-sky-500/10 text-sky-700 dark:bg-sky-400/15 dark:text-sky-300',
+    border: 'hover:border-sky-400/50',
+    move: 'group-hover:-rotate-12',
+  },
+  {
+    key: 'teamPlayer',
+    icon: Users,
+    well: 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
+    border: 'hover:border-amber-400/50',
+    move: 'group-hover:-translate-y-0.5',
+  },
+  {
+    key: 'dedicated',
+    icon: Target,
+    well: 'bg-rose-500/10 text-rose-600 dark:bg-rose-400/15 dark:text-rose-300',
+    border: 'hover:border-rose-400/50',
+    move: 'group-hover:scale-110',
+  },
+] as const satisfies readonly Trait[]
 
 export default async function ProfileSummarySection({
   locale,
   facts,
+  bio,
   avatarUrl,
 }: {
   locale: string
   facts: ProfileFacts
+  /** The dashboard bio (About › Headline & bio), already resolved for this locale. */
+  bio?: string
   avatarUrl: string
 }) {
   const [t, about] = await Promise.all([
     getTranslations({ locale, namespace: 'home.profile' }),
     getTranslations({ locale, namespace: 'about' }),
   ])
-  const summary = composeProfileSummary(facts, (key, values) => t(key, values), locale)
+  // The admin form pre-fills an empty bio with this same message
+  // (ABOUT_FALLBACK.bio), so the site shows what the dashboard shows.
+  const intro = bio?.trim() || about('description')
 
   return (
     <section id="profile" aria-labelledby="profile-title" className="relative overflow-hidden bg-background py-20 md:py-28">
@@ -82,32 +129,52 @@ export default async function ProfileSummarySection({
                   </span>
                 </h2>
 
-                <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground text-pretty md:text-lg">
-                  {summary.paragraph}
+                {/* Line breaks typed in the dashboard are kept, as on /about. */}
+                <p className="mt-6 max-w-xl whitespace-pre-line text-base leading-relaxed text-muted-foreground text-pretty md:text-lg">
+                  {intro}
                 </p>
 
-                <ul aria-label={t('traitsLabel')} className="mt-7 flex flex-wrap gap-2.5">
-                  {TRAITS.map((trait) => (
-                    <li
-                      key={trait.key}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-1.5 text-sm font-medium text-foreground backdrop-blur"
-                    >
-                      <span aria-hidden="true" className={cn('size-1.5 rounded-full', trait.dot)} />
-                      {about(`qualities.${trait.key}`)}
-                    </li>
-                  ))}
-                </ul>
+                <Link
+                  href="/about"
+                  className="group mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-md text-sm font-semibold text-primary-text underline-offset-4 hover:underline"
+                >
+                  {t('more')}
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="size-4 transition-transform duration-200 ease-fluid group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+                  />
+                </Link>
               </div>
 
               <Annotations role={facts.role} note={t('notes.cleanCode')} />
             </div>
 
+            {/* Below the notes column, so the four chips share one row on wide screens.
+                The narrow two-column range (lg) gets an even 2×2 instead of wrapping 3+1. */}
+            <ul aria-label={t('traitsLabel')} className="mt-6 flex flex-wrap gap-2.5 lg:grid lg:grid-cols-2 xl:flex">
+              {TRAITS.map(({ key, icon: Icon, well, border, move }) => (
+                <li
+                  key={key}
+                  className={cn(
+                    'group inline-flex items-center gap-2.5 rounded-full border border-border bg-card/70 py-1 ps-1 pe-4 text-sm font-medium text-foreground backdrop-blur transition-colors duration-200',
+                    border,
+                  )}
+                >
+                  <span aria-hidden="true" className={cn('flex size-7 shrink-0 items-center justify-center rounded-full', well)}>
+                    <Icon className={cn('size-3.5 transition-transform duration-300 ease-fluid', move)} strokeWidth={2} />
+                  </span>
+                  {about(`qualities.${key}`)}
+                </li>
+              ))}
+            </ul>
+
             <dl
               aria-label={t('statsLabel')}
-              className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-xl shadow-primary/5 sm:grid-cols-4"
+              className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-xl shadow-primary/5 sm:grid-cols-4"
             >
               {STATS.map(({ key, icon: Icon }) => (
-                <div key={key} className="flex flex-col-reverse items-center gap-1 bg-card px-3 py-5 text-center md:py-6">
+                // justify-end (top, in a reversed column): a label wrapping to two lines must not lift its number above the others.
+                <div key={key} className="flex flex-col-reverse items-center justify-end gap-1 bg-card px-3 py-5 text-center md:py-6">
                   <dt className="text-xs font-medium text-muted-foreground md:text-sm">{about(`stats.${key}`)}</dt>
                   <dd className="flex flex-col items-center gap-3">
                     <Icon aria-hidden="true" className="size-5 text-primary-text" strokeWidth={1.75} />
@@ -165,7 +232,7 @@ function Portrait({ src, name, note, className }: { src: string; name: string; n
   )
 }
 
-/** Handwritten role note with an arrow + a tilted "tablet" with code (xl+, decorative). */
+/** Handwritten role note with an arrow, a small code window, and a handwritten motto (xl+, decorative). */
 function Annotations({ role, note }: { role: string; note: string }) {
   return (
     <div aria-hidden="true" className="pointer-events-none hidden select-none pt-6 xl:block">
@@ -177,34 +244,63 @@ function Annotations({ role, note }: { role: string; note: string }) {
         <span className="-rotate-6 lowercase">{role}</span>
       </div>
 
-      <div className="float ms-6 mt-8 w-32 rotate-6 rounded-[1.25rem] border border-border bg-secondary p-1.5 shadow-2xl shadow-primary/25">
-        <div className="aspect-[3/4] rounded-[0.9rem] bg-background p-3">
-          <div className="flex gap-1">
-            <span className="size-1.5 rounded-full bg-rose-400/80" />
-            <span className="size-1.5 rounded-full bg-amber-400/80" />
-            <span className="size-1.5 rounded-full bg-emerald-400/80" />
-          </div>
-          <div className="mt-3 space-y-1.5">
-            {CODE_LINES.map((line, i) => (
-              <span key={i} className={cn('block h-1 rounded-full', line)} />
-            ))}
-          </div>
-        </div>
-      </div>
+      <CodeWindow />
 
       <p className={cn(hand.className, 'mt-5 -rotate-6 text-end text-lg leading-tight text-muted-foreground')}>{note}</p>
     </div>
   )
 }
 
-const CODE_LINES = [
-  'w-3/5 bg-violet-400/70',
-  'ms-2 w-4/5 bg-primary/70',
-  'ms-2 w-2/5 bg-sky-300/60',
-  'ms-4 w-3/5 bg-emerald-400/60',
-  'ms-4 w-1/2 bg-primary/50',
-  'ms-2 w-2/3 bg-amber-300/60',
-  'w-1/3 bg-violet-400/60',
-  'w-3/4 bg-foreground/15',
-  'ms-2 w-1/2 bg-foreground/10',
+const TONE = {
+  keyword: 'text-violet-600 dark:text-violet-300',
+  name: 'text-sky-700 dark:text-sky-300',
+  call: 'text-primary-text',
+  plain: 'text-muted-foreground',
+} as const
+
+/** The tagline as code: an idea, designed, built and shipped, becomes a product. */
+const CODE: (readonly [text: string, tone: keyof typeof TONE])[][] = [
+  [['const', 'keyword'], [' ', 'plain'], ['product', 'name'], [' = ', 'plain'], ['idea', 'name']],
+  [['  .', 'plain'], ['design', 'call'], ['()', 'plain']],
+  [['  .', 'plain'], ['build', 'call'], ['()', 'plain']],
+  [['  .', 'plain'], ['ship', 'call'], ['()', 'plain']],
 ]
+
+/**
+ * A tilted editor window with a blinking caret; hovering it straightens it up.
+ * Code reads left to right on every locale, so the card is `dir="ltr"` and uses
+ * physical margins: `next dev` compiles logical ones to `:lang(ar)` rules, which
+ * follow the page language and ignore `dir` (production CSS keeps them logical).
+ */
+function CodeWindow() {
+  return (
+    <div className="float mt-8 ms-2">
+      <div
+        dir="ltr"
+        className="pointer-events-auto w-40 rotate-3 overflow-hidden rounded-xl border border-border bg-card/90 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-[rotate,translate] duration-500 ease-fluid hover:-translate-y-1 hover:rotate-0"
+      >
+        <div className="flex items-center gap-1 border-b border-border px-3 py-2">
+          <span className="size-1.5 rounded-full bg-rose-400/80" />
+          <span className="size-1.5 rounded-full bg-amber-400/80" />
+          <span className="size-1.5 rounded-full bg-emerald-400/80" />
+          <span className="ml-auto font-mono text-[9px] text-muted-foreground">idea.ts</span>
+        </div>
+        <div className="px-3 py-2.5 text-left font-mono text-[10px] leading-[1.8]">
+          {CODE.map((tokens, line) => (
+            <div key={line} className="flex items-center whitespace-pre">
+              <span className="mr-2.5 w-2 shrink-0 text-right text-muted-foreground/50">{line + 1}</span>
+              {tokens.map(([text, tone], i) => (
+                <span key={i} className={TONE[tone]}>
+                  {text}
+                </span>
+              ))}
+              {line === CODE.length - 1 && (
+                <span className="ml-0.5 h-[1.15em] w-[0.5em] bg-primary/75 motion-safe:animate-caret-blink" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

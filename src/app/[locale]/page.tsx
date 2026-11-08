@@ -129,7 +129,7 @@ export default async function HomePage({ params }: PageProps) {
         {/* Ice Bear (hero) blows away as snow on scroll and the snow forms the
             portrait below (data-portrait-destination): see components/three/ice-bear. */}
         <HeroSection about={cmsAbout} socialLinks={cms.socialLinks} />
-        <ProfileSummarySection locale={locale} facts={facts} avatarUrl="/images/keltoum-portrait.jpg" />
+        <ProfileSummarySection locale={locale} facts={facts} bio={cmsAbout?.bio} avatarUrl="/images/keltoum-portrait.jpg" />
         <ExperienceSection items={cms.experiences} />
         {/* Numbered block (03–04), continuing after the profile (01) and experience (02). */}
         <ShowcaseGroup>
