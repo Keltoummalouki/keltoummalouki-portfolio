@@ -42,11 +42,9 @@ export default function TurnstileWidget({
     let disposed = false
     let widgetId: string | undefined
     let script: HTMLScriptElement | null = null
-    let observer: IntersectionObserver | undefined
 
     const cleanup = () => {
       disposed = true
-      observer?.disconnect()
       script?.removeEventListener('load', ready)
       if (widgetId !== undefined) window.turnstile?.remove(widgetId)
     }
@@ -88,16 +86,19 @@ export default function TurnstileWidget({
       load()
       return cleanup
     }
-    observer = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return
-        observer?.disconnect()
+        observer.disconnect()
         load()
       },
       { rootMargin: '400px 0px' },
     )
     observer.observe(container)
-    return cleanup
+    return () => {
+      observer.disconnect()
+      cleanup()
+    }
   }, [])
 
   if (!SITE_KEY) return null
