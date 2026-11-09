@@ -66,23 +66,8 @@ function drawBar(context: CanvasRenderingContext2D, content: FaceContent, colors
   context.fillText(content.host, FACE_WIDTH / 2, CHROME_HEIGHT / 2 + 1, pillWidth - 40)
 }
 
+/** Fitted whole, like the DOM window's cover; odd shapes leave flat bands of the screen colour. */
 function drawCover(context: CanvasRenderingContext2D, cover: HTMLImageElement) {
-  // A blurred copy fills the bands around logos and odd-sized images, like the
-  // DOM window. Scaling a tiny copy up works where canvas `filter` doesn't.
-  const small = document.createElement('canvas')
-  small.width = 32
-  small.height = 20
-  small.getContext('2d')?.drawImage(cover, 0, 0, 32, 20)
-  context.save()
-  context.beginPath()
-  context.rect(0, CHROME_HEIGHT, FACE_WIDTH, SCREEN_HEIGHT)
-  context.clip()
-  context.globalAlpha = 0.55
-  context.imageSmoothingEnabled = true
-  context.imageSmoothingQuality = 'high'
-  context.drawImage(small, -60, CHROME_HEIGHT - 60, FACE_WIDTH + 120, SCREEN_HEIGHT + 120)
-  context.restore()
-
   const scale = Math.min(FACE_WIDTH / cover.naturalWidth, SCREEN_HEIGHT / cover.naturalHeight)
   const width = cover.naturalWidth * scale
   const height = cover.naturalHeight * scale

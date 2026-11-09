@@ -6,6 +6,13 @@ import { expect, test, type Locator } from '@playwright/test'
 // built-in fallback content and nothing is ever written to a real database.
 
 test.describe('contact form', () => {
+  // Marks the first-visit preference panel as seen. It opens once the page has
+  // hydrated and takes the focus: on a busy machine that lands mid-fill and the
+  // typed name never reaches its field.
+  test.beforeEach(async ({ context, baseURL }) => {
+    await context.addCookies([{ name: 'visitor-design', value: encodeURIComponent('{"seen":true}'), url: baseURL! }])
+  })
+
   test('blocks an invalid submission in the browser', async ({ page }) => {
     const serverActions: string[] = []
     page.on('request', (request) => {

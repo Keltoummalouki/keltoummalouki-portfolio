@@ -85,8 +85,12 @@ export default function ReviewsSection({ reviews: initial, index }: { reviews: R
       try {
         const params = new URLSearchParams({ page: String(filters.page), rating: String(filters.rating), sort: filters.sort })
         const response = await fetch(`/api/reviews?${params}`, { cache: 'no-store', signal: controller.signal })
+        // Read the body before checking the status: Chromium never completes a
+        // request whose body is left unread, so an unread 503 stays pending
+        // (holding its connection, and keeping the e2e tests' networkidle away).
+        const body: unknown = await response.json()
         if (!response.ok) throw new Error('Review request failed')
-        const next: ReviewPage = await response.json()
+        const next = body as ReviewPage
         if (controller.signal.aborted) return
         setData(next)
         if (interacted.current) resultsRef.current?.focus({ preventScroll: true })

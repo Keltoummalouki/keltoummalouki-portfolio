@@ -75,4 +75,8 @@
 
 @media(prefers-reduced-motion:reduce) {
   .panel,.row[data-open] .panel,.name,.num,.chevron,.all,.allArrow,.quiet { transition:none; }
+  /* The site-wide reduced-motion rule gives every element a 0.01ms transition on `all`,
+     and that includes the visibility a panel's contents inherit: they would turn visible
+     a frame after the panel, so a Tab right after opening it skipped its links. */
+  .panel * { transition-property:none; }
 }
