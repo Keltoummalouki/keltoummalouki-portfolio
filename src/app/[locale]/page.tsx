@@ -140,7 +140,7 @@ export default async function HomePage({ params }: PageProps) {
           />
           <ReviewsSection index="04" reviews={reviews} />
         </ShowcaseGroup>
-        <ContactSection socialLinks={cms.socialLinks} />
+        <ContactSection index="05" socialLinks={cms.socialLinks} bookingUrl={cms.about?.bookingUrl ?? ''} />
       </main>
 
       <Footer links={cms.socialLinks} />

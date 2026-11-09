@@ -20,7 +20,7 @@ test.describe('contact form', () => {
     })
 
     await page.goto('/en#contact')
-    await page.getByRole('button', { name: 'Send Message' }).click()
+    await page.getByRole('button', { name: 'Send message' }).click()
 
     await expect(page.getByText('Name is required')).toBeVisible()
     await expect(page.getByText('Email is required')).toBeVisible()
@@ -36,14 +36,16 @@ test.describe('contact form', () => {
     await page.locator('#contact-message').fill('Hello! This is an automated end-to-end test message.')
 
     const action = page.waitForRequest((request) => request.method() === 'POST' && !!request.headers()['next-action'])
-    await page.getByRole('button', { name: 'Send Message' }).click()
+    await page.getByRole('button', { name: 'Send message' }).click()
     await action
 
     // The test backend is offline on purpose, so the server answers with its
-    // generic error. What matters: the action ran and the UI recovered.
-    // Scoped: Next.js's route announcer is also a role="alert" element.
-    await expect(page.locator('#contact').getByRole('alert')).toContainText('An error occurred')
-    await expect(page.getByRole('button', { name: 'Send Message' })).toBeEnabled()
+    // generic error. What matters: the action ran and the UI recovered, with a
+    // way round it. Scoped: Next.js's route announcer is also a role="alert" element.
+    const alert = page.locator('#contact').getByRole('alert')
+    await expect(alert).toContainText('Please try again in a moment')
+    await expect(alert.getByRole('link', { name: 'Email me instead' })).toHaveAttribute('href', /^mailto:/)
+    await expect(page.getByRole('button', { name: 'Send message' })).toBeEnabled()
   })
 })
 

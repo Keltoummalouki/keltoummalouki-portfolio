@@ -367,37 +367,66 @@
   },
   "contact": {
     "eyebrow": "Contact",
-    "title": "Me Contacter",
-    "subtitle": "Vous avez un projet ou une opportunité en tête ? N'hésitez pas à me contacter via le formulaire ou directement.",
+    "title": "Me contacter",
+    "subtitle": "Un poste, un projet ou une simple question ? Écrivez-moi quelques lignes, je vous réponds par email.",
     "form": {
-      "name": "Nom complet",
-      "namePlaceholder": "Votre nom complet",
-      "email": "Adresse email",
-      "emailPlaceholder": "votre@email.com",
+      "label": "Envoyer un message",
+      "topic": "C’est à quel sujet ?",
+      "optional": "Facultatif",
+      "topics": {
+        "job": "Recrutement",
+        "project": "Projet freelance",
+        "other": "Autre chose"
+      },
+      "projectHint": "Besoin d’un devis ? Le formulaire de projet demande aussi le budget et les délais.",
+      "projectHintLink": "Ouvrir le formulaire de projet",
+      "name": "Nom",
+      "namePlaceholder": "Comment dois-je vous appeler ?",
+      "email": "Email",
+      "emailPlaceholder": "vous@exemple.com",
       "message": "Message",
-      "messagePlaceholder": "Parlez-moi de votre projet ou opportunité...",
+      "messagePlaceholder": "Dites-moi ce qui vous amène…",
+      "messagePlaceholders": {
+        "job": "Le poste, l’équipe et la suite du processus…",
+        "project": "Ce que vous construisez, et pour quand…",
+        "other": "Une question, une idée ou juste un bonjour…"
+      },
+      "counter": "{count} sur {max} caractères",
       "send": "Envoyer le message",
-      "sending": "Envoi en cours...",
-      "sent": "Message envoyé avec succès !",
+      "sending": "Envoi en cours…",
+      "requiredHint": "Champs obligatoires",
       "errors": {
         "nameRequired": "Le nom est requis",
         "nameMin": "Le nom doit contenir au moins 2 caractères",
-        "emailRequired": "L'email est requis",
-        "emailInvalid": "Veuillez entrer une adresse email valide",
+        "nameMax": "Le nom doit contenir au plus 120 caractères",
+        "emailRequired": "L’email est requis",
+        "emailInvalid": "Veuillez entrer une adresse email valide, comme nom@exemple.com",
         "messageRequired": "Le message est requis",
         "messageMin": "Le message doit contenir au moins 10 caractères",
-        "messageMax": "Le message doit contenir moins de 2000 caractères"
+        "messageMax": "Le message doit contenir au plus 2000 caractères",
+        "invalid": "Veuillez vérifier les champs signalés.",
+        "captcha": "Veuillez compléter la vérification de sécurité ci-dessus, puis renvoyer le message.",
+        "server": "Votre message n’a pas pu être envoyé. Veuillez réessayer dans un instant.",
+        "emailInstead": "Écrivez-moi par email"
       },
-      "title": "Envoyer un message",
-      "intro": "Donnez-moi quelques détails sur votre projet ou opportunité, je vous répondrai par email.",
-      "requiredHint": "Champs obligatoires"
+      "sentTitle": "Merci {name} ! Votre message est en route.",
+      "sentTitleNoName": "Merci ! Votre message est en route.",
+      "sentBody": "Je vous répondrai à <email>{address}</email> dès que possible.",
+      "sentBodyNoEmail": "Je vous répondrai par email dès que possible.",
+      "sentProjects": "Voir mes projets",
+      "sentAnother": "Envoyer un autre message"
     },
-    "info": {
+    "direct": {
+      "title": "Ou contactez-moi directement",
       "email": "Email",
       "phone": "Téléphone",
+      "book": "Réserver un appel",
+      "bookValue": "Choisissez le créneau qui vous convient",
+      "newTab": "(s’ouvre dans un nouvel onglet)",
       "location": "Localisation",
       "locationValue": "Casablanca, Maroc",
-      "copyEmail": "Copier l'adresse email",
+      "localTime": "{time}, heure locale",
+      "copyEmail": "Copier l’adresse email",
       "copied": "Adresse email copiée"
     },
     "socials": "Retrouvez-moi aussi sur"

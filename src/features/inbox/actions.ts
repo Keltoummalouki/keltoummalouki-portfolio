@@ -9,29 +9,35 @@ import { notifyNewSubmission } from '@/features/submissions/notify'
 import { reservePublicSubmission } from '@/features/submissions/rate-limit'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { contactMessageSchema, messageStatusSchema, type ContactSubmitResult } from './schema'
+import { contactMessageSchema, messageStatusSchema, type ContactFormState } from './schema'
 import { verifyTurnstileToken } from './turnstile'
 
-export interface ContactSubmitInput {
-  name: string
-  email: string
-  message: string
-  subject?: string
-  turnstileToken?: string | null
-}
+const CONTACT_FIELDS = ['name', 'email', 'message'] as const
 
 /**
- * Public contact submission. Validates with Zod, optionally verifies Turnstile,
- * reserves an IP-based submission slot, and inserts with the server-only
- * service role. The browser never reads stored messages, and errors are
- * returned as coarse, non-leaking codes. Once the response is sent, the owner
- * gets an alert unless the message was flagged as spam.
+ * Public contact submission, the home page form's action (`useActionState`).
+ * Works without JavaScript too: the form posts its fields here. Validates with
+ * Zod, optionally verifies Turnstile, reserves an IP-based submission slot, and
+ * inserts with the server-only service role. The browser never reads stored
+ * messages, and errors are returned as coarse, non-leaking codes. Once the
+ * response is sent, the owner gets an alert unless the message was flagged as
+ * spam.
  */
-export async function submitContactMessage(input: ContactSubmitInput): Promise<ContactSubmitResult> {
-  const parsed = contactMessageSchema.safeParse(input)
-  if (!parsed.success) return { ok: false, error: 'invalid' }
+export async function submitContactFormAction(_prev: ContactFormState, formData: FormData): Promise<ContactFormState> {
+  const text = (key: string) => String(formData.get(key) ?? '')
+  const parsed = contactMessageSchema.safeParse({
+    name: text('name'),
+    email: text('email'),
+    message: text('message'),
+    topic: text('topic') || undefined,
+  })
+  if (!parsed.success) {
+    const refused = new Set(parsed.error.issues.map((issue) => issue.path[0]))
+    const errors = Object.fromEntries(CONTACT_FIELDS.filter((field) => refused.has(field)).map((field) => [field, true]))
+    return { ok: false, error: 'invalid', errors }
+  }
 
-  const isHuman = await verifyTurnstileToken(input.turnstileToken)
+  const isHuman = await verifyTurnstileToken(text('turnstileToken') || text('cf-turnstile-response'))
   if (!isHuman) return { ok: false, error: 'captcha' }
 
   const submissionGate = await reservePublicSubmission('contact_message')

@@ -1,0 +1,146 @@
+/* The contact section: the same header as the numbered sections above it (eyebrow,
+   heading, lead at the far end, a rule that draws as you scroll), then the 3D letter
+   beside the form, with the direct lines under the letter.
+   overflow-x: clip, not hidden: the canvas bleeds past its column but must never add a
+   sideways scroll on phones, and `hidden` would make the section a scroll container. */
+
+.section {
+  position: relative;
+  overflow-x: clip;
+  padding-block: clamp(3.5rem, 7vw, 6rem) clamp(4rem, 8vw, 7rem);
+  scroll-margin-top: 5rem;
+  background: var(--background);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--primary-text, var(--primary));
+}
+
+:global(html[dir='rtl']) .eyebrow {
+  letter-spacing: 0;
+}
+
+.eyebrow > span:first-child {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.heading {
+  margin-top: 0.8rem;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+:global(html[dir='rtl']) .heading {
+  letter-spacing: 0;
+}
+
+.intro {
+  max-width: 26rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+.rule {
+  height: 1px;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  background: var(--border);
+}
+
+.rule > div {
+  height: 100%;
+  background: var(--primary);
+  transform-origin: left;
+}
+
+:global(html[dir='rtl']) .rule > div {
+  transform-origin: right;
+}
+
+/* Letter, form, then the direct lines: on a phone the letter is the hook above the
+   form; from lg it stands beside it, the direct lines under it. */
+.layout {
+  display: grid;
+  gap: 1.75rem;
+  grid-template-areas:
+    'stage'
+    'form'
+    'direct';
+}
+
+.stage {
+  grid-area: stage;
+  min-width: 0;
+}
+
+.form {
+  position: relative;
+  z-index: 1;
+  grid-area: form;
+  min-width: 0;
+}
+
+/* Above the letter's canvas, which bleeds into this row. */
+.direct {
+  position: relative;
+  z-index: 1;
+  grid-area: direct;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 31rem);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'stage form'
+      'direct form';
+    align-items: start;
+    column-gap: clamp(3rem, 5vw, 4.5rem);
+    row-gap: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 34rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    flex-direction: column;
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .intro {
+    max-width: none;
+  }
+
+  .heading {
+    font-size: 2.4rem;
+  }
+}

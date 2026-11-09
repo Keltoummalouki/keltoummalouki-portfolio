@@ -29,6 +29,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 - A short home page: hero, profile summary, experience, three featured projects, reviews and a contact form.
 - A WebGL hero mascot (Ice Bear) that is built from a snowstorm, turns toward the cursor, and blows away as snow on scroll. The snow then forms the portrait in the profile section. Reduced-motion and no-WebGL visitors get the still picture.
 - Featured projects as a 3D concertina of hinged screens: pick a name in the list, or drag, and its screen unfolds, showing the live site when a demo allows it. Reduced-motion visitors get still frames, and no-WebGL visitors a plain browser window.
+- A contact form beside a 3D letter that writes itself as you type (the topic as its stamp, the message as its lines, your name as a signature), then folds into a paper plane and flies off when the message is sent. An optional topic names the message in the inbox, a draft survives a visit to another page, and a thank-you confirms the send. Reduced-motion visitors get still frames, and no-WebGL visitors a drawing.
 - Case studies for each project (`/projects/[slug]`), written in Markdown.
 - A full profile page (`/about`): education, skills, certifications and live GitHub activity.
 - A blog, with an RSS feed per language (`/en/blog/rss.xml`).
@@ -131,7 +132,7 @@ Turnstile, analytics and new-submission alerts are optional in development: leav
 | `npm run build` | Production build, also the type check |
 | `npm run lint` | ESLint |
 | `npm test` | Unit tests (no database needed) |
-| `npm run test:e2e` | Playwright tests: contact form, language switch, Arabic RTL, CSP violations, `security.txt` (no database needed) |
+| `npm run test:e2e` | Playwright tests: contact and project forms, language switch, Arabic RTL, CSP violations, `security.txt` (no database needed) |
 | `npm run db:types` | Regenerate `src/lib/supabase/database.types.ts` after a migration |
 
 ## Project structure

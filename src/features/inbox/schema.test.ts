@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { contactMessageSchema, messageStatusSchema } from './schema'
+import { CONTACT_TOPIC_SUBJECTS, contactMessageSchema, messageStatusSchema } from './schema'
 
 const valid = {
   name: 'Jane Doe',
@@ -24,6 +24,24 @@ describe('contactMessageSchema', () => {
 
   it('rejects a missing name', () => {
     expect(contactMessageSchema.safeParse({ ...valid, name: '' }).success).toBe(false)
+  })
+
+  it('turns a topic into the subject, and keeps the topic itself out of the stored values', () => {
+    const result = contactMessageSchema.safeParse({ ...valid, topic: 'job' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.subject).toBe(CONTACT_TOPIC_SUBJECTS.job)
+      expect(result.data).not.toHaveProperty('topic')
+    }
+  })
+
+  it('prefers an explicit subject over the topic', () => {
+    const result = contactMessageSchema.safeParse({ ...valid, topic: 'other', subject: 'Speaking invite' })
+    expect(result.success && result.data.subject).toBe('Speaking invite')
+  })
+
+  it('rejects an unknown topic', () => {
+    expect(contactMessageSchema.safeParse({ ...valid, topic: 'spam' }).success).toBe(false)
   })
 })
 
