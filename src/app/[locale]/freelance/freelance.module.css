@@ -1,0 +1,273 @@
+/* What Tailwind can't say simply on this page: the form's step changes, the
+   process rail's line that fills as it scrolls in, and the FAQ's open animation.
+   All of it is progressive: without support, things simply appear. */
+
+/* ── The request form ─────────────────────────────────────────────────────── */
+
+/* From the side-by-side layout up: the two short steps share a height, so
+   "Continue" stays under the pointer. */
+@media (min-width: 1024px) {
+  .form {
+    min-height: 36.75rem;
+  }
+}
+
+/* A tall step never hides its buttons (not narrower: there the site's dock floats
+   over this spot). */
+@media (min-width: 1280px) {
+  .actions {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 2;
+    margin-inline: -0.5rem;
+    margin-top: auto;
+    padding: 1rem 0.5rem 0.25rem;
+    background: var(--card);
+  }
+}
+
+.step {
+  margin-top: 1.5rem;
+}
+
+.stepTitle {
+  font-size: clamp(1.5rem, 1.25rem + 1vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  text-wrap: balance;
+  border-radius: 0.25rem;
+}
+
+/* Focus lands here after a step change for screen readers: no ring for sighted visitors. */
+.stepTitle:focus,
+.stepTitle:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.stepHint {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+/* After a step change the new one slides in from the direction of travel. */
+.form[data-direction='forward'] .step:not(.stepInactive) {
+  animation: step-forward 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.form[data-direction='back'] .step:not(.stepInactive) {
+  animation: step-back 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes step-forward {
+  from {
+    opacity: 0;
+    translate: 18px 0;
+  }
+}
+
+@keyframes step-back {
+  from {
+    opacity: 0;
+    translate: -18px 0;
+  }
+}
+
+:global(html[dir='rtl']) .form[data-direction='forward'] .step:not(.stepInactive) {
+  animation-name: step-back;
+}
+
+:global(html[dir='rtl']) .form[data-direction='back'] .step:not(.stepInactive) {
+  animation-name: step-forward;
+}
+
+/* Without JavaScript nothing can change step: show them all, and send from the end.
+   A class and not the `hidden` attribute: Tailwind's preflight forces [hidden] with
+   a layered !important, which no unlayered rule here could undo. */
+.noScriptOnly {
+  display: none;
+}
+
+.stepInactive {
+  display: none;
+}
+
+@media (scripting: none) {
+  .stepInactive {
+    display: block;
+  }
+
+  .scriptOnly {
+    display: none;
+  }
+
+  .noScriptOnly {
+    display: inline-flex;
+  }
+}
+
+/* ── How I work ───────────────────────────────────────────────────────────── */
+
+.rail {
+  display: grid;
+  gap: 2.75rem;
+  margin-top: 3.5rem;
+}
+
+.railStep {
+  position: relative;
+  padding-inline-start: 4.25rem;
+}
+
+.railWell {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  color: var(--primary-text);
+}
+
+.railNumber {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+/* One line per layout, each with its own plain offsets: the dev CSS pipeline
+   drops logical insets inside media queries, so only `display` changes there. */
+.railLineDown,
+.railLineAcross {
+  position: absolute;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.railLineDown {
+  inset-inline-start: 1.5rem;
+  top: 3.5rem;
+  bottom: -2.25rem;
+  width: 1px;
+}
+
+.railLineAcross {
+  display: none;
+  inset-inline-start: 3.75rem;
+  inset-inline-end: -1.5rem;
+  top: 1.5rem;
+  height: 1px;
+}
+
+.railLineDown::after,
+.railLineAcross::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  opacity: 0;
+}
+
+@media (min-width: 768px) {
+  .rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .railStep {
+    padding-inline-start: 0;
+    padding-top: 4.25rem;
+  }
+
+  .railLineDown {
+    display: none;
+  }
+
+  .railLineAcross {
+    display: block;
+  }
+}
+
+/* The line fills as the section scrolls into view, one segment after the other. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .railLineDown::after,
+    .railLineAcross::after {
+      opacity: 1;
+      animation: rail-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 42%;
+      transform-origin: top;
+    }
+
+    .railLineAcross::after {
+      transform-origin: left;
+    }
+
+    :global(html[dir='rtl']) .railLineAcross::after {
+      transform-origin: right;
+    }
+
+    .railStep:nth-child(2) .railLineAcross::after {
+      animation-range: entry 60% cover 50%;
+    }
+
+    .railStep:nth-child(3) .railLineAcross::after {
+      animation-range: entry 90% cover 58%;
+    }
+  }
+}
+
+@keyframes rail-fill {
+  from {
+    scale: var(--rail-from, 0 1);
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+.railLineDown {
+  --rail-from: 1 0;
+}
+
+/* ── Popular questions ────────────────────────────────────────────────────── */
+
+@supports (interpolate-size: allow-keywords) {
+  .faqItem {
+    interpolate-size: allow-keywords;
+  }
+
+  .faqItem::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 260ms cubic-bezier(0.23, 1, 0.32, 1),
+      content-visibility 260ms allow-discrete;
+  }
+
+  .faqItem[open]::details-content {
+    block-size: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faqItem::details-content {
+      transition: none;
+    }
+  }
+}

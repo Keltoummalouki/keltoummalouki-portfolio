@@ -134,7 +134,7 @@ export default function DashboardView({ records, stats, profile, reviews }: Dash
     const series = (kind: RecordKind) => stats.weekly[kind]
 
     const kpis: (KpiProps & { key: string })[] = [
-      { key: 'project', href: '/admin/projects', label: 'Projects', icon: FolderKanban, value: projects.length, series: series('project'), chart: 'bars', accent: '#3b82f6', chip: `${count(projects, 'published')} published`, note: `${count(projects, 'draft')} in draft` },
+      { key: 'project', href: '/admin/projects', label: 'Projects', icon: FolderKanban, value: projects.length, series: series('project'), chart: 'bars', accent: '#2a6aff', chip: `${count(projects, 'published')} published`, note: `${count(projects, 'draft')} in draft` },
       { key: 'article', href: '/admin/blog', label: 'Articles', icon: FileText, value: articles.length, series: series('article'), chart: 'line', accent: '#8b5cf6', chip: `${count(articles, 'published')} published`, note: `+${stats.lastMonth.article} this month` },
       { key: 'message', href: '/admin/inbox', label: 'Inbox', icon: Inbox, value: unread, unit: 'unread', series: series('message'), chart: 'bars', accent: '#14b8a6', chip: `${messages.length} messages`, note: unread ? 'Reply now' : 'All caught up' },
       { key: 'lead', href: '/admin/leads', label: 'Open leads', icon: Target, value: openLeads, unit: 'open', series: series('lead'), chart: 'line', accent: '#f59e0b', featured: true, chip: `${count(leads, 'won')} won`, note: `${leads.length} total` },

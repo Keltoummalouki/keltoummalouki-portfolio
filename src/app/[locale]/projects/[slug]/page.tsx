@@ -290,7 +290,7 @@ export default async function ProjectCaseStudyPage({ params }: PageProps) {
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-violet-500/10 text-primary">
+                <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
                   <Folder size={48} aria-hidden />
                 </div>
               )}

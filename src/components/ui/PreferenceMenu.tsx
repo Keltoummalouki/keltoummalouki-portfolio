@@ -104,13 +104,15 @@ export default function PreferenceMenu() {
   const [isLanguagePending, startLanguageTransition] = useTransition()
 
   useEffect(() => {
+    // The request form sits right where this panel opens: it waits for the next page.
+    if (pathname === '/freelance') return
     if (!preferences || preferences.hasSeenPreference || autoOpenedRef.current) return
     autoOpenedRef.current = true
     // Desktop only: on phones/tablets the panel would cover the page on arrival,
     // which Google treats as an intrusive interstitial for mobile search.
     if (!window.matchMedia('(min-width: 1024px)').matches) return
     setOpen(true)
-  }, [preferences])
+  }, [preferences, pathname])
 
   useEffect(() => {
     setMounted(true)

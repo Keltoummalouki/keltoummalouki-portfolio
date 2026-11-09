@@ -51,8 +51,7 @@ const headerPositionValues = new Set<string>(HEADER_POSITIONS.map((position) => 
 const defaultThemeValues = new Set<string>(['light', 'dark', 'system'])
 
 export const DEFAULT_PUBLIC_DESIGN: PublicDesignSettings = {
-  primaryColor: '#2563EB',
-  accentColor: '#8B5CF6',
+  primaryColor: '#2A6AFF',
   defaultTheme: 'dark',
   fontBody: 'space-grotesk',
   fontHeading: 'archivo',
@@ -162,7 +161,6 @@ function normalizeAdminDesign(settings?: PublicDesignSettings): PublicDesignSett
 
   return {
     primaryColor: settings.primaryColor || DEFAULT_PUBLIC_DESIGN.primaryColor,
-    accentColor: settings.accentColor || DEFAULT_PUBLIC_DESIGN.accentColor,
     defaultTheme: validDefaultTheme(settings.defaultTheme) ?? DEFAULT_PUBLIC_DESIGN.defaultTheme,
     fontBody: validFont(settings.fontBody) ?? DEFAULT_PUBLIC_DESIGN.fontBody,
     fontHeading: validFont(settings.fontHeading) ?? DEFAULT_PUBLIC_DESIGN.fontHeading,

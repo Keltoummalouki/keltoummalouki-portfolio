@@ -323,7 +323,7 @@ function Volumes({ volumes, dark, active, onHover, onSelect, scroll }: VolumesPr
           ))}
         </group>
       </group>
-      {dark && <Sparkles count={36} scale={[9, 3.6, 4]} position={[0, 2, 0]} size={2.4} speed={reduced ? 0 : 0.3} opacity={0.7} color="#93c5fd" noise={0.6} />}
+      {dark && <Sparkles count={36} scale={[9, 3.6, 4]} position={[0, 2, 0]} size={2.4} speed={reduced ? 0 : 0.3} opacity={0.7} color="#2a6aff" noise={0.6} />}
     </>
   )
 }

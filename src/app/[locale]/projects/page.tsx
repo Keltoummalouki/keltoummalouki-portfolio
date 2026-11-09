@@ -6,13 +6,14 @@ import { ArrowUpRight } from 'lucide-react'
 import Header from '@/components/layouts/Header'
 import Footer from '@/components/layouts/Footer'
 import Breadcrumbs from '@/components/projects/Breadcrumbs'
-import ProjectCard, { type ProjectCardLabels } from '@/components/projects/ProjectCard'
+import ProjectRows from '@/components/projects/ProjectRows'
+import ShowcaseGroup from '@/components/sections/showcase/ShowcaseGroup'
 import JsonLd from '@/components/seo/JsonLd'
 import Pagination from '@/components/ui/Pagination'
 import { getPublishedCmsContent } from '@/features/cms/queries'
 import { fallbackProjectCards } from '@/features/content/projects.fallback'
 import { toProjectCard, type ProjectCardData } from '@/features/content/projects.map'
-import { getPublishedProjects } from '@/features/content/projects.queries'
+import { getFramableDemos, getPublishedProjects } from '@/features/content/projects.queries'
 import {
   breadcrumbSchema,
   itemListSchema,
@@ -30,7 +31,7 @@ import { pagePath, paginate, parsePageParam } from '@/lib/pagination'
 // Rendered per request because of the ?page= parameter; its data reads are
 // cookie-free, so they no longer depend on who is visiting.
 
-/** Case studies per page (2-column grid). Pages are crawlable: /projects?page=N. */
+/** Case studies per page (one per row). Pages are crawlable: /projects?page=N. */
 const PROJECTS_PER_PAGE = 6
 
 type PageProps = {
@@ -85,17 +86,6 @@ export default async function ProjectsIndexPage({ params, searchParams }: PagePr
   // ?page=99 must not render (and get indexed as) a copy of the last page.
   if (requestedPage > slice.totalPages) notFound()
 
-  const labelsFor = (project: ProjectCardData): ProjectCardLabels => ({
-    readCaseStudy: t('readCaseStudy'),
-    readCaseStudyAria: t('readCaseStudyAria', { title: project.title }),
-    viewCode: t('viewCode'),
-    viewCodeAria: t('viewCodeAria', { title: project.title }),
-    liveDemo: t('liveDemo'),
-    liveDemoAria: t('liveDemoAria', { title: project.title }),
-    coverAlt: t('coverAlt', { title: project.title }),
-    stack: projectsT('techStack'),
-  })
-
   const person = personInputFromCms(cms, { jobTitle: hero('role'), description: seo('defaultDescription') })
   const githubUrl =
     [...(person.sameAs ?? []), ...FALLBACK_SAME_AS].find((url) => /^https:\/\/github\.com\//i.test(url)) ??
@@ -144,15 +134,20 @@ export default async function ProjectsIndexPage({ params, searchParams }: PagePr
             <h1 className="text-4xl font-bold text-foreground sm:text-5xl">{t('index.title')}</h1>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{t('index.intro')}</p>
           </header>
+        </div>
 
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {slice.items.map((project, index) => (
-              <li key={project.id}>
-                <ProjectCard project={project} labels={labelsFor(project)} from="projects" priority={slice.page === 1 && index < 2} />
-              </li>
-            ))}
-          </ul>
+        <ShowcaseGroup>
+          <ProjectRows
+            projects={slice.items}
+            from="projects"
+            livePreviews={getFramableDemos(slice.items.map((project) => project.demo))}
+            headingLevel="h2"
+            firstNumber={(slice.page - 1) * slice.perPage + 1}
+            priorityFirst
+          />
+        </ShowcaseGroup>
 
+        <div className="container-main">
           <Pagination
             basePath="/projects"
             page={slice.page}

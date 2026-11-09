@@ -1,60 +1,82 @@
-.section { padding-block: clamp(3rem, 6vw, 5rem); scroll-margin-top: 7rem; }
+.section { padding-block:clamp(3rem,6vw,5rem); scroll-margin-top:7rem; }
 .header { display:flex; justify-content:space-between; align-items:end; gap:2rem; margin-bottom:2rem; }
 .eyebrow { display:flex; align-items:center; gap:.6rem; font-size:.75rem; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--primary-text,var(--primary)); }
-.eyebrow > span:first-child { width:7px; height:7px; border-radius:50%; background:var(--primary); box-shadow:0 0 12px var(--primary); }
-.total { color:var(--muted-foreground); font-size:.65rem; }
+.eyebrow > span:first-child { width:7px; height:7px; border-radius:50%; background:var(--primary); }
 .heading { margin-top:.8rem; font-size:clamp(2rem,3.5vw,3.5rem); font-weight:700; letter-spacing:-.045em; line-height:1.1; }
-.intro { display:flex; align-items:center; gap:2rem; max-width:36rem; font-size:.9rem; line-height:1.7; color:var(--muted-foreground); }
-.intro p { max-width:22rem; }
-.archive { display:inline-flex; flex-shrink:0; align-items:center; gap:.8rem; min-height:44px; padding:.7rem 1.2rem; border-radius:999px; border:1px solid color-mix(in srgb,var(--primary) 60%,var(--border)); box-shadow:0 0 20px -12px var(--primary); color:var(--foreground); font-size:.8rem; font-weight:600; }
-.rule { height:1px; margin-bottom:clamp(2rem,4vw,3rem); background:var(--border); }
-.rule > div { height:100%; background:linear-gradient(90deg,var(--primary),#8b5cf6,transparent); transform-origin:left; }
+.intro { max-width:26rem; font-size:.9rem; line-height:1.7; color:var(--muted-foreground); }
+.rule { height:1px; margin-bottom:clamp(1.5rem,3vw,2.5rem); background:var(--border); }
+.rule > div { height:100%; background:var(--primary); transform-origin:left; }
+:global(html[dir='rtl']) .rule > div { transform-origin:right; }
 
-/* One project per row: framed cover beside its story, sides alternating. */
-.list { display:grid; gap:clamp(3rem,6vw,5rem); }
-.row { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:center; gap:clamp(1.5rem,4vw,4rem); }
-.flip > .media { order:2; }
+/* Stage first, then the list: in the DOM and on a phone, where the list can open right under it. */
+.layout { display:grid; gap:1.75rem; }
+.index { min-width:0; }
 
-/* Browser window: every cover gets the same 16:10 screen, whatever its shape. */
-.media { position:relative; display:block; overflow:hidden; border:1px solid var(--border); border-radius:1.25rem; background:var(--card); box-shadow:0 30px 60px -40px color-mix(in srgb,var(--primary) 70%,transparent); transition:border-color 200ms ease,box-shadow 200ms ease,translate 200ms ease; }
-.chrome { display:flex; align-items:center; gap:.75rem; height:2.25rem; padding-inline:.9rem; border-bottom:1px solid var(--border); background:var(--secondary); }
-.dots { display:flex; flex-shrink:0; gap:.35rem; }
-.dots i { width:.5rem; height:.5rem; border-radius:50%; }
-.dots i:nth-child(1) { background:rgb(251 113 133 / .8); }
-.dots i:nth-child(2) { background:rgb(251 191 36 / .8); }
-.dots i:nth-child(3) { background:rgb(52 211 153 / .8); }
-.host { min-width:0; max-width:16rem; margin-inline:auto; padding:.15rem .8rem; overflow:hidden; border-radius:999px; background:var(--background); color:var(--muted-foreground); font-size:.7rem; text-overflow:ellipsis; white-space:nowrap; }
-.screen { position:relative; display:block; aspect-ratio:16/10; overflow:hidden; background:var(--background); }
-/* A blurred copy of the cover fills the bands around logos and odd-sized images. */
-.ambient { object-fit:cover; opacity:.55; filter:blur(28px) saturate(1.3); scale:1.3; }
-.shot { object-fit:contain; transition:scale 500ms cubic-bezier(.23,1,.32,1); }
-.placeholder { display:grid; height:100%; place-items:center; color:var(--primary-text,var(--primary)); font-size:clamp(3rem,8vw,6rem); font-weight:700; background:radial-gradient(ellipse at center,var(--glow-color),transparent 70%); }
-/* Live demo (desktop): laid out 1440px wide, scaled into the screen, shown once loaded. */
-.live { position:absolute; inset:0; overflow:hidden; opacity:0; pointer-events:none; transition:opacity 500ms ease; }
-.liveReady { opacity:1; }
-.live iframe { display:block; width:1440px; height:900px; border:0; transform-origin:0 0; background:var(--background); }
-/* The whole frame links to the case study, above the (inert) live preview. */
-.frameLink { position:absolute; inset:0; z-index:1; border-radius:inherit; }
-.open { position:absolute; bottom:1rem; inset-inline-end:1rem; display:grid; place-items:center; width:44px; height:44px; border-radius:50%; border:1px solid var(--border); background:color-mix(in srgb,var(--card) 85%,transparent); color:var(--foreground); backdrop-filter:blur(12px); opacity:0; translate:0 6px; transition:opacity 200ms ease,translate 200ms ease; }
+.row { position:relative; border-bottom:1px solid var(--border); }
+.rowHeading { margin:0; font:inherit; }
+.trigger { display:grid; grid-template-columns:2.25rem minmax(0,1fr) auto; align-items:baseline; width:100%; min-height:44px; padding-block:1rem; border-radius:.5rem; color:inherit; text-align:start; cursor:pointer; touch-action:manipulation; }
+.trigger[aria-disabled='true'] { cursor:default; }
+.num { color:var(--muted-foreground); font-size:.75rem; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.12em; transition:color 200ms ease; }
+.titles { display:block; min-width:0; padding-inline-end:1rem; }
+.name { display:block; color:var(--muted-foreground); font-size:clamp(1.4rem,2.2vw,1.875rem); font-weight:650; letter-spacing:-.035em; line-height:1.15; overflow-wrap:anywhere; transition:color 200ms ease; }
+.tagline { display:block; margin-top:.3rem; color:var(--muted-foreground); font-size:.875rem; line-height:1.45; text-wrap:pretty; }
+.chevron { align-self:center; color:var(--muted-foreground); transition:color 200ms ease,translate 200ms cubic-bezier(.23,1,.32,1); }
+.row[data-open] .chevron { display:none; }
+.row[data-open] .name,.row[data-peek] .name { color:var(--foreground); }
+.row[data-open] .num { color:var(--primary-text,var(--primary)); }
+.row[data-peek]:not([data-open]) .chevron { color:var(--foreground); translate:0 2px; }
 
-.body { min-width:0; }
-.meta { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1rem; color:var(--muted-foreground); font-size:.75rem; font-variant-numeric:tabular-nums; }
-.num { color:var(--primary-text,var(--primary)); font-weight:700; letter-spacing:.12em; }
-.badge { display:inline-flex; align-items:center; gap:.4rem; padding:.2rem .65rem; border:1px solid color-mix(in srgb,var(--primary) 40%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--primary) 10%,transparent); color:var(--primary-text,var(--primary)); font-weight:600; }
-.title { margin-top:.8rem; font-size:clamp(1.5rem,2.4vw,2.25rem); font-weight:650; line-height:1.15; letter-spacing:-.035em; overflow-wrap:anywhere; text-wrap:balance; }
-.title a { border-radius:.25rem; transition:color 200ms ease; }
-.description { max-width:34rem; margin-top:1rem; color:var(--muted-foreground); font-size:.95rem; line-height:1.7; text-wrap:pretty; }
-.stack { margin-top:1.25rem; }
-.links { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.75rem; }
+/* Closed panels stay in the page for crawlers, out of reach of Tab and screen readers. */
+.panel { display:grid; grid-template-rows:0fr; visibility:hidden; opacity:0; transition:grid-template-rows 340ms cubic-bezier(.23,1,.32,1),opacity 180ms ease,visibility 0s linear 340ms; }
+.row[data-open] .panel { grid-template-rows:1fr; visibility:visible; opacity:1; transition:grid-template-rows 340ms cubic-bezier(.23,1,.32,1),opacity 260ms ease 60ms,visibility 0s; }
+.panelClip { min-height:0; overflow:hidden; }
+.panelBody { padding:.1rem .25rem 1.5rem 2.25rem; }
+:global(html[dir='rtl']) .panelBody { padding-inline:.25rem 2.25rem; }
+/* Takes the closed rows' chevron spot, at the row's end. */
+.date { position:absolute; top:1.3rem; inset-inline-end:0; color:var(--muted-foreground); font-size:.75rem; font-variant-numeric:tabular-nums; pointer-events:none; }
+.description { display:-webkit-box; max-width:34rem; overflow:hidden; color:var(--muted-foreground); font-size:.9375rem; line-height:1.65; text-wrap:pretty; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.stack { margin-top:1rem; }
+.actions { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem .75rem; margin-top:1.25rem; }
+.quietLinks { display:inline-flex; flex-wrap:wrap; gap:0 .1rem; }
+.quiet { display:inline-flex; align-items:center; gap:.4rem; min-height:44px; padding-inline:.45rem; border-radius:999px; color:var(--muted-foreground); font-size:.875rem; font-weight:600; transition:color 200ms ease; }
 
-.header a:focus-visible,.row a:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+.all { display:flex; align-items:center; justify-content:space-between; gap:1rem; min-height:44px; padding-block:1rem; color:var(--foreground); font-size:.9375rem; font-weight:600; transition:color 200ms ease; }
+.allArrow { transition:translate 200ms cubic-bezier(.23,1,.32,1); }
+:global(html[dir='rtl']) .allArrow { scale:-1 1; }
+
+.trigger:focus-visible,.quiet:focus-visible,.all:focus-visible,.actions a:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+.trigger:focus-visible { outline-offset:-2px; }
+
 @media(hover:hover) and (pointer:fine) {
-  .media:hover { border-color:color-mix(in srgb,var(--primary) 50%,var(--border)); box-shadow:0 30px 70px -36px color-mix(in srgb,var(--primary) 90%,transparent); translate:0 -2px; }
-  .media:hover .shot { scale:1.03; }
-  .media:hover .open { opacity:1; translate:0 0; }
-  .title a:hover { color:var(--primary-text,var(--primary)); }
+  .quiet:hover { color:var(--foreground); }
+  .all:hover { color:var(--primary-text,var(--primary)); }
+  .all:hover .allArrow { translate:2px -2px; }
+  :global(html[dir='rtl']) .all:hover .allArrow { translate:-2px -2px; }
 }
-@media(max-width:1100px) { .intro { max-width:25rem; flex-direction:column; align-items:start; gap:.8rem; } }
-@media(max-width:900px) { .row { grid-template-columns:minmax(0,1fr); gap:1.25rem; } .flip > .media { order:0; } }
-@media(max-width:760px) { .header { flex-direction:column; align-items:start; gap:1rem; } .intro { max-width:none; } .intro p { max-width:none; } .heading { font-size:2.4rem; } .chrome { height:2rem; } }
-@media(prefers-reduced-motion:reduce) { .section * { transition:none!important; } }
+
+@media(min-width:1024px) {
+  /* Aligned to the top: centred, the stage would shift whenever an opening row changes the list's height. */
+  .layout { grid-template-columns:minmax(0,1.36fr) minmax(0,1fr); align-items:start; gap:clamp(3rem,5vw,4.5rem); }
+}
+@media(max-width:760px) {
+  .header { flex-direction:column; align-items:start; gap:1rem; }
+  .intro { max-width:none; }
+  .heading { font-size:2.4rem; }
+  .trigger { grid-template-columns:2rem minmax(0,1fr) auto; }
+  .panelBody { padding-inline-start:2rem; }
+}
+
+/* Without JavaScript nothing can open a row, so every project is simply shown. */
+@media(scripting:none) {
+  .panel { grid-template-rows:1fr; visibility:visible; opacity:1; }
+  .chevron { display:none; }
+  .name { color:var(--foreground); }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .panel,.row[data-open] .panel,.name,.num,.chevron,.all,.allArrow,.quiet { transition:none; }
+  /* The site-wide reduced-motion rule gives every element a 0.01ms transition on `all`,
+     and that includes the visibility a panel's contents inherit: they would turn visible
+     a frame after the panel, so a Tab right after opening it skipped its links. */
+  .panel * { transition-property:none; }
+}

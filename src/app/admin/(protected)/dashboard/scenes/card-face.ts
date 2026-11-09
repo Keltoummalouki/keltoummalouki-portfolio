@@ -17,7 +17,7 @@ export interface CardFace {
 
 // Flat colours only (no gradients), matching the rest of the studio.
 const THEMES: Record<CardVariant, { fill: string; text: string; muted: string; line: string; grain: string; pill: string }> = {
-  brand: { fill: '#2563eb', text: '#ffffff', muted: 'rgba(255,255,255,.76)', line: 'rgba(255,255,255,.34)', grain: 'rgba(255,255,255,.04)', pill: 'rgba(255,255,255,.16)' },
+  brand: { fill: '#2a6aff', text: '#ffffff', muted: 'rgba(255,255,255,.95)', line: 'rgba(255,255,255,.34)', grain: 'rgba(255,255,255,.04)', pill: 'rgba(255,255,255,.16)' },
   ink: { fill: '#141416', text: '#fafafa', muted: 'rgba(250,250,250,.64)', line: 'rgba(255,255,255,.2)', grain: 'rgba(255,255,255,.035)', pill: 'rgba(255,255,255,.1)' },
   pearl: { fill: '#f4f3ef', text: '#18181b', muted: 'rgba(24,24,27,.62)', line: 'rgba(24,24,27,.18)', grain: 'rgba(0,0,0,.035)', pill: 'rgba(24,24,27,.07)' },
 }

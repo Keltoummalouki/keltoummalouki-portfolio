@@ -1,5 +1,5 @@
 // The quick-actions orb: a sphere whose surface is pushed around by 3D simplex
-// noise, coloured blue → violet → cyan with a fresnel rim. WebGL compiles these
+// noise, in one solid blue shaped by a soft rim and highlight. WebGL compiles these
 // shaders itself; nothing here needs eval, so the strict CSP is unaffected.
 
 // 3D simplex noise by Ian McEwan and Stefan Gustavson (Ashima Arts, stegu/webgl-noise), MIT licence.
@@ -57,14 +57,12 @@ uniform float uTime;
 uniform float uEnergy;
 varying vec3 vNormal;
 varying vec3 vView;
-varying float vNoise;
 ${NOISE}
 void main() {
   float n = snoise(normal * 1.35 + vec3(0.0, uTime * 0.32, uTime * 0.18));
   float ripple = snoise(normal * 2.7 - vec3(uTime * 0.45));
   float amplitude = 0.06 + uEnergy * 0.1;
   vec3 displaced = position + normal * (n * amplitude + ripple * amplitude * 0.35);
-  vNoise = n;
   vec4 view = modelViewMatrix * vec4(displaced, 1.0);
   vView = normalize(-view.xyz);
   vNormal = normalize(normalMatrix * normal);
@@ -73,21 +71,16 @@ void main() {
 `
 
 export const ORB_FRAGMENT = /* glsl */ `
-uniform vec3 uColorA;
-uniform vec3 uColorB;
-uniform vec3 uColorC;
+uniform vec3 uColor;
 varying vec3 vNormal;
 varying vec3 vView;
-varying float vNoise;
 void main() {
   vec3 n = normalize(vNormal);
   float facing = clamp(dot(n, vView), 0.0, 1.0);
   float fresnel = pow(1.0 - facing, 2.3);
-  vec3 color = mix(uColorA, uColorB, smoothstep(-0.55, 0.65, vNoise));
-  color = mix(color, uColorC, smoothstep(0.35, 1.0, n.y * 0.6 + vNoise * 0.45) * 0.55);
   vec3 light = normalize(vec3(-0.4, 0.75, 0.6));
   float specular = pow(max(dot(reflect(-light, n), vView), 0.0), 26.0);
-  color += specular * 0.6 + fresnel * vec3(0.78, 0.86, 1.0) * 0.85;
+  vec3 color = uColor + specular * 0.35 + fresnel * uColor * 0.5;
   gl_FragColor = vec4(color, 1.0);
   #include <colorspace_fragment>
 }

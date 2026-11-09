@@ -40,7 +40,7 @@ export default function SectionHeader({ id, eyebrow, title, subtitle, centered =
 
       <motion.div
         className={cn(
-          'h-1 w-16 bg-gradient-to-r from-primary to-violet-500 rounded-full mb-5',
+          'h-1 w-16 bg-primary rounded-full mb-5',
           centered ? 'mx-auto origin-center' : 'origin-left rtl:origin-right'
         )}
         initial={{ opacity: 0, scaleX: 0 }}

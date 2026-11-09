@@ -212,7 +212,7 @@ export default function ReviewForm() {
         <Button
           type="submit"
           disabled={pending}
-          className="h-11 rounded-xl bg-gradient-primary px-6 font-semibold text-white shadow-lg shadow-primary/20 hover:opacity-95"
+          className="h-11 rounded-xl bg-primary px-6 font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Send aria-hidden="true" className="size-4 rtl:-scale-x-100" />
           {pending ? t('sending') : t('submit')}

@@ -24,7 +24,7 @@ export default function AboutContactCta({
     <section
       id="contact"
       aria-labelledby="contact-title"
-      className="scroll-mt-24 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-violet-500/10 p-6 text-center md:p-10"
+      className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 text-center md:p-10"
     >
       <h2 id="contact-title" className="text-2xl font-bold tracking-tight text-foreground md:text-3xl text-balance">
         {title}

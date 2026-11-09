@@ -1,0 +1,171 @@
+/* The model's stage. The canvas bleeds past the stage so its light and orbit never
+   end on a hard edge, and a mask fades whatever reaches the border (like the stack
+   as it launches). The column around it keeps the text above it (z-index). */
+
+.stage {
+  --bleed: 2rem;
+  position: relative;
+  height: clamp(15rem, 62vw, 21rem);
+}
+
+.artBox {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  color: var(--primary-text);
+  transition: opacity 500ms ease-out;
+}
+
+.art {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+
+.canvas {
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  width: calc(100% + var(--bleed) * 2);
+  height: calc(100% + var(--bleed) * 2);
+  opacity: 0;
+  pointer-events: none;
+  touch-action: pan-y;
+  transition: opacity 600ms ease-out;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, black 9%, black 92%, transparent),
+    linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+  mask-image:
+    linear-gradient(to bottom, transparent, black 9%, black 92%, transparent),
+    linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.stage[data-mode='live'] .canvas {
+  opacity: 1;
+}
+
+.stage[data-mode='live'] .artBox {
+  opacity: 0;
+}
+
+/* Grabbing the model only makes sense where it moves. */
+@media (prefers-reduced-motion: no-preference) {
+  .stage[data-mode='live'] .canvas {
+    pointer-events: auto;
+    cursor: grab;
+  }
+
+  .stage[data-mode='live'] .canvas[data-dragging] {
+    cursor: grabbing;
+  }
+}
+
+/* Same box as the canvas: the scene reports positions in canvas pixels. */
+.overlay {
+  position: absolute;
+  inset: calc(var(--bleed) * -1);
+  display: none;
+  pointer-events: none;
+}
+
+.leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+
+.leaders line {
+  stroke: color-mix(in oklab, var(--primary-text) 45%, transparent);
+  stroke-width: 1;
+}
+
+.leaders circle {
+  fill: var(--primary-text);
+}
+
+.callout {
+  position: absolute;
+  top: 0;
+  inset-inline-start: var(--bleed);
+  display: grid;
+  gap: 0.1rem;
+  width: 8.75rem;
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+
+.calloutLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary-text);
+}
+
+:global(html[dir='rtl']) .calloutLabel {
+  letter-spacing: 0;
+}
+
+.calloutValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--muted-foreground);
+  text-wrap: balance;
+  transition: color 200ms ease-out;
+}
+
+.callout[data-filled] .calloutValue {
+  color: var(--foreground);
+}
+
+.stage[data-mode='live'] .leaders,
+.stage[data-mode='live'] .callout {
+  opacity: 1;
+}
+
+/* Sent: the model speaks for itself. */
+.stage[data-phase='sent'] .leaders,
+.stage[data-phase='sent'] .callout {
+  opacity: 0;
+}
+
+@media (min-width: 1024px) {
+  /* Takes what the heading leaves in its column: titles wrap differently per language. */
+  .stage {
+    --bleed: 3rem;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 17rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .overlay {
+    display: block;
+  }
+
+  /* Without WebGL: the same notes beside the drawing, in fixed places. */
+  .stage[data-mode='static'] .callout {
+    opacity: 1;
+  }
+
+  .stage[data-mode='static'] .callout:nth-of-type(1) {
+    top: 18%;
+  }
+
+  .stage[data-mode='static'] .callout:nth-of-type(2) {
+    top: 44%;
+  }
+
+  .stage[data-mode='static'] .callout:nth-of-type(3) {
+    top: 70%;
+  }
+}

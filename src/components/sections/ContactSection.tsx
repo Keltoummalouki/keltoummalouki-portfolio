@@ -312,11 +312,7 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 grid-pattern opacity-20 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -end-48 top-1/4 size-[720px] rounded-full bg-[radial-gradient(closest-side,var(--glow-color),transparent)] opacity-60 pointer-events-none"
+        className="absolute inset-0 grid-pattern opacity-20 pointer-events-none"
       />
 
       <div className="relative container-main">
@@ -531,11 +527,8 @@ export default function ContactSection({ socialLinks = [] }: { socialLinks?: Pub
                   <button
                     type="submit"
                     disabled={buttonState !== 'idle'}
-                    className="group relative isolate inline-flex h-14 w-full cursor-pointer items-center justify-between gap-6 overflow-hidden rounded-full ps-6 pe-2 font-semibold text-white shadow-[0_12px_32px_-12px_var(--glow-color)] transition-[scale,box-shadow] duration-200 ease-fluid enabled:hover:shadow-[0_18px_44px_-12px_var(--glow-color)] active:scale-[0.98] disabled:cursor-default @lg:w-auto @lg:shrink-0"
+                    className="group relative inline-flex h-14 w-full cursor-pointer items-center justify-between gap-6 overflow-hidden rounded-full bg-primary ps-6 pe-2 font-semibold text-primary-foreground transition-[scale,background-color] duration-200 ease-fluid enabled:hover:bg-primary/90 active:scale-[0.98] disabled:cursor-default @lg:w-auto @lg:shrink-0"
                   >
-                    {/* Mirrored in RTL so the label always sits on the blue (higher-contrast) end. */}
-                    <span aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-primary rtl:-scale-x-100" />
-
                     <span className="grid text-start">
                       {BUTTON_STATES.map((state) => (
                         <span

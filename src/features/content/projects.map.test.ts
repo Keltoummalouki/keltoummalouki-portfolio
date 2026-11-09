@@ -7,6 +7,7 @@ import {
   parseStackList,
   projectHost,
   projectSummary,
+  splitProjectTitle,
   toProjectCard,
   toProjectDetail,
   type ProjectInput,
@@ -131,6 +132,31 @@ describe('projectHost', () => {
     expect(projectHost('')).toBeNull()
     expect(projectHost('not a url')).toBeNull()
     expect(projectHost('mailto:hello@example.com')).toBeNull()
+  })
+})
+
+describe('splitProjectTitle', () => {
+  it('splits a name from its tagline at a spaced dash', () => {
+    expect(splitProjectTitle('Sendly — Commerce, Marketplace & Delivery SaaS')).toEqual({
+      name: 'Sendly',
+      tagline: 'Commerce, Marketplace & Delivery SaaS',
+    })
+    expect(splitProjectTitle('LetsGoo – Local Deals')).toEqual({ name: 'LetsGoo', tagline: 'Local Deals' })
+    expect(splitProjectTitle('Atlas - Maps')).toEqual({ name: 'Atlas', tagline: 'Maps' })
+  })
+
+  it('leaves a hyphenated or plain title whole', () => {
+    expect(splitProjectTitle('Réservez-Moi')).toEqual({ name: 'Réservez-Moi', tagline: null })
+    expect(splitProjectTitle('  Event Booking App ')).toEqual({ name: 'Event Booking App', tagline: null })
+  })
+
+  it('splits at the first dash only', () => {
+    expect(splitProjectTitle('A — B — C')).toEqual({ name: 'A', tagline: 'B — C' })
+  })
+
+  it('handles right-to-left titles and an empty one', () => {
+    expect(splitProjectTitle('سندلي — منصة توصيل')).toEqual({ name: 'سندلي', tagline: 'منصة توصيل' })
+    expect(splitProjectTitle('')).toEqual({ name: '', tagline: null })
   })
 })
 

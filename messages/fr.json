@@ -9,14 +9,27 @@
   },
   "freelance": {
     "title": "Travaillons ensemble",
-    "subtitle": "Disponible pour des projets en freelance et en prestation.",
-    "helpTitle": "Ce que je peux faire",
-    "intro": "Décrivez votre projet en quelques lignes et je reviendrai vers vous avec les prochaines étapes.",
-    "formTitle": "Parlez-moi de votre projet",
+    "lead": "Décrivez votre projet en trois étapes rapides. Il prend forme à mesure que vous répondez, et je reviens vers vous avec les prochaines étapes.",
+    "availability": {
+      "available": "Disponible pour des projets en freelance et en prestation",
+      "limited": "Disponibilité limitée pour de nouveaux projets",
+      "unavailable": "Pas de nouveaux projets pour le moment"
+    },
+    "alternatives": {
+      "email": "Vous préférez l’e-mail ?"
+    },
     "cta": {
       "book": "Réserver un appel",
       "newTab": "(s’ouvre dans un nouvel onglet)",
       "request": "Décrire votre projet"
+    },
+    "scene": {
+      "project": "Projet",
+      "scope": "Budget et délai",
+      "details": "Détails",
+      "pending": "Pas encore défini",
+      "fields": "{done} champs requis sur 3",
+      "ready": "Prêt à envoyer"
     },
     "process": {
       "title": "Comment je travaille",
@@ -24,7 +37,7 @@
       "steps": {
         "brief": {
           "title": "Présentez votre projet",
-          "text": "Partagez vos objectifs, votre budget et vos délais via le formulaire ci-dessous, par e-mail ou lors d’un appel."
+          "text": "Partagez vos objectifs, votre budget et vos délais via le formulaire de cette page, par e-mail ou lors d’un appel."
         },
         "scope": {
           "title": "Cadrage et devis",
@@ -45,28 +58,78 @@
       "lead": "Les prix de départ des projets types. Vous recevez un devis précis une fois le périmètre validé ensemble.",
       "from": "À partir de",
       "quote": "Sur devis",
-      "includes": "Inclus"
+      "includes": "Inclus",
+      "leadQuote": "Les projets que je réalise le plus souvent. Vous recevez un devis précis une fois le périmètre validé ensemble.",
+      "cta": "Choisir cette formule",
+      "line": "Formule : {title}",
+      "selected": "Ajoutée à votre demande : {title}",
+      "remove": "Retirer la formule {title} de votre demande"
     },
     "form": {
-      "name": "Nom complet",
-      "email": "E-mail",
-      "company": "Entreprise (facultatif)",
+      "stepsLabel": "Étapes de votre demande",
+      "steps": {
+        "project": {
+          "label": "Projet",
+          "title": "Que construisons-nous ?",
+          "hint": "Choisissez ce qui s’en rapproche le plus. Vous pourrez changer plus tard."
+        },
+        "scope": {
+          "label": "Budget et délai",
+          "title": "Quel budget et quel délai ?",
+          "hint": "Une idée approximative suffit. Les deux sont facultatifs."
+        },
+        "details": {
+          "label": "Détails",
+          "title": "Parlez-moi de votre projet",
+          "hint": "Quelques phrases suffisent. Je vous poserai mes questions ensuite."
+        }
+      },
+      "stepStatus": "Étape {current} sur {total} : {label}",
+      "next": "Continuer",
+      "back": "Retour",
+      "reassure": "Trois étapes rapides, environ 2 minutes.",
+      "optional": "Facultatif",
+      "answers": "Vos réponses jusqu’ici",
+      "changeAnswer": "Modifier : {answer}",
       "projectType": "Type de projet",
+      "projectHints": {
+        "web_app": "Tableaux de bord, SaaS, outils internes",
+        "website": "Site vitrine, page d’atterrissage, portfolio",
+        "ecommerce": "Boutique en ligne, catalogue, paiements",
+        "api": "API REST, intégrations, données",
+        "consulting": "Audit, architecture, conseils",
+        "other": "Autre chose, ou pas encore sûr"
+      },
       "budget": "Budget",
       "timeline": "Délai",
-      "contactPreference": "Contact préféré",
       "details": "Détails du projet",
       "detailsPlaceholder": "Objectifs, périmètre, liens, échéances…",
-      "selectPlaceholder": "Sélectionner…",
-      "submit": "Envoyer la demande",
+      "starters": {
+        "label": "Commencer par :",
+        "goal": "L’objectif principal est…",
+        "deadline": "J’aimerais une mise en ligne avant…",
+        "reference": "Un exemple qui me plaît :"
+      },
+      "contactGroup": "Comment vous joindre ?",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "contactPreference": "Contact préféré",
+      "company": "Entreprise (facultatif)",
+      "addCompany": "Ajouter votre entreprise",
+      "requiredHint": "Champs obligatoires",
+      "submit": "Envoyer ma demande",
       "sending": "Envoi…",
-      "success": "Merci — votre demande a bien été reçue. Je vous recontacte bientôt.",
+      "sentTitle": "Merci {name}, votre demande est bien arrivée.",
+      "sentBody": "Je la lis et je reviens vers vous avec mes questions et une proposition. Nous validons ensemble les fonctionnalités, les délais et le prix avant le début du développement.",
+      "sentProjects": "Voir mes projets",
+      "sentAnother": "Envoyer une autre demande",
       "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
       "errorRateLimited": "Trop de messages proviennent de votre réseau. Veuillez réessayer dans 24 heures.",
+      "errorCaptcha": "Veuillez terminer la vérification de sécurité, puis renvoyer votre demande.",
       "errors": {
         "nameRequired": "Veuillez saisir votre nom.",
         "emailInvalid": "Veuillez saisir un e-mail valide.",
-        "detailsRequired": "Veuillez ajouter quelques détails."
+        "detailsRequired": "Veuillez ajouter quelques détails (au moins 10 caractères)."
       }
     },
     "options": {
@@ -258,7 +321,8 @@
       }
     },
     "paginationLabel": "Pages des projets",
-    "heading": "Projets phares"
+    "heading": "Projets phares",
+    "allProjects": "{count, plural, one {Voir le projet} other {Les # projets}}"
   },
   "certifications": {
     "viewCredential": "Voir sur LinkedIn",
@@ -688,6 +752,31 @@
     },
     "position": "Avis {current} sur {total}",
     "previous": "Avis précédent",
-    "next": "Avis suivant"
+    "next": "Avis suivant",
+    "browse": {
+      "heading": "Tous les avis",
+      "rating": "Note",
+      "allRatings": "Toutes les notes",
+      "stars": "{rating, plural, one {# étoile} other {# étoiles}}",
+      "sort": "Trier par",
+      "newest": "Les plus récents",
+      "highest": "Meilleures notes",
+      "lowest": "Notes les plus basses",
+      "distribution": "Répartition des notes",
+      "filterStars": "Afficher {count} avis notés {rating} sur 5",
+      "loading": "Chargement des avis…",
+      "error": "Impossible de charger les avis. Réessayez.",
+      "retry": "Réessayer",
+      "range": "Avis {start}–{end} sur {total}",
+      "noMatches": "Aucun avis avec cette note",
+      "tryAll": "Choisissez une autre note ou consultez tous les avis.",
+      "pagination": "Pages des avis",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur {pages}",
+      "readMore": "Lire la suite",
+      "readLess": "Réduire"
+    }
   }
 }

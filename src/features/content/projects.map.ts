@@ -98,6 +98,17 @@ export function projectHost(url: string | null | undefined): string | null {
   }
 }
 
+/**
+ * A title's short name and what follows it, for lists meant to be skimmed:
+ * "Sendly — Delivery SaaS" gives "Sendly" and "Delivery SaaS". Only a dash with
+ * spaces around it splits ("Réservez-Moi" stays whole). Tagline is null otherwise.
+ */
+export function splitProjectTitle(title: string): { name: string; tagline: string | null } {
+  const trimmed = title.trim()
+  const match = /^(.+?)\s+[—–-]\s+(.+)$/.exec(trimmed)
+  return match ? { name: match[1], tagline: match[2] } : { name: trimmed, tagline: null }
+}
+
 /** Split a comma-separated stack ("A, B" or Arabic "A، B") into trimmed names. */
 export function parseStackList(value: string): string[] {
   return value

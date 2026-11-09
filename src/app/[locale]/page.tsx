@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
@@ -17,8 +16,8 @@ import ScrollProgress from '@/components/ui/ScrollProgress'
 import { getFallbackLanguages } from '@/features/cms/languages'
 import { getPublishedCmsContent } from '@/features/cms/queries'
 import { getFramableDemos, getPublishedProjects } from '@/features/content/projects.queries'
-import { toProjectCard, type ProjectCardData } from '@/features/content/projects.map'
-import { getApprovedReviews } from '@/features/reviews/queries'
+import { toProjectCard } from '@/features/content/projects.map'
+import { getReviewPage } from '@/features/reviews/queries'
 import {
   jsonLdGraph,
   organizationSchema,
@@ -73,7 +72,7 @@ export default async function HomePage({ params }: PageProps) {
   const [cms, projectRows, reviews, meta, seo, hero, about, experience, education, profile] = await Promise.all([
     getPublishedCmsContent(locale),
     getPublishedProjects(),
-    getApprovedReviews(),
+    getReviewPage(),
     getTranslations({ locale, namespace: 'home.meta' }),
     getTranslations({ locale, namespace: 'seo' }),
     getTranslations({ locale, namespace: 'hero' }),
@@ -133,10 +132,12 @@ export default async function HomePage({ params }: PageProps) {
         <ExperienceSection items={cms.experiences} />
         {/* Numbered block (03–04), continuing after the profile (01) and experience (02). */}
         <ShowcaseGroup>
-          {/* Streams in: checking which demos can be framed live never holds up the page. */}
-          <Suspense fallback={<ProjectsSection index="03" projects={featuredProjects} total={projects.length} />}>
-            <ProjectsWithLivePreviews index="03" projects={featuredProjects} total={projects.length} />
-          </Suspense>
+          <ProjectsSection
+            index="03"
+            projects={featuredProjects}
+            total={projects.length}
+            livePreviews={getFramableDemos(featuredProjects.map((project) => project.demo))}
+          />
           <ReviewsSection index="04" reviews={reviews} />
         </ShowcaseGroup>
         <ContactSection socialLinks={cms.socialLinks} />
@@ -145,17 +146,4 @@ export default async function HomePage({ params }: PageProps) {
       <Footer links={cms.socialLinks} />
     </div>
   )
-}
-
-async function ProjectsWithLivePreviews({
-  index,
-  projects,
-  total,
-}: {
-  index: string
-  projects: ProjectCardData[]
-  total: number
-}) {
-  const livePreviews = await getFramableDemos(projects.map((project) => project.demo))
-  return <ProjectsSection index={index} projects={projects} total={total} livePreviews={livePreviews} />
 }

@@ -15,9 +15,9 @@ export interface ProjectCardLabels extends ProjectLinkLabels {
 }
 
 /**
- * Project card for the /projects index and the "More projects" list: cover,
- * date, title (linked), description, stack and a "Read case study" call to
- * action pointing at the indexable case-study page.
+ * Project card for the "More projects" list: cover, date, title (linked),
+ * description, stack and a "Read case study" call to action pointing at the
+ * indexable case-study page.
  */
 export default function ProjectCard({
   project,
@@ -25,7 +25,6 @@ export default function ProjectCard({
   from,
   headingLevel: Heading = 'h2',
   showStack = true,
-  priority = false,
 }: {
   project: ProjectCardData
   labels: ProjectCardLabels
@@ -33,7 +32,6 @@ export default function ProjectCard({
   from: string
   headingLevel?: 'h2' | 'h3'
   showStack?: boolean
-  priority?: boolean
 }) {
   const href = `/projects/${project.slug}`
   const click = { project: project.slug, from }
@@ -46,11 +44,10 @@ export default function ProjectCard({
             alt={labels.coverAlt}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            priority={priority}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-violet-500/10 text-primary">
+          <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
             <Folder size={40} aria-hidden />
           </div>
         )}

@@ -24,7 +24,7 @@ const DEPTH = 0.04
 const BEVEL = 0.012
 const FACE_Z = DEPTH / 2 + BEVEL + 0.001
 const VARIANTS: readonly CardVariant[] = ['brand', 'ink', 'pearl']
-const EDGE: Record<CardVariant, string> = { brand: '#1d4ed8', ink: '#111113', pearl: '#d6d3cb' }
+const EDGE: Record<CardVariant, string> = { brand: '#1e50c4', ink: '#111113', pearl: '#d6d3cb' }
 const TILT = { x: -0.34, y: 0.3, z: 0.1 }
 const { damp } = THREE.MathUtils
 

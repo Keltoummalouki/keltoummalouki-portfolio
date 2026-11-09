@@ -18,9 +18,7 @@ function Orb({ energy, excited }: { energy: number; excited: boolean }) {
     () => ({
       uTime: { value: 0 },
       uEnergy: { value: 0.4 },
-      uColorA: { value: new THREE.Color('#2563eb') },
-      uColorB: { value: new THREE.Color('#7c3aed') },
-      uColorC: { value: new THREE.Color('#22d3ee') },
+      uColor: { value: new THREE.Color('#2a6aff') },
     }),
     [],
   )

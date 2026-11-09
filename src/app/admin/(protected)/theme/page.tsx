@@ -113,11 +113,10 @@ export default async function AdminThemePage({
         {/* Colors + defaults */}
         <SectionCard
           id="brand" title="Brand & defaults"
-          description="Accent colors and the locale/theme visitors see first. Colors drive buttons, links, and highlights."
+          description="Your brand color and the locale/theme visitors see first. The color drives buttons, links, and highlights."
         >
           <div className="grid gap-5 sm:grid-cols-2">
-            <ColorPickerField label="Primary color" name="primaryColor" defaultValue={design?.primary_color ?? '#2563EB'} />
-            <ColorPickerField label="Accent color" name="accentColor" defaultValue={design?.accent_color ?? '#8B5CF6'} />
+            <ColorPickerField label="Primary color" name="primaryColor" defaultValue={design?.primary_color ?? '#2A6AFF'} />
             <AdminSelectField
               id="defaultLocale"
               label="Default locale"

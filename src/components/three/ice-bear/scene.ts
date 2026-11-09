@@ -113,17 +113,17 @@ interface Palette {
 /** Colours follow the theme and the admin-picked primary colour (--primary). */
 function readPalette(): Palette {
   const root = document.documentElement
-  const primary = parseCssColor(getComputedStyle(root).getPropertyValue('--primary')) ?? hex('#2563EB')
+  const primary = parseCssColor(getComputedStyle(root).getPropertyValue('--primary')) ?? hex('#2A6AFF')
   const white: Rgb = [1, 1, 1]
   if (root.classList.contains('dark')) {
     return {
       rimA: mix(primary, white, 0.35),
-      rimB: hex('#A78BFA'),
+      rimB: mix(primary, white, 0.35),
       rim: 0.7,
       ice: hex('#CFE8FF'),
       snow: hex('#EAF4FF'),
       ringA: mix(primary, white, 0.2),
-      ringB: hex('#8B5CF6'),
+      ringB: mix(primary, white, 0.2),
       ambient: hex('#DCEBFF'),
       ambientOpacity: 0.85,
       steam: white,
@@ -132,12 +132,12 @@ function readPalette(): Palette {
   }
   return {
     rimA: primary,
-    rimB: hex('#7C3AED'),
+    rimB: primary,
     rim: 0.5,
-    ice: hex('#60A5FA'),
+    ice: mix(primary, white, 0.3),
     snow: primary,
     ringA: primary,
-    ringB: hex('#7C3AED'),
+    ringB: primary,
     ambient: primary,
     ambientOpacity: 0.45,
     steam: hex('#94A3B8'),
