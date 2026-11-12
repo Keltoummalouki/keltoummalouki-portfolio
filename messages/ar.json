@@ -470,6 +470,9 @@
     "eyebrow": "الملف الشخصي",
     "title": "نبذة عن {name}",
     "present": "حتى الآن",
+    "toc": {
+      "label": "في هذه الصفحة"
+    },
     "intro": {
       "identity": "{fullName} {role}، مقيمة في الدار البيضاء بالمغرب.",
       "current": "تعمل {givenName} حالياً بصفة {currentRole} لدى {company}.",

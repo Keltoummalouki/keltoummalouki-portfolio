@@ -31,7 +31,7 @@ A trilingual portfolio (French, English, Arabic right-to-left) with its own cont
 - Featured projects as a 3D concertina of hinged screens: pick a name in the list, or drag, and its screen unfolds, showing the live site when a demo allows it. Reduced-motion visitors get still frames, and no-WebGL visitors a plain browser window.
 - A contact form beside a 3D letter that writes itself as you type (the topic as its stamp, the message as its lines, your name as a signature), then folds into a paper plane and flies off when the message is sent. An optional topic names the message in the inbox, a draft survives a visit to another page, and a thank-you confirms the send. Reduced-motion visitors get still frames, and no-WebGL visitors a drawing.
 - Case studies for each project (`/projects/[slug]`), written in Markdown.
-- A full profile page (`/about`): education, skills, certifications and live GitHub activity.
+- A full profile page (`/about`): education, skills, certifications and live GitHub activity, in numbered chapters with a sticky chapter list and a 3D companion that builds each chapter's icon out of voxels.
 - A blog, with an RSS feed per language (`/en/blog/rss.xml`).
 - A freelance page that opens on a three-step project request beside a WebGL model of a web app: each answer builds it (project type on its screen, budget as lit modules, deadline as data speed), and sending launches it. Reduced-motion visitors get still frames, and no-WebGL visitors get a drawing. Below it: how I work, packages with starting prices, an optional booking link and the FAQ.
 - Public forms for contact messages, project requests and moderated reviews.

@@ -7,7 +7,7 @@ import {
   type GithubSummary,
 } from '@/features/github'
 import { cn } from '@/lib/utils'
-import ProfileSection, { cardClass } from './ProfileSection'
+import ProfileSection, { cardClass, iconTileClass } from './ProfileSection'
 
 const STAT_KEYS = ['contributions', 'repositories', 'followers', 'following'] as const
 
@@ -26,10 +26,13 @@ const LEVEL_FILL: Record<ContributionLevel, string> = {
  */
 export default async function AboutGithub({
   locale,
+  number,
   summary,
   pending = false,
 }: {
   locale: string
+  /** The chapter's number in the chapter list. */
+  number?: string
   /** null while streaming (`pending`) or when nothing could be loaded. */
   summary: GithubSummary | null
   pending?: boolean
@@ -52,10 +55,10 @@ export default async function AboutGithub({
   const unavailable = !pending && stats.length === 0
 
   return (
-    <ProfileSection id="github" title={t('heading')} lead={t('subtitle')}>
+    <ProfileSection id="github" number={number} title={t('heading')} lead={t('subtitle')}>
       <article aria-busy={pending || undefined} className={cn(cardClass, '@container p-5 md:p-6')}>
         <header className="flex items-center gap-3">
-          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+          <span className={cn(iconTileClass, 'size-10')}>
             <Github aria-hidden="true" className="size-5" />
           </span>
           <div className="min-w-0">
@@ -113,7 +116,7 @@ export default async function AboutGithub({
           href={profileUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-primary-text underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {t('viewProfile')}
           <ExternalLink aria-hidden="true" className="size-3.5" />

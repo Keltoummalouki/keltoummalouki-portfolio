@@ -1,6 +1,6 @@
 import { Award, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import ProfileSection, { cardClass } from './ProfileSection'
+import ProfileSection, { cardClass, iconTileClass } from './ProfileSection'
 
 export interface AboutCertificationItem {
   id: string
@@ -19,27 +19,29 @@ function displayYear(value: string): string {
 
 export default function AboutCertifications({
   title,
+  number,
   viewLabel,
   items,
 }: {
   title: string
+  number?: string
   viewLabel: string
   items: AboutCertificationItem[]
 }) {
   if (items.length === 0) return null
   return (
-    <ProfileSection id="certifications" title={title}>
-      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+    <ProfileSection id="certifications" number={number} title={title}>
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((item) => {
           const meta = [item.issuer, displayYear(item.date)].filter(Boolean).join(' · ')
           return (
             <li key={item.id} className={cn(cardClass, 'flex gap-4 p-5 md:p-6')}>
-              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
-                <Award aria-hidden="true" className="size-5" />
+              <span aria-hidden="true" className={cn(iconTileClass, 'size-11 rounded-2xl')}>
+                <Award className="size-5" />
               </span>
               <div className="min-w-0">
                 <h3 className="font-semibold leading-snug text-foreground">{item.name}</h3>
-                {meta && <p className="mt-1 text-sm text-primary">{meta}</p>}
+                {meta && <p className="mt-1 text-sm font-medium text-primary-text">{meta}</p>}
                 {item.description && (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                 )}
@@ -48,7 +50,7 @@ export default function AboutCertifications({
                     href={item.credentialUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="mt-3 inline-flex min-h-6 items-center gap-1.5 rounded-sm text-sm font-medium text-primary-text underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {viewLabel}
                     <ExternalLink aria-hidden="true" className="size-3.5" />

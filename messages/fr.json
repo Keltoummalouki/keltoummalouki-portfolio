@@ -470,6 +470,9 @@
     "eyebrow": "Profil",
     "title": "À propos de {name}",
     "present": "Présent",
+    "toc": {
+      "label": "Sur cette page"
+    },
     "intro": {
       "identity": "{fullName} est {role}, basée à Casablanca, au Maroc.",
       "current": "{givenName} occupe actuellement le poste de {currentRole} chez {company}.",

@@ -470,6 +470,9 @@
     "eyebrow": "Profile",
     "title": "About {name}",
     "present": "Present",
+    "toc": {
+      "label": "On this page"
+    },
     "intro": {
       "identity": "{fullName} is {roleArticle, select, an {an} other {a}} {role} based in Casablanca, Morocco.",
       "current": "{givenName} currently works as {currentArticle, select, an {an} other {a}} {currentRole} at {company}.",
